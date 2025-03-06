@@ -1,0 +1,250 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
+
+:root {
+    --primary-color: #009B49;
+    --black-title: #333333;
+    --grey-text:  rgba(0, 0, 0, .54);;
+    --red-sale: #C92127;
+    --grey-bg: #F0F0F0;
+    --font: "Roboto", sans-serif;
+    --white-bg: #ffffff;
+    --grey-light: #CDCFD0;
+    --white-bg: #F0F0F0;
+    --red-price: #FF4C58;
+    --yellow-star: #FFC70D;
+    --grey-text-2: #666;
+    --yellow-dark: #F6A500;
+    --dark-green: #008000;
+    --grey-border: #C5C5C5;
+    --dark-blue: #00008A;
+    --light-blue: #08f;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+html {
+    font-size: 10px;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+span {
+    display: inline-block;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+img {
+    width: 100%;
+    display: block;
+}
+
+a {
+    display: inline-block;
+}
+
+i {
+    display: inline-block;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ol {
+    margin: 0;
+}
+
+p {
+    margin: 0;
+}
+
+/* btn-1 */
+.btn-1 {
+    padding: 0 28px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+
+}
+
+/* btn-2 */
+.btn-2 {
+    border: 2px solid var(--primary-color);
+    background-color: white;
+    color: var(--primary-color);
+    font-weight: bold;
+    padding: 8px 36px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn-2:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* btn-3 */
+.btn-3 {
+    border: 2px solid var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn-3:hover {
+    border: 2px solid var(--dark-green);
+    background-color: var(--dark-green);
+}
+
+.btn-4 {
+    border: 2px solid var(--red-price);
+    background-color: var(--red-price);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn-4:hover {
+    border: 2px solid var(--red-sale);
+    background-color: var(--red-sale);
+}
+
+/* btn-5 */
+.btn-5 {
+    padding: 2px 10px;
+    border: 1px solid var(--dark-green);
+    background-color: white;
+    color: var(--dark-green);
+    border-radius: 6px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    width: fit-content;
+}
+
+
+.btn-5:hover {
+    background-color: var(--white-bg);
+}
+
+/* btn-6 */
+.btn-6 {
+    border: 1px solid var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-weight: 400;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn-6:hover {
+    border: 1px solid var(--dark-green);
+    background-color: var(--dark-green);
+}
+
+/* btn-7 */
+.btn-7 {
+    border: 2px solid var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn-7:hover {
+    border: 2px solid var(--dark-green);
+    background-color: var(--dark-green);
+}
+
+/* btn-8 */
+.btn-8 {
+    border: 2px solid var(--grey-border);
+    background-color: var(--white-bg);
+    color: black;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn-8:hover {
+    border: 2px solid var(--grey-border);
+    background-color: var(--grey-light);
+}
+
+
+.display-text-14 {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--grey-text);
+}
+
+.heading-1 {
+    font-size: 26px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* icon */
+.table-icon {
+    font-size: 14px;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.table-icon:hover {
+    color: var(--primary-color);
+}
+
+/* head title */
+.head-inner-title .head-title {
+    padding: 14px 14px;
+    background-color: white;
+}
+
+.head-title .title {
+    color: var(--primary-color);
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.head-inner-title .progress-bar {
+    background-color: var(--primary-color);
+}
+
+.head-inner-title .progress {
+    border-radius: 0;
+}

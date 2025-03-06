@@ -1,0 +1,13 @@
+.main {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+
+@media(max-width: 800px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+}

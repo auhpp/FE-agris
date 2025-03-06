@@ -1,0 +1,41 @@
+.input-search{
+    padding: 8px 6px;
+    border: none;
+    outline: none;
+    border: 1px solid var(--grey-text);
+    border-radius: 4px;
+}
+
+.input-search:focus{
+    border-color: var(--primary-color);
+}
+
+.form-search-content{
+    align-items: center;
+    padding: 10px 0;
+}
+
+.result-table .title{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+.category-list .category-item{
+    font-size: 16px;
+}
+
+.edit-icon:hover,
+.menu-icon:hover,
+.delete-icon:hover
+{
+    color: var(--primary-color);
+}
+.pagination p
+{
+    font-size: 12px;
+}
+
+.pagination button svg{
+    font-size: 20px;
+}

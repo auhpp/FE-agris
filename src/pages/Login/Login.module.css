@@ -1,0 +1,50 @@
+.login-form .input-item{
+    padding: 8px 10px;
+    font-size: 16px;
+    width: 80%;
+}
+
+.login-form{
+    background-color: var(--white-bg);
+    padding: 30px;
+    border-radius: 6px;
+}
+
+.login-form .input-title{
+    text-align: right;
+}
+
+.login-form .input-title::after{
+    content: '*';
+    color: #e02b27;
+    font-size: 1.2rem;
+    margin: 0 0 0 5.75px;
+}
+
+.login-form .remind-register{
+    color: var(--grey-text);
+}
+
+.login-form .remind-register .register-link{
+    color: var(--primary-color);
+    cursor: pointer;
+}
+
+.login-form .input-checkbox{
+    margin-right: 10px;
+}
+
+.register-link{
+ padding-left: 4px;
+}
+
+@media screen and (max-width: 998.98px) {
+    .login-form .input-title{
+        text-align: left;
+    }
+    .login-form .input-item{
+        width: 100%;
+    }
+
+  
+}
