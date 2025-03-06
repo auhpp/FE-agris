@@ -1,0 +1,110 @@
+/* use common */
+.head .title,
+.title{
+    padding: 10px 0;
+    border-bottom: 1px solid var(--grey-border);
+}
+
+.form-create-product .input-item,
+.attribute-form .input-item,
+.product-variant-form .input-item
+{
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+form  .form-select-item{
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+/* back-previous-page */
+.back-previous-page svg{
+    font-size: 14px;
+}
+
+.back-previous-page{
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-create-product{
+    text-align: right;
+}
+/* image part */
+.inner-content {
+    padding: 16px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    border-radius: 4px;
+}
+
+.img-content .delete-btn {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: none;
+    border-radius: 5px;
+}
+
+.img-content .img-item {
+    align-items: center;
+}
+
+.img-content .delete-btn:hover {
+    background-color: var(--grey-light);
+}
+
+.img-content .add-img .add-img-btn
+{
+    float: right;
+}
+
+.img-content .img-list{
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+/* End image part */
+/* product info */
+.product-info .main-content{
+    padding: 14px 0;
+}
+
+.add-img-btn.thumbnail{
+    font-size: 14px;
+    padding: 4px 6px;
+    font-weight: 400;
+}
+
+.thumbnail-review img{
+    width: 200px;
+}
+
+.attribute-list,
+.product-variant-list
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+td .thumbnail-img{
+    width: 80px;
+}
+
+/* end product info */
+
+/* variant and attribute form */
+.modal-inner-content{
+    padding: 8px;
+}
+
+.product-attribute label,
+.product-variant label{
+    font-weight: bold;
+}
+/*End variant and attribute form */

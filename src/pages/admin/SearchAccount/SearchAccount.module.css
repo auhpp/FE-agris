@@ -1,0 +1,13 @@
+.edit-icon:hover,
+.menu-icon:hover,
+.delete-icon:hover {
+    color: var(--primary-color);
+}
+
+.pagination p {
+    font-size: 12px;
+}
+
+.pagination button svg {
+    font-size: 20px;
+}

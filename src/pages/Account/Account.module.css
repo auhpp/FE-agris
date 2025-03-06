@@ -1,0 +1,51 @@
+.inner-content {
+    padding: 10px 0;
+}
+
+.side-bar .account {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0 30px 0;
+}
+
+.side-bar .account .user-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.side-bar .btn-account {
+    border: none;
+}
+
+.side-bar .btn-account {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.side-bar .btn-account svg {
+    font-size: 24px;
+    color: var(--dark-blue);
+}
+
+.side-bar .btn-account:hover .title {
+    color: var(--primary-color);
+}
+
+
+.sub-menu {
+    padding-left: 36px;
+}
+
+.sub-menu li {
+    padding: 5px 0;
+}
+
+.sub-menu li a {
+    color: var(--black-title);
+}
+
+.sub-menu li a:hover{
+    color: var(--primary-color);
+}
