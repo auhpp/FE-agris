@@ -3,7 +3,8 @@ import style from "./Header.module.css";
 import Search from "../Search";
 import logo from "./../../../assets/images/logo.png";
 import {
-    BsPersonFill, BsCartFill, BsChevronDown, BsList
+    BsPersonFill, BsCartFill, BsChevronDown, BsList,
+    BsSearch
 } from "react-icons/bs";
 
 import classNames from "classnames/bind";
@@ -11,6 +12,7 @@ import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { routes } from "../../../config/routes";
+import { getAllCategory } from "../../../services/categoryService";
 const cn = classNames.bind(style);
 
 export default function Header() {
@@ -23,6 +25,14 @@ export default function Header() {
             setShowCategory(false)
         }
     }, [pathName])
+    const [categories, setCategories] = useState([]);
+    useEffect(() => {
+        getAllCategory().then(
+            data => {
+                setCategories(data.result)
+            }
+        )
+    }, [])
     return (
         <>
             {/* <!-- header --> */}
@@ -39,7 +49,17 @@ export default function Header() {
                             {/* <!-- end logo --> */}
 
                             {/* <!-- Input search san pham --> */}
-                            <Search />
+                            {/* <!-- Input search san pham --> */}
+                            <div className={cn("col-xl-6", "col-12", "myOrder-lg-1")}>
+                                <form action="#" className={cn("search-bar")}>
+                                    <input type="text" name="query" placeholder="Tìm kiếm ở đây..."
+                                        value="" />
+                                    <button type="submit" className={cn("btn-1", "btn-search")}>
+                                        <BsSearch className={cn("search-icon")} />
+                                    </button>
+                                </form>
+                            </div>
+                            {/* <!-- end Input search san pham --> */}
                             {/* end search */}
                             <div className={cn("col-xl-4", "col-lg-2", "col-sm-2", "col-3")}>
                                 <div className={cn("content-right")}>
@@ -113,15 +133,15 @@ export default function Header() {
                                     </button>
                                     {showCategory == true && (
                                         <ul className={cn("category-list")}>
-                                            <li className={cn("category-item")}>
-                                                <a href="#">Phân bón</a>
-                                            </li>
-                                            <li className={cn("category-item")}>
-                                                <a href="#">Thuốc trừ sâu</a>
-                                            </li>
-                                            <li className={cn("category-item")}>
-                                                <a href="#">Đất</a>
-                                            </li>
+                                            {
+                                                categories?.map(
+                                                    (item, index) => (
+                                                        <li key={item.id} className={cn("category-item")}>
+                                                            <a href="#">{item.name}</a>
+                                                        </li>
+                                                    )
+                                                )
+                                            }
 
                                             <li className={cn("category-item", "load-all")}>
                                                 <a href="/products">Xem tất cả</a>

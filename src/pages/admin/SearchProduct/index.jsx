@@ -1,257 +1,129 @@
 import style from "./SearchProduct.module.css";
-import Search from "../../../layouts/components/admin/Search";
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { routes } from "../../../config/routes";
 import classNames from "classnames/bind";
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { alpha } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MenuIcon from '@mui/icons-material/Menu';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
+import { getAllCategory } from "../../../services/categoryService";
+import { useEffect, useState } from "react";
+import { deleteProduct, searchProduct } from "../../../services/productService";
+import { Pagination } from "@mui/material";
 
 const cn = classNames.bind(style);
-// table
-function createData(id, name, expiry, createdData, origin, category, supplier) {
-    return {
-        id,
-        name,
-        expiry,
-        createdData,
-        origin,
-        category,
-        supplier
-    };
-}
-
-const rows = [
-    createData(1, 'Thuốc trừ sâu Agris', "20-02-2026", "20-02-2024", "Việt Nam", "Thuốc trừ sâu", "Cong ty TNHH Agris"),
-    createData(2, 'Thuốc trừ sâu Agris', "20-02-2024", "20-02-2024", "Việt Nam", "Thuốc trừ sâu", "Cong ty TNHH Agris")
-];
 
 
-
-const headCells = [
-    {
-        id: 'name',
-        numeric: false,
-        disablePadding: true,
-        label: 'Tên',
-    },
-    {
-        id: 'expiry',
-        numeric: true,
-        disablePadding: false,
-        label: 'Hạn sử dụng',
-    },
-    {
-        id: 'createdDate',
-        numeric: true,
-        disablePadding: false,
-        label: 'Ngày tạo',
-    },
-    {
-        id: 'origin',
-        numeric: true,
-        disablePadding: false,
-        label: 'Xuất xứ',
-    },
-    {
-        id: 'category',
-        numeric: true,
-        disablePadding: false,
-        label: 'Danh mục',
-    },
-    {
-        id: 'supplier',
-        numeric: true,
-        disablePadding: false,
-        label: 'Nhà cung cấp',
-    },
-    {
-        id: 'action',
-        numeric: true,
-        disablePadding: false,
-        label: 'Thao tác',
-    },
-];
-
-function EnhancedTableHead(props) {
-    const { onSelectAllClick, numSelected, rowCount } =
-        props;
-
-    return (
-        <TableHead>
-            <TableRow>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        color="primary"
-                        indeterminate={numSelected > 0 && numSelected < rowCount}
-                        checked={rowCount > 0 && numSelected === rowCount}
-                        onChange={onSelectAllClick}
-                        inputProps={{
-                            'aria-label': 'select all desserts',
-                        }}
-                    />
-                </TableCell>
-                {headCells.map((headCell) => (
-                    <TableCell
-                        key={headCell.id}
-                        padding={headCell.disablePadding ? 'none' : 'normal'}
-                    >
-                        <TableHead
-                            sx={{ fontSize: 14 }}
-                        >
-                            {headCell.label}
-                        </TableHead>
-                    </TableCell>
-                ))}
-            </TableRow>
-        </TableHead>
-    );
-}
-
-EnhancedTableHead.propTypes = {
-    numSelected: PropTypes.number.isRequired,
-    onSelectAllClick: PropTypes.func.isRequired,
-    rowCount: PropTypes.number.isRequired,
-};
-
-function EnhancedTableToolbar(props) {
-    const { numSelected } = props;
-    return (
-        <Toolbar
-            sx={[
-                {
-                    pl: { sm: 2 },
-                    pr: { xs: 1, sm: 1 },
-                },
-                numSelected > 0 && {
-                    bgcolor: (theme) =>
-                        alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
-                },
-            ]}
-        >
-            {numSelected > 0 ? (
-                <Typography
-                    sx={{ flex: '1 1 100%', fontSize: 12 }}
-                    color="inherit"
-                    variant="subtitle1"
-                    component="div"
-                >
-                    {numSelected} selected
-                </Typography>
-            ) : (
-                <Typography
-                    sx={{ flex: '1 1 100%', fontSize: 16 }}
-                    variant="h6"
-                    id="tableTitle"
-                    component="div"
-                >
-                    Danh sách sản phẩm
-                </Typography>
-            )}
-            {numSelected > 0 ? (
-                <Tooltip title="Delete">
-                    <IconButton>
-                        <DeleteIcon sx={{ fontSize: 20 }} />
-                    </IconButton>
-                </Tooltip>
-            ) : (<></>)}
-        </Toolbar>
-    );
-}
-
-EnhancedTableToolbar.propTypes = {
-    numSelected: PropTypes.number.isRequired,
-};
-
-// end table
 
 export default function SearchProduct() {
     const navigate = useNavigate();
-
-    // table
-    const [selected, setSelected] = React.useState([]);
-    const [page, setPage] = React.useState(0);
-    const [dense, setDense] = React.useState(false);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    const [showWarning, setShowWarning] = React.useState(false);
-
-    const handleSelectAllClick = (event) => {
-        if (event.target.checked) {
-            const newSelected = rows.map((n) => n.id);
-            setSelected(newSelected);
-            return;
-        }
-        setSelected([]);
+    const location = useLocation();
+    const [query, setQuery] = useState({
+        name: new URLSearchParams(location.search).get("name") || "",
+        categoryId: new URLSearchParams(location.search).get("categoryId") || "",
+    });
+    const onSearchInputChange = (e) => {
+        const { name, value } = e.target;
+        console.log(e.target)
+        setQuery((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
-
-    const handleClick = (event, id) => {
-        const selectedIndex = selected.indexOf(id);
-        let newSelected = [];
-
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1),
+    //get all category
+    var [categories, setCategories] = useState([]);
+    useEffect(
+        () => {
+            getAllCategory().then(
+                data => { setCategories(data.result) }
             );
-        }
-        setSelected(newSelected);
-    };
+        }, []
+    )
+    var [results, setResults] = useState([]);
+    var [totalPage, setTotalPage] = useState(1);
+    var [currentPage, setCurrentPage] = useState(1);
+    var [pageSize, setPageSize] = useState(10);
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
+    const handleSubmitSearch = (e) => {
+        e.preventDefault();
 
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+        // Update URL with query parameters when form is submitted
+        const searchParams = new URLSearchParams();
+        if (query.name) searchParams.set("name", query.name);
+        if (query.categoryId) searchParams.set("categoryId", query.categoryId);
 
-    const handleChangeDense = (event) => {
-        setDense(event.target.checked);
-    };
+        navigate(`?${searchParams.toString()}`);
 
-    // Avoid a layout jump when reaching the last page with empty rows.
-    const emptyRows =
-        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    }
+    useEffect(
+        () => {
+            const name = query.name;
+            const categoryId = query.categoryId;
+            searchProduct({ name, categoryId, currentPage, pageSize }).then(
+                data => {
+                    if (data.result.data) {
+                        setResults(data.result.data)
+                        setTotalPage(data.result.totalPage)
+                        setCurrentPage(data.result.currentPage)
+                        setPageSize(data.result.pageSize)
+                        console.log(data)
+                    }
+                }
+            );
+        },
+        [query, currentPage]
+    )
+    const handleDeleteProduct = (item) => {
+        deleteProduct(item.id).then(
+            setResults(
+                results.filter(a => a.id != item.id)
+            )
+        );
 
-    const visibleRows = React.useMemo(
-        () =>
-            [...rows]
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-        [page, rowsPerPage],
-    );
-    // end table
+    }
+
+    const handleChangePagination = (e, p) => {
+        setCurrentPage(p);
+    }
+
     return (
         <>
-            <Search
-                displaySelect={true}
-                nameInputSearch={"name"} nameInputSelect={"categoryId"} labelNameInputSelect={"Danh mục"} />
+
+            <div className="container">
+                <form onSubmit={handleSubmitSearch} method="get">
+                    <div className={cn("row", "form-search-content")}>
+                        <input type="text"
+                            className={cn("input-search", "col-6")}
+                            placeholder="Nhập từ khóa tìm kiếm tại đây..."
+                            onChange={onSearchInputChange}
+                            name="name"
+                        />
+                        <div className={cn("col-4")}>
+                            <select
+                                name="categoryId"
+                                className={cn("form-select", "input-item")} aria-label="Default select example"
+                                onChange={onSearchInputChange}
+                            >
+                                <option selected value={""}>-- Chọn danh mục --</option>
+                                {
+                                    categories.map(
+                                        (item, index) => (
+                                            <option key={item.id} value={item.id}>{item.name}</option>
+                                        )
+                                    )
+                                }
+                            </select>
+                        </div>
+
+
+                        <button className={cn("btn-3", "btn-search", "col-2")} type="submit">
+                            <span>Tìm kiếm</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+
             <button onClick={() => navigate(routes.createProduct)} className={cn("btn-8", "mb-2", "col-2", "offset-10")}>
                 <AddIcon />
                 <span>
@@ -259,112 +131,55 @@ export default function SearchProduct() {
                 </span>
             </button>
             <div className={cn("result-table")}>
-                <Box sx={{ width: '100%' }}>
-                    <Paper sx={{ width: '100%', mb: 2 }}>
-                        <EnhancedTableToolbar numSelected={selected.length} />
-                        <TableContainer>
-                            <Table
-                                sx={{ minWidth: 750 }}
-                                aria-labelledby="tableTitle"
-                                size={dense ? 'small' : 'medium'}
-                            >
-                                <EnhancedTableHead
-                                    numSelected={selected.length}
-                                    onSelectAllClick={handleSelectAllClick}
-                                    rowCount={rows.length}
-                                />
-                                <TableBody>
-                                    {visibleRows.map((row, index) => {
-                                        const isItemSelected = selected.includes(row.id);
-                                        const labelId = `enhanced-table-checkbox-${index}`;
-
-                                        return (
-                                            <TableRow
-                                                hover
-                                                role="checkbox"
-                                                aria-checked={isItemSelected}
-                                                tabIndex={-1}
-                                                key={row.id}
-                                                selected={isItemSelected}
-                                                sx={{ cursor: 'pointer' }}
-                                            >
-                                                <TableCell padding="checkbox">
-                                                    <Checkbox
-                                                        onClick={(event) => handleClick(event, row.id)}
-                                                        color="primary"
-                                                        checked={isItemSelected}
-                                                        inputProps={{
-                                                            'aria-labelledby': labelId,
-                                                        }}
-                                                    />
-                                                </TableCell>
-                                                <TableCell
-                                                    component="th"
-                                                    id={labelId}
-                                                    scope="row"
-                                                    padding="none"
-                                                    className={cn("table-data-item")}
-                                                    sx={{ fontSize: 14 }}
-                                                >
-                                                    {row.name}
-                                                </TableCell>
-                                                <TableCell sx={{ fontSize: 14 }} align="left">{row.expiry}</TableCell>
-                                                <TableCell sx={{ fontSize: 14 }} align="left">{row.createdData}</TableCell>
-                                                <TableCell sx={{ fontSize: 14 }} align="left">{row.origin}</TableCell>
-                                                <TableCell sx={{ fontSize: 14 }} align="left">{row.category}</TableCell>
-                                                <TableCell sx={{ fontSize: 14 }} align="left">{row.supplier}</TableCell>
-                                                <TableCell>
-                                                    <EditIcon
-                                                        className={cn("edit-icon")}
-                                                        sx={{ fontSize: 22, marginInline: 1 }}
-                                                        titleAccess="Chỉnh sửa"
-                                                    />
-
-                                                    <MenuIcon
-                                                        className={cn("menu-icon")}
-
-                                                        sx={{ fontSize: 22, marginInline: 1 }}
-                                                    />
-                                                    <DeleteIcon
-                                                        className={cn("delete-icon")}
-                                                        sx={{ fontSize: 22 }}
-                                                        data-bs-toggle="modal" data-bs-target="#warning-modal"
-                                                    />
-
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                    {emptyRows > 0 && (
-                                        <TableRow
-                                            style={{
-                                                height: (dense ? 33 : 53) * emptyRows,
-                                            }}
-                                        >
-                                            <TableCell colSpan={6} />
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 25]}
-                            component="div"
-                            count={rows.length}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
-                            sx={{ fontSize: 12 }}
-                            labelRowsPerPage={"Số dòng mỗi trang:"}
-                            className={cn("pagination")}
-                        />
-                    </Paper>
-                    <FormControlLabel
-                        control={<Switch checked={dense} onChange={handleChangeDense} />}
-                        label="Dense padding"
-                    />
-                </Box>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tên</th>
+                            <th scope="col">Hạn sử dụng</th>
+                            <th scope="col">Ngày tạo</th>
+                            <th scope="col">Xuất xứ</th>
+                            <th scope="col">Danh mục</th>
+                            <th scope="col">Nhà cung cấp</th>
+                            <th scope="col">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            results?.map(
+                                (item, index) => (
+                                    <tr>
+                                        <td>{item.name}</td>
+                                        <td>{item.expiry}</td>
+                                        <td>{item.productionDate}</td>
+                                        <td>{item.origin}</td>
+                                        <td>{item.category.name}</td>
+                                        <td>{item.supplier.name}</td>
+                                        <td>
+                                            <EditIcon
+                                                onClick={() => {
+                                                    navigate(routes.createProduct, { state: { item } })
+                                                }}
+                                                className={cn("edit-icon")} />
+                                            <MenuIcon className={cn("menu-icon")} />
+                                            <DeleteIcon
+                                                onClick={() => handleDeleteProduct(item)}
+                                                className={cn("delete-icon")} />
+                                        </td>
+                                    </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+                <Pagination
+                    count={totalPage}
+                    size="large"
+                    page={currentPage}
+                    shape="rounded"
+                    color="success"
+                    onChange={handleChangePagination}
+                    className={cn("pagination")}
+                />
             </div>
             <div class="modal fade " tabindex="-1" id="warning-modal" aria-hidden="true">
                 <div class="modal-dialog">

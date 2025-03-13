@@ -1,14 +1,16 @@
 import classNames from "classnames/bind";
 import style from "./Login.module.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { showPassword } from "../../utils/input";
 import { login } from "../../services/authenticationService";
+import {routes} from "./../../config/routes";
 
 const cn = classNames.bind(style);
 
 export default function Login() {
     var [isShowPassword, setIsShowPassword] = useState("password");
+    var navigate = useNavigate();
     const handleToggle = () => {
         setIsShowPassword(showPassword(isShowPassword))
     }
@@ -60,10 +62,12 @@ export default function Login() {
 
     const handleLogin = (e) => {
         e.preventDefault();
+        console.log(input)
         login(input).then(data => {
             if(data.code == 200){
                 localStorage.setItem("token", data.result.token);
                 //Navigate to home page
+                navigate(routes.home)
             }else{
                 setInput({
                     'userName': '',

@@ -5,14 +5,26 @@ import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import DefaultLayout from "./../../layouts/DefaultLayout/index,";
 import avatar from "./../../assets/images/messiprimergol.jpg";
 import { Avatar } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { routes } from "../../config/routes";
+import { getUserInfo } from "../../services/userService";
+
 const cn = classNames.bind(style);
 
 export default function Account({ children }) {
 
     const [showSubMenu, SetShowSubMenu] = useState(true);
 
+    const [user, setUser] = useState();
+    useEffect(
+        () => {
+            getUserInfo().then(
+                data => {
+                    setUser(data.result);
+                }
+            )
+        }, []
+    )
 
     return (
         <>
@@ -23,10 +35,12 @@ export default function Account({ children }) {
                             <div className={cn("account")}>
                                 <Avatar
                                     alt="Remy Sharp"
-                                    src={avatar}
+                                    src={
+                                        user?.avatar ?? ""
+                                    }
                                     sx={{ width: 56, height: 56 }}
                                 />
-                                <div className={cn("user-name")}>Phi Au</div>
+                                <div className={cn("user-name")}>{user?.userName}</div>
                             </div>
                         </div>
                         <div className={cn("navigate")}>

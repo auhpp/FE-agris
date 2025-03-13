@@ -17,9 +17,40 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Card from "../../components/Card";
+import { useEffect, useState } from "react";
+import { searchProduct } from "../../services/productService";
 const cn = classNames.bind(style);
 
 export default function Home() {
+    //Get product phan bon
+    const [productList1, setProductList1] = useState([]);
+    const [productList2, setProductList2] = useState([]);
+    const [productList3, setProductList3] = useState([]);
+
+    useEffect(() => {
+        searchProduct({
+            categoryName: "Phân bón"
+        }).then(
+            data => {
+                setProductList1(data.result.data)
+            }
+        )
+        searchProduct({
+            categoryName: "Hạt giống"
+        }).then(
+            data => {
+                setProductList2(data.result.data)
+            }
+        )
+        searchProduct({
+            categoryName: "Dụng cụ làm vườn"
+        }).then(
+            data => {
+                setProductList3(data.result.data)
+            }
+        )
+    }, [])
+    console.log(productList1)
     return (
         <>
             {/* <!-- slide --> */}
@@ -116,13 +147,15 @@ export default function Home() {
                     {/* <!-- end title --> */}
                     {/* <!-- Hiển thị sản phẩm --> */}
                     <div className={cn("row", "products")}>
-                        <div className={cn("col-xl-2", "col-md-3", "col-6")}>
-                            <Card />
-                        </div>
-                        <div className={cn("col-xl-2", "col-md-3", "col-6")}>
-                            <Card />
-                        </div>
-
+                        {
+                            productList1?.map(
+                                (item, index) =>
+                                (<div key={item.id} className={cn("col-xl-2", "mb-4", "col-md-3", "col-6")}>
+                                    <Card product={item} />
+                                </div>
+                                )
+                            )
+                        }
 
                         {/* <!-- Xem tất cả button --> */}
                         <div className={cn("footer-view-all")}>
@@ -137,48 +170,9 @@ export default function Home() {
                     </div>
                     {/* <!-- End hiển thị sách --> */}
                 </div>
-            </section>
+            </section >
             {/* <!-- end Phân bón --> */}
 
-            {/* <!--  Thuốc bảo vệ thực vật --> */}
-            <section className={cn("fertilizer-list")}>
-                <div className={cn("container")}>
-                    {/* <!-- title --> */}
-                    <div className={cn("head-inner-title")}>
-                        <div className={cn("head-title")}>
-                            <h2 className={cn("title")}>Thuốc bảo vệ thực vật</h2>
-                        </div>
-                        <div className={cn("progress")} style={{ height: 4 }}>
-                            <div className={cn("progress-bar")} style={{ width: "30%" }}>
-                            </div>
-                        </div>
-                    </div>
-                    {/* <!-- end title --> */}
-                    {/* <!-- Hiển thị sản phẩm --> */}
-                    <div className={cn("row", "products")}>
-                        <div className={cn("col-xl-2", "col-md-3", "col-6")}>
-                            <Card />
-                        </div>
-                        <div className={cn("col-xl-2", "col-md-3", "col-6")}>
-                            <Card />
-                        </div>
-
-
-                        {/* <!-- Xem tất cả button --> */}
-                        <div className={cn("footer-view-all")}>
-                            <a href="" className={cn("view-all", "btn-2")}>
-                                <span>
-                                    Xem tất cả
-                                </span>
-                                <ArrowForwardIosIcon />
-                            </a>
-                        </div>
-                        {/* <!-- End xem tất cả button --> */}
-                    </div>
-                    {/* <!-- End hiển thị sách --> */}
-                </div>
-            </section>
-            {/* <!-- end Thuốc bảo vệ thực vậ --> */}
             {/* <!--  Hạt giống --> */}
             <section className={cn("fertilizer-list")}>
                 <div className={cn("container")}>
@@ -195,12 +189,16 @@ export default function Home() {
                     {/* <!-- end title --> */}
                     {/* <!-- Hiển thị sản phẩm --> */}
                     <div className={cn("row", "products")}>
-                        <div className={cn("col-xl-2", "col-md-3", "col-6")}>
-                            <Card />
-                        </div>
-                        <div className={cn("col-xl-2", "col-md-3", "col-6")}>
-                            <Card />
-                        </div>
+                        {
+                            productList2?.map(
+                                (item, index) =>
+                                (<div key={item.id} className={cn("col-xl-2", "mb-4", "col-md-3", "col-6")}>
+                                    <Card product={item} />
+                                </div>
+                                )
+                            )
+                        }
+
 
 
                         {/* <!-- Xem tất cả button --> */}
@@ -218,6 +216,49 @@ export default function Home() {
                 </div>
             </section>
             {/* <!-- end Hạt giống --> */}
+            {/* <!--  Dụng cụ làm vườn --> */}
+            <section className={cn("fertilizer-list")}>
+                <div className={cn("container")}>
+                    {/* <!-- title --> */}
+                    <div className={cn("head-inner-title")}>
+                        <div className={cn("head-title")}>
+                            <h2 className={cn("title")}>Dụng cụ làm vườn</h2>
+                        </div>
+                        <div className={cn("progress")} style={{ height: 4 }}>
+                            <div className={cn("progress-bar")} style={{ width: "30%" }}>
+                            </div>
+                        </div>
+                    </div>
+                    {/* <!-- end title --> */}
+                    {/* <!-- Hiển thị sản phẩm --> */}
+                    <div className={cn("row", "products")}>
+                        {
+                            productList3?.map(
+                                (item, index) =>
+                                (<div key={item.id} className={cn("col-xl-2", "mb-4", "col-md-3", "col-6")}>
+                                    <Card product={item} />
+                                </div>
+                                )
+                            )
+                        }
+
+
+
+                        {/* <!-- Xem tất cả button --> */}
+                        <div className={cn("footer-view-all")}>
+                            <a href="" className={cn("view-all", "btn-2")}>
+                                <span>
+                                    Xem tất cả
+                                </span>
+                                <ArrowForwardIosIcon />
+                            </a>
+                        </div>
+                        {/* <!-- End xem tất cả button --> */}
+                    </div>
+                    {/* <!-- End hiển thị sách --> */}
+                </div>
+            </section>
+            {/* <!-- end Dụng cụ làm vườn --> */}
 
 
 
