@@ -4,6 +4,9 @@ import AddIcon from '@mui/icons-material/Add';
 import { inputFocus, showPassword } from "./../../utils/input";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import CheckIcon from "@mui/icons-material/Check";
+import { changePassword } from "../../services/userService";
+import { Alert } from "@mui/material";
 const cn = classNames.bind(style);
 
 function checkPasswordStrength(password) {
@@ -46,20 +49,17 @@ function checkPasswordStrength(password) {
 
 export default function Password() {
     var [isShowPassword, setIsShowPassword] = useState("password");
-    const location = useLocation()
-    const goBack = location.state?.goBack;
-    const navigate = useNavigate();
 
     const [input, setInput] = useState({
-        userName: '',
-        password: '',
+        oldPassword: '',
+        newPassword: '',
         confirmPassword: '',
     });
 
     const [error, setError] = useState({
-        userName: '',
-        password: '',
-        confirmPassword: '',
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
     });
 
 
@@ -73,6 +73,7 @@ export default function Password() {
             ...prev,
             [name]: value,
         }));
+        console.log(name)
         validateInput(e);
     };
 
@@ -83,13 +84,12 @@ export default function Password() {
             const stateObj = { ...prev, [name]: '' };
 
             switch (name) {
-                case 'userName':
+                case 'oldPassword':
                     if (!value) {
-                        stateObj[name] = 'Vui lòng nhập tên người dùng';
+                        stateObj[name] = 'Vui lòng nhập mật khẩu.';
                     }
                     break;
-
-                case 'password':
+                case 'newPassword':
                     if (!value) {
                         stateObj[name] = 'Vui lòng nhập mật khẩu.';
                     } else if ((input.confirmPassword && value) !== input.confirmPassword) {
@@ -98,6 +98,7 @@ export default function Password() {
                     } else {
                         const [strength, tips] = checkPasswordStrength(value)
                         if (strength < 4) stateObj[name] = tips;
+                        console.log(tips)
                         stateObj['confirmPassword'] = input.confirmPassword
                             ? '' : error.confirmPassword;
                     }
@@ -119,6 +120,45 @@ export default function Password() {
         });
     };
 
+    const [isShowSuccess, setIsShowSuccess] = useState(false);
+
+    // Handle submit
+    const handleSubmit = () => {
+        console.log(error)
+        var userRequest = {};
+        var ok = true;
+        if (error.confirmPassword?.length !== 0 || error.oldPassword?.length !== 0 || error.newPassword?.length !== 0) {
+            ok = false;
+        }
+        if (input.confirmPassword.length == 0 || input.oldPassword.length == 0 || input.newPassword.length == 0) {
+            ok = false;
+        }
+        if (ok) {
+            userRequest.oldPassword = input.oldPassword;
+            userRequest.newPassword = input.confirmPassword;
+            changePassword(userRequest).then(
+                data => {
+                    console.log(data)
+                    if (data.code != 200) {
+                        setError((prev) => ({
+                            ...prev,
+                            oldPassword: "Sai mật khẩu"
+                        }))
+
+                        console.log(input)
+                    }
+                    else {
+                        setIsShowSuccess(true);
+                    }
+                    setInput({
+                        oldPassword: '',
+                        newPassword: '',
+                        confirmPassword: ''
+                    })
+                }
+            );
+        }
+    }
     return (
         <>
             <div className={cn("password-page")}>
@@ -127,49 +167,60 @@ export default function Password() {
                     <p className={cn("note")}>Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác</p>
                 </div>
                 <div className={cn("main-content")}>
+                    {
+                        isShowSuccess && (
+                            <Alert
+                            className={cn("alert-success")}
+                            icon={<CheckIcon fontSize="inherit" />} severity="success">
+                                Cập nhật mật khẩu thành công.
+                            </Alert>
+                        )
+                    }
                     <div className={cn("mb-5", "row")}>
-                        <label for="input-password-register" className={cn("col-lg-3", "col-form-label", "input-title")}>
+                        <label for="old-password" className={cn("col-lg-3", "col-form-label", "input-title")}>
                             Mật khẩu cũ</label>
                         <div className={cn("col-lg-9")}>
                             <input
                                 type={isShowPassword}
                                 className={cn("form-control", "input-item", "input-password")}
-                                name="password"
-                                id="input-password-register"
+                                name="oldPassword"
+                                id="old-password"
                                 required
+                                value={input.oldPassword}
                                 onChange={onInputChange}
-                                onBlur={validateInput}
                             />
-                            {error.password && (<span className={cn("text-danger")}>{error.password}</span>)}
+                            {error.oldPassword && (<span className={cn("text-danger")}>{error.oldPassword}</span>)}
 
                         </div>
                     </div>
                     <div className={cn("mb-5", "row")}>
-                        <label for="input-password-register" className={cn("col-lg-3", "col-form-label", "input-title")}>Mật khẩu mới</label>
+                        <label for="newPassword" className={cn("col-lg-3", "col-form-label", "input-title")}>Mật khẩu mới</label>
                         <div className={cn("col-lg-9")}>
                             <input
                                 type={isShowPassword}
                                 className={cn("form-control", "input-item", "input-password")}
-                                name="password"
-                                id="input-password-register"
+                                name="newPassword"
+                                id="newPassword"
                                 required
+                                value={input.newPassword}
                                 onChange={onInputChange}
                                 onBlur={validateInput}
                             />
-                            {error.password && (<span className={cn("text-danger")}>{error.password}</span>)}
+                            {error.newPassword && (<span className={cn("text-danger")}>{error.newPassword}</span>)}
 
                         </div>
                     </div>
                     <div className={cn("mb-5", "row")}>
-                        <label for="input-confirm-password-register" className={cn("col-lg-3", "col-form-label", "input-title")}>
+                        <label for="confirmPassword" className={cn("col-lg-3", "col-form-label", "input-title")}>
                             Xác nhận mật khẩu</label>
                         <div className={cn("col-lg-9")}>
                             <input
                                 type={isShowPassword}
                                 className={cn("form-control", "input-item", "re-input-password")}
                                 name="confirmPassword"
-                                id="input-confirm-password-register"
+                                id="confirmPassword"
                                 required
+                                value={input.confirmPassword}
                                 onChange={onInputChange}
                                 onBlur={validateInput}
                             />
@@ -195,7 +246,9 @@ export default function Password() {
                         <label for="input-confirm-password-register" className={cn("col-lg-3", "col-form-label", "input-title")}>
                         </label>
                         <div className={cn("col-lg-9")}>
-                            <button className={cn("btn-3")}>
+                            <button
+                                onClick={handleSubmit}
+                                className={cn("btn-3")}>
                                 Xác nhận
                             </button>
                         </div>

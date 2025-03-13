@@ -4,8 +4,10 @@ import classNames from "classnames/bind";
 const cn = classNames.bind(style);
 
 export default function ProductDetail() {
+
     return (
         <>
+        <img src="http://localhost:8080/image/34132106032025_clean-code.png" alt="" />
             {/* <!-- breadcrumb-divider và các thông báo thành công và lỗi --> */}
             <div class="container">
                 <div class="row">

@@ -21,7 +21,6 @@ function App() {
             else if (item.layout === null) {
               Layout = Fragment;
             }
-            console.log(item.path)
             return (
               <Route
                 index={index}

@@ -1,11 +1,15 @@
-export function inputFocus(className) {
-    const input = document.getElementById(className);
+export function inputFocus(idName) {
+    console.log(idName)
+    const input = document.getElementById(idName);
+    console.log(input)
     const length = input.value.length
     input.focus();
-    input.setSelectionRange(length, length)
+    if (input.tagName.toLowerCase() === 'input' && input.getAttribute("type") != "date") {
+        input.setSelectionRange(length, length)
+    }
 }
 
 export function showPassword(isShowPassword) {
     return isShowPassword == "password" ? "text" : "password";
-        
+
 }
