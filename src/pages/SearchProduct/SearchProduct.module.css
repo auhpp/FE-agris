@@ -1,0 +1,69 @@
+/* breadcrumb-divider */
+.breadcrumb-divider-cus {
+    padding-block: 14px;
+}
+
+.breadcrumb-cus {
+    margin-bottom: 0;
+}
+
+.breadcrumb-item-cus a {
+    color: var(--grey-text);
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.breadcrumb-item-cus.active a {
+    color: var(--primary-color);
+}
+
+/* end breadcrumb-divider */
+
+/* products-section */
+.products-section {
+    background-color: white;
+    padding: 20px 0 0px 0;
+}
+
+.products-section .head-title {
+    display: flex;
+    justify-content: space-between;
+    padding-inline: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e6e6e6;
+    align-items: center;
+}
+
+.products-section .head-title .sort {
+    display: flex;
+    align-items: center;
+}
+
+.products-section .head-title .sort .method-sort {
+    width: 200px;
+    margin-left: 10px;
+    padding: 10px;
+    font-size: 14px;
+    color: var(--grey-text-2);
+    border: 1px solid #e6e6e6;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.products-section .head-title .sort span {
+    color: var(--black-title);
+}
+
+.products-section .products-list {
+    margin-top: 10px;
+}
+
+.pagination{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+}
+.pagination button{
+    font-size: 14px;
+}

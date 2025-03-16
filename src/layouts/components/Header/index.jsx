@@ -9,23 +9,27 @@ import {
 
 import classNames from "classnames/bind";
 import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { use, useContext, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { routes } from "../../../config/routes";
 import { getAllCategory } from "../../../services/categoryService";
+import { getAllCart } from "../../../services/cartService";
+import CartContext from "../../../components/CartContext";
+import { introspect, logout } from "../../../services/authenticationService";
+import { AuthContext } from "../../../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
 const cn = classNames.bind(style);
 
 export default function Header() {
     const location = useLocation();
-    const [showCategory, setShowCategory] = useState(true);
-    const [pathName, setPathName] = useState(location.pathname);
+    const [showCategory, setShowCategory] = useState(false);
     const navigate = useNavigate();
-    useEffect(() => {
-        if (location.pathname != "/") {
-            setShowCategory(false)
-        }
-    }, [pathName])
+    const { logoutAction } = useContext(AuthContext);
     const [categories, setCategories] = useState([]);
+    var role = "";
+    if (localStorage.getItem("token")) {
+        role = jwtDecode(localStorage.getItem("token")).scope;
+    }
     useEffect(() => {
         getAllCategory().then(
             data => {
@@ -33,6 +37,28 @@ export default function Header() {
             }
         )
     }, [])
+    var [query, setQuery] = useState("");
+    var cart = useContext(CartContext);
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        navigate({ pathname: routes.search, search: "?name=" + query })
+    }
+    const [showAccount, setShowAccount] = useState(false);
+    const handleLogout = () => {
+        logoutAction()
+    }
+
+    const [isAuth, setIsAuth] = useState();
+    useEffect(
+        () => {
+            introspect({ token: localStorage.getItem("token") }).then(
+                data => {
+                    console.log(data)
+                    setIsAuth(data.result?.valid)
+                }
+            )
+        }, []
+    )
     return (
         <>
             {/* <!-- header --> */}
@@ -42,7 +68,7 @@ export default function Header() {
                         <div className={cn("row", "header-top")}>
                             {/* <!-- logo --> */}
                             <div className={cn("col-xl-2", "col-lg-9", "col-sm-8", "col-7")}>
-                                <a href="/" className={cn("logo")}>
+                                <a href={"/"} className={cn("logo")}>
                                     <img src={logo} alt="logo" className={cn("logo-img")} />
                                 </a>
                             </div>
@@ -51,9 +77,10 @@ export default function Header() {
                             {/* <!-- Input search san pham --> */}
                             {/* <!-- Input search san pham --> */}
                             <div className={cn("col-xl-6", "col-12", "myOrder-lg-1")}>
-                                <form action="#" className={cn("search-bar")}>
-                                    <input type="text" name="query" placeholder="Tìm kiếm ở đây..."
-                                        value="" />
+                                <form onSubmit={handleSubmit} className={cn("search-bar")}>
+                                    <input type="text" name="name" placeholder="Tìm kiếm ở đây..."
+                                        onChange={(e) => setQuery(e.target.value)}
+                                    />
                                     <button type="submit" className={cn("btn-1", "btn-search")}>
                                         <BsSearch className={cn("search-icon")} />
                                     </button>
@@ -76,33 +103,51 @@ export default function Header() {
                                     {/* <!-- Tai khoan nguoi dung --> */}
                                     <div className={cn("full-account")}>
                                         <button onClick={() => {
-                                            navigate(routes.profile)
+                                            setShowAccount(!showAccount)
                                         }}
+                                            onHoV
                                             className={cn("account")}>
                                             <BsPersonFill className={cn("person-icon")} />
                                             <span className={cn("name-content-right")}>Tài khoản</span>
                                         </button>
                                         {/* <!-- Xem tai khoan --> */}
-                                        {/* <ul className={cn("info-account")}>
-                                            <li className={cn("info-item")}>
-                                                <a href="/account">Tài khoản của tôi</a>
-                                            </li>
-                                            <li className={cn("info-item")}>
-                                                <a href="/logout">Đăng xuất</a>
-                                            </li>
-                                            <li className={cn("info-item")}>
-                                                <a href="/login">Đăng nhập</a>
-                                            </li>
-                                            <li className={cn("info-item")}>
-                                                <a href="/register">Đăng kí</a>
-                                            </li>
-                                            <li className={cn("info-item")}>
-                                                <a href="/admin/books/create">Thêm sản phẩm</a>
-                                            </li>
-                                            <li className={cn("info-item")}>
-                                                <a href="/admin/books/find">Tìm kiếm sản phẩm</a>
-                                            </li>
-                                        </ul> */}
+                                        {
+                                            showAccount == true && (
+                                                <ul onBlur={() => setShowAccount(false)} className={cn("info-account")}>
+                                                    {
+                                                        isAuth == true ? (
+                                                            <>
+                                                                {
+                                                                    role == "ADMIN" && (
+                                                                        <li className={cn("info-item")}>
+                                                                            <Link to={routes.searchProduct}>Dashboard</Link>
+                                                                        </li>
+                                                                    )
+                                                                }
+                                                                <li className={cn("info-item")}>
+                                                                    <Link to={routes.profile}>Tài khoản của tôi</Link>
+                                                                </li>
+                                                                <li className={cn("info-item")}>
+                                                                    <a href="/"
+                                                                        onClick={handleLogout}
+                                                                    >Đăng xuất</a>
+                                                                </li>
+                                                            </>
+                                                        ) :
+                                                            (
+                                                                <>
+                                                                    <li className={cn("info-item")}>
+                                                                        <Link to={routes.login}>Đăng nhập</Link>
+                                                                    </li>
+                                                                    <li className={cn("info-item")}>
+                                                                        <Link to={routes.register}>Đăng ký</Link>
+                                                                    </li>
+                                                                </>
+                                                            )
+                                                    }
+                                                </ul>
+                                            )
+                                        }
                                     </div>
                                     {/* Gio hang */}
                                     <a onClick={() => {
@@ -112,7 +157,7 @@ export default function Header() {
                                         <BsCartFill className={cn("cart-icon")} />
                                         <span className={cn("name-content-right")}>Giỏ hàng</span>
                                         <div className={cn("count-number")}>
-                                            <span className={cn("number")}>0</span>
+                                            <span className={cn("number")}>{cart.cartSize}</span>
                                         </div>
                                     </a>
                                     {/* <!--end Gio hang --> */}
@@ -159,15 +204,15 @@ export default function Header() {
                                             <a href="/">Trang chủ</a>
                                         </li>
                                         <li className={cn("nav-item", "nav-item-hide")}>
-                                            <a href="/products">Sản phẩm</a>
+                                            <a href={routes.products}>Sản phẩm</a>
                                         </li>
-                                        <li className={cn("nav-item", "nav-item-hide")}>
+                                        {/* <li className={cn("nav-item", "nav-item-hide")}>
                                             <a href="/contact">Liên hệ</a>
-                                        </li>
+                                        </li> */}
                                     </ul>
                                     {/* <!-- end navigation o man hinh lon --> */}
                                     {/* <!-- navigation o man hinh nho --> */}
-                                    <ul className={cn("side-bar")}>
+                                    {/* <ul className={cn("side-bar")}>
                                         <li>
                                             <i className={cn("fa-solid", "fa-x", "hide-side-bar")}></i>
                                         </li>
@@ -180,7 +225,7 @@ export default function Header() {
                                         <li className={cn("nav-item")}>
                                             <a href="/contact">Liên hệ</a>
                                         </li>
-                                    </ul>
+                                    </ul> */}
                                     {/* <!-- end navigation o man hinh nho --> */}
                                 </nav>
                             </div>

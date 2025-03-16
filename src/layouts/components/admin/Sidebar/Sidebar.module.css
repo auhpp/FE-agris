@@ -48,13 +48,14 @@
     fill: var(--accent-clr);
   }
 }
-.icon-sidebar-item{
+
+.icon-sidebar-item {
   width: 24px;
   height: 24px;
 }
 
 #sidebar a,
-#sidebar .dropdown-btn{
+#sidebar .dropdown-btn {
   border-radius: .5em;
   padding: .85em;
   text-decoration: none;
@@ -127,7 +128,7 @@
   }
 }
 
-.logo img{
+.logo img {
   width: 100px;
 }
 
@@ -135,6 +136,10 @@
   background-color: var(--hover-clr);
 }
 
+
+.logo {
+  cursor: pointer;
+}
 
 
 @media(max-width: 800px) {

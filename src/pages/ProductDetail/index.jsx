@@ -1,349 +1,460 @@
+import { useContext, useEffect, useState } from "react";
 import style from "./ProductDetail.module.css";
 import classNames from "classnames/bind";
+import { findById, searchProduct } from "../../services/productService";
+import { Link, useParams } from "react-router-dom";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/free-mode';
+import 'swiper/css/navigation';
+import 'swiper/css/thumbs';
+import { VND } from "../../utils/formatNumber";
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import InboxIcon from '@mui/icons-material/Inbox';
+import Button from '@mui/material/Button';
 
+import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
+import { LinearProgress, Pagination, Rating } from "@mui/material";
+import Card from "../../components/Card";
+import { addToCart } from "../../services/cartService";
+import CartContext from "../../components/CartContext";
 const cn = classNames.bind(style);
 
-export default function ProductDetail() {
+export default function ProductDetail({ route }) {
+    const [thumbsSwiper, setThumbsSwiper] = useState(null);
+    const [product, setProduct] = useState();
+    const { id } = useParams();
+    const cart = useContext(CartContext);
+    // minus plus button
+    var [quantity, setQuantity] = useState(1);
+    const handleMinus = () => {
+        if (quantity > 1) {
+            setQuantity(quantity - 1);
+        }
+    }
+    const handlePlus = () => {
+        setQuantity(quantity + 1)
+    }
+    // end minus plus button
+    useEffect(
+        () => {
+            findById(id).then(
+                data => {
+                    setProduct(data.result)
+                }
+            )
+        }, []
+    )
+    const [currentProduct, setCurrentProduct] = useState();
+    useEffect(
+        () => {
+            if (product) {
+                setCurrentProduct(product?.variants[0])
+            }
+        }, [product]
+    )
+    //Variant
+    const [variant, setVariant] = useState({
+        id: "",
+        name: '',
+        values: [{
+            value: '',
+            id: ''
+        }]
+    });
+    useEffect(() => {
+        if (product) {
+            var variantValues = [];
+            let variantName = "";
+
+            product?.variants?.forEach((item) => {
+                variantName = item.variantValues[0].name;
+                variantValues.push({
+                    value: item.variantValues[0].value,
+                    id: item.id
+                });
+            });
+
+            setVariant({
+                name: variantName,
+                values: variantValues
+            });
+        }
+    }, [product]);
+
+    console.log("current", currentProduct)
+    console.log(product)
+    console.log(variant)
+    const [attribute, setAttribute] = useState([]);
+    useEffect(() => {
+        if (product) {
+            var attrs = [];
+            product?.attributes.forEach((it) => {
+                let attribute = attrs.find(v => v.name === it.name);
+                if (!attribute) {
+                    attribute = { name: it.name, values: [] };
+                    attrs.push(attribute);  // Add it to the array
+                }
+
+                attribute.values.push(it.value);
+            })
+            setAttribute(attrs);
+        }
+    }, [product]);
+    console.log(product?.attributes)
+    console.log(attribute)
+
+
+    //Product related
+    const [productRelated, setProductRelated] = useState([]);
+    var [totalPage, setTotalPage] = useState(1);
+    var [currentPage, setCurrentPage] = useState(1);
+    var [pageSize, setPageSize] = useState(10);
+    useEffect(
+        () => {
+            if (product) {
+                const categoryId = product?.category.id;
+                searchProduct({ categoryId, currentPage, pageSize }).then(
+                    data => {
+                        if (data.result.data) {
+                            setProductRelated(data.result.data)
+                            setTotalPage(data.result.totalPage)
+                            setPageSize(data.result.pageSize)
+                            console.log("related:", data)
+                        }
+                    }
+                );
+            }
+        },
+        [product, currentPage]
+    )
+
+
+
+    const handleChangePagination = (e, p) => {
+        setCurrentPage(p);
+    }
+
+    const handleClickVariant = (variant) => {
+        if (product) {
+            product?.variants.forEach(element => {
+                if (element.id == variant.id) {
+                    setCurrentProduct(element);
+                }
+            });
+        }
+    }
+
+
+    const handleAddToCart = () => {
+        var cartRequest = {
+            id: null,
+            productVariantId: currentProduct?.id,
+            quantity: quantity
+        }
+        addToCart(cartRequest).then(
+            data => {
+                cart.setUpdateCart(!cart.updateCart)
+            }
+        )
+    }
 
     return (
         <>
-        <img src="http://localhost:8080/image/34132106032025_clean-code.png" alt="" />
-            {/* <!-- breadcrumb-divider và các thông báo thành công và lỗi --> */}
-            <div class="container">
-                <div class="row">
-                    {/* <!-- breadcrumb-divider --> */}
-                    <section class="breadcrumb-divider col-lg-6">
-                        <div class="container">
-                            <nav  aria-label="breadcrumb">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page"> <a href="/products?categoryId[]=<?= html_escape($book->categoryId) ?>">
-                                        Phân bón
-                                    </a></li>
-                                </ol>
-                            </nav>
-                        </div>
-                    </section>
-                    {/* <!-- end breadcrumb-divider --> */}
-
+            <div>
+                {/* Breadcrumb */}
+                <div className={cn("container")}>
+                    <div className={cn("row")}>
+                        <section className={cn("breadcrumb-divider", "breadcrumb-divider-cus", "col-lg-6")}>
+                            <div className={cn("container")}>
+                                <nav aria-label="breadcrumb">
+                                    <ol className={cn("breadcrumb", "breadcrumb-cus")}>
+                                        <li className={cn("breadcrumb-item", "breadcrumb-item-cus")}><Link to={"/"}>Trang chủ</Link></li>
+                                        <li className={cn("breadcrumb-item", "breadcrumb-item-cus", "active")} aria-current="page">
+                                            <a>Phân bón</a>
+                                        </li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </section>
+                    </div>
                 </div>
-            </div>
-            {/* <!-- end breadcrumb-divider và các thông báo thành công và lỗi --> */}
 
-            {/* <!-- product detail --> */}
-            <section class="product-detail">
-                <div class="container">
-                    <div class="row">
-                        {/* <!-- Những image của sản phẩm --> */}
-                        <div class="col-lg-5">
-                            <div class="product-imgs">
-                                <div
-                                    class="swiper mySwiper2">
-                                    {/* <!-- image top --> */}
-                                    <div class="swiper-wrapper">
-                                        <div class="swiper-slide">
-                                            <img src="/assets/img/book/<?= html_escape($img) ?>" />
-                                        </div>
-                                    </div>
-                                    <div class="swiper-button-next"></div>
-                                    <div class="swiper-button-prev"></div>
-                                </div>
-                                {/* <!-- image bottom --> */}
-                                <div thumbsSlider="" class="swiper mySwiper swipper-bottom">
-                                    <div class="swiper-wrapper">
-                                        <div class="swiper-slide">
-                                            <img src="/assets/img/book/<?= html_escape($img) ?>" />
-                                        </div>
-                                    </div>
+                {/* Product Detail */}
+                <section className={cn("product-detail")}>
+                    <div className={cn("container")}>
+                        <div className={cn("row")}>
+                            {/* Product Images */}
+                            <div className={cn("col-lg-5")}>
+                                <div className={cn("product-imgs")}>
+                                    <Swiper
+                                        style={{
+                                            '--swiper-navigation-color': '#c5c5c5',
+                                            '--swiper-pagination-color': '#c5c5c5',
+                                        }}
+                                        spaceBetween={10}
+                                        navigation={true}
+                                        thumbs={{ swiper: thumbsSwiper }}
+                                        modules={[FreeMode, Navigation, Thumbs]}
+                                        className={cn("mySwiper2", "swiper-cus")}
+                                    >
+                                        {
+                                            product?.images.map(
+                                                (item, index) => (
+                                                    <SwiperSlide className={cn("swiper-slide-cus")}>
+                                                        <img src={item.filePath} />
+                                                    </SwiperSlide>
+                                                )
+                                            )
+                                        }
+
+                                    </Swiper>
+                                    <Swiper
+                                        onSwiper={setThumbsSwiper}
+                                        slidesPerView={4}
+                                        freeMode={true}
+                                        watchSlidesProgress={true}
+                                        modules={[FreeMode, Navigation, Thumbs]}
+                                        className={cn("mySwiper", "swiper-bottom")}
+                                    >
+                                        {
+                                            product?.images.map(
+                                                (item, index) => (
+                                                    <SwiperSlide>
+                                                        <img src={item.filePath} />
+                                                    </SwiperSlide>
+                                                )
+                                            )
+                                        }
+
+                                    </Swiper>
                                 </div>
                             </div>
-                        </div>
-                        {/* <!-- end Những image của sản phẩm --> */}
 
-                        {/* <!-- Thông tin sản phẩm và button mua và thêm vào giỏ hàng --> */}
-                        <div class="col-lg-7">
-                            <div class="detail-content">
-                                <div class="info">
-                                    {/* <!-- Name --> */}
-                                    <h1 class="name-product">
+                            {/* Product Info */}
+                            <div className={cn("col-lg-7")}>
+                                <div className={cn("detail-content")}>
+                                    <h1 className={cn("name-product")}>
+                                        {product?.name}
                                     </h1>
-                                    {/* <!-- info --> */}
-                                    <div class="product-view row">
-                                        <div class="col-lg-6 nxb">
-                                            <span>
-                                                Nhà xuất bản:
-                                            </span>
-                                            <span>
-                                            </span>
+                                    <div className={cn("product-view")}>
+                                        <div className={cn("info-item", "row")}>
+                                            <span className={cn("col-2")}>Xuất xứ: </span>
+                                            <span className={cn("col")}>{product?.origin}</span>
                                         </div>
-                                        <div class="col-lg-6 nxb">
-                                            <span>
-                                                Tác giả:
-                                            </span>
-                                            <span>
-                                            </span>
-                                        </div>
-                                        <div class="col-lg-6 nxb">
-                                            <span>
-                                                Thể loại:
-                                            </span>
-                                            <span>
-                                            </span>
+                                        <div className={cn("info-item", "row")}>
+                                            <span className={cn("col-2")}>Nhà cung cấp: </span>
+                                            <span className={cn("col")}>{product?.supplier.name}</span>
                                         </div>
                                     </div>
-                                    {/* <!-- Điểm đánh giá --> */}
-                                    <div class="product-view-rate">
-                                        <div class="rating">
-                                            <span class="rating-number"></span>
-                                            <div class="star-icon text-center">
-                                                <i class="fa-regular fa-star"></i>
-                                                <i class="fa-regular fa-star"></i>
-                                                <i class="fa-regular fa-star"></i>
-                                                <i class="fa-regular fa-star"></i>
-                                                <i class="fa-regular fa-star"></i>
-                                                <div class="full-state" >
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
+                                    <div className={cn("product-view-rate")}>
+                                        <div className={cn("rating")}>
+                                            <span className={cn("rating-number")}>0</span>
+                                            <div className={cn("star-icon text-center")}>
+                                                <Rating name="read-only" value={0} readOnly size="large" />
                                             </div>
                                         </div>
                                     </div>
-                                    {/* <!-- Giá --> */}
-                                    <div class="price-product">
-                                        <div class="current-price">
-                                            <span></span>
-                                            <sup>đ</sup>
+                                    <div className={cn("variants", "row")}>
+                                        <div className={cn("variants-name", "col-2")}>
+                                            {variant.name}:
+                                        </div>
+                                        <div className={cn("variant-values", "col")}>
+                                            {variant.values.map(
+                                                item => (
+                                                    <Button
+                                                        onClick={() => handleClickVariant(item)}
+                                                        color="success"
+                                                        variant={
+                                                            item.id == currentProduct?.id ? "contained" : "outlined"
+                                                        }>{item.value}</Button>
+                                                )
+                                            )}
                                         </div>
                                     </div>
+                                    <div className={cn("price-product", "row")}>
+                                        <div className={cn("current-price", "col-3")}>
+                                            <span>
+                                                {VND.format(currentProduct?.price)}
+                                            </span> <sup>đ</sup>
+                                        </div>
+                                        {/* {currentProduct?.discount != null &&
+                                            (
+                                                <div className={cn("discount-price", "col")}>
+                                                    <div className={cn("percent")}>
+                                                        {currentProduct.discount + currentProduct.discountUnit}
+                                                    </div>
+                                                    <div className={cn("original-price")}>
+                                                        {currentProduct.oldPrice}
+                                                        <sup>đ</sup>
+                                                    </div>
+                                                </div>
+                                            )
+                                        } */}
+                                    </div>
+
+                                    {/* Add to Cart Form */}
+                                    <form>
+
+                                        <div className={cn("quantity-product")}>
+                                            <RemoveIcon onClick={handleMinus} />
+                                            <input type="number" value={quantity} />
+                                            <AddIcon onClick={handlePlus} />
+                                        </div>
+                                        <input type="hidden" name="bookId" />
+                                        <div className={cn("btn-product", "row")}>
+                                            <div className={cn("col-6")}>
+                                                <button type="button"
+                                                    className={cn("btn-add-cart", "btn-2")}
+                                                    name="action"
+                                                    value="add-shopping-cart"
+                                                    onClick={handleAddToCart}
+                                                >
+                                                    <AddShoppingCartIcon />
+                                                    <span>
+                                                        Thêm vào giỏ hàng
+                                                    </span>
+                                                </button>
+                                            </div>
+                                            <div className={cn("col-6")}>
+                                                <button type="button"
+                                                    className={cn("btn-buy", "btn-3")}
+                                                    name="action" value="buy-now">Mua ngay</button>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
-                                {/* <!-- Mua hàng và thêm vào giỏ hàng --> */}
-                                <form action="/shopping-cart/store" method="post">
-                                    {/* <!-- Số lượng mua --> */}
-                                    <div class="quantity-product">
-                                        <i class="fa-solid fa-minus minus-product"></i>
-                                        <input class="quantity" type="number" value="1" name="quantity"></input>
-                                        <i class="fa-solid fa-plus add-product"></i>
-                                    </div>
-                                    <input type="hidden" name="bookId" value="<?= $book->id ?>" />
-                                    {/* <!-- button mua và thêm vào giỏ hàng --> */}
-                                    <div class="btn-product row">
-                                        <div class="col-6">
-                                            <button type="submit" class="btn-add-cart btn-2" name="action" value="add-shopping-cart">
-                                                <span>
-                                                    <i class="fa-solid fa-cart-shopping"></i>
-                                                </span>
-                                                <span>Thêm vào giỏ hàng</span>
-                                            </button>
-                                        </div>
-                                        <div class="col-6">
-                                            <button type="submit" class="btn-buy btn-3" name="action" value="buy-now">
-                                                <span>Mua ngay</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-
-                            {/* <!-- Địa chỉ user --> */}
-                            <div class="info-address">
-                                <h2 class="title">Thông tin vận chuyển</h2>
-                                <p class="address">
-                                    <span>Giao hàng đến </span>
-                                    <span>
-
-                                    </span>
-                                </p>
+                                {/* <!-- Địa chỉ user --> */}
+                                <div className={cn("info-address")}>
+                                    <h2 className={cn("title")}>Thông tin vận chuyển</h2>
+                                    <p className={cn("address")}>
+                                        <span>Giao hàng đến </span>
+                                        <span>
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                        {/* <!-- End Thông tin sản phẩm và button mua và thêm vào giỏ hàng --> */}
-
                     </div>
-                </div>
-            </section>
-            {/* <!-- end  product detail--> */}
+                </section >
+            </div >
 
             {/* <!-- Nội dung chi tiết và mô tả --> */}
-            <section class="content-detail-and-reviews">
-                <div class="container">
-                    <div class="inner-wrap">
+            <section className={cn("content-detail")}>
+                <div className={cn("container")}>
+                    <div className={cn("inner-wrap")}>
                         {/* <!-- head title--> */}
-                        <div class="tab-list">
-                            <ul>
-                                <li class="tab-item desc-tab active">
-                                    <span>Mô tả</span>
-                                </li>
-                                <li class="tab-item detail-info-tab">
-                                    <span>Thông tin chi tiết</span>
-                                </li>
-                            </ul>
+                        <div className={cn("head-title")}>
+                            <span>Thông tin chi tiết</span>
                         </div>
                         {/* <!-- description --> */}
-                        <div class="description-content">
-                            <h3 class="name-product">
-                            </h3>
-                            <p class="desc">
-                            </p>
-                        </div>
-                        {/* <!-- Nội dung chi tiết --> */}
-                        <div class="product-detail-content">
-                            <div class="container-850">
-                                <table class="content-list">
-                                    <tbody>
-                                        <tr class="content-item">
-                                            <th class="title">Tác giả</th>
-                                            <td class="value"></td>
-                                        </tr>
-                                        <tr class="content-item">
-                                            <th class="title">NXB</th>
-                                            <td class="value"></td>
-                                        </tr>
-                                        <tr class="content-item">
-                                            <th class="title">Năm xuất bản</th>
-                                            <td class="value"></td>
-                                        </tr>
-                                        <tr class="content-item">
-                                            <th class="title">Ngôn ngữ</th>
-                                            <td class="value"></td>
-                                        </tr>
-                                        <tr class="content-item">
-                                            <th class="title">Số trang</th>
-                                            <td class="value"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        <div className={cn("description-content")}>
+                            {/* Mo ta */}
+                            <div className={cn("description", "content-item")}>
+                                <div className={cn("name")}>Mô tả</div>
+                                <div className={cn("content")}>{product?.description}</div>
                             </div>
+                            {/* Attribute */}
+                            {attribute.map(
+                                (item) => (
+                                    <div className={cn("description", "content-item")}>
+                                        <div className={cn("name")}>{item.name}</div>
+                                        <ul className={cn("content")}>
+                                            {
+                                                item.values.map(
+                                                    (it) => (
+                                                        <li>{it}</li>
+                                                    )
+                                                )
+                                            }
+                                        </ul>
+                                    </div>
+                                )
+                            )}
                         </div>
+
                     </div>
                 </div>
             </section>
             {/* <!-- end Nội dung chi tiết và mô tả --> */}
 
+
             {/* <!-- review --> */}
-            <section class="reviews">
-                <div class="container">
-                    <div class="reviews-content">
-                        <div class="head-review">
+            <section className={cn("reviews")}>
+                <div className={cn("container")}>
+                    <div className={cn("reviews-content")}>
+                        <div className={cn("head-review")}>
                             {/* <!-- Title --> */}
-                            <div class="head-title">
-                                <h2 class="title">Đánh giá sản phẩm</h2>
+                            <div className={cn("head-title")}>
+                                <h2 className={cn("title")}>Đánh giá sản phẩm</h2>
                             </div>
                             {/* <!-- end title --> */}
                             {/* <!-- Hiển thị điểm đánh giá và form đánh giá  --> */}
-                            <div class="row align-items-center head-review-inner">
+                            <div className={cn("row", "align-items-center", "head-review-inner")}>
                                 {/* <!-- Hiển thị điểm đánh giá --> */}
-                                <div class="col-xl-6 offset-xl-1 col-lg-7 col-12">
-                                    <div class="rating-tab row">
-                                        <div class="number col-lg-3 col-sm-4">
+                                <div className={cn("col-xl-6", "offset-xl-1", "col-lg-7", "col-12")}>
+                                    <div className={cn("rating-tab", "row")}>
+                                        <div className={cn("number", "col-lg-3", "col-sm-4")}>
                                             {/* <!-- Điểm rating trung bình --> */}
-                                            <div class="rating-on-5">
-                                                <span></span>
+                                            <div className={cn("rating-on-5")}>
+                                                <span>0</span>
                                             </div>
                                             {/* <!-- Sao của điểm rating trung bình --> */}
-                                            <div class="star-icon text-center">
-                                                <i class="fa-regular fa-star"></i>
-                                                <i class="fa-regular fa-star"></i>
-                                                <i class="fa-regular fa-star"></i>
-                                                <i class="fa-regular fa-star"></i>
-                                                <i class="fa-regular fa-star"></i>
-                                                <div class="full-state" >
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
+                                            <div className={cn("star-icon", "text-center")}>
+                                                <Rating name="read-only" value={0} readOnly size="large" />
                                             </div>
                                             {/* <!-- Số lượng đánh giá --> */}
-                                            <div class="count-review">
-                                                <span></span>
+                                            <div className={cn("count-review")}>
+                                                <span>(0 đánh giá)</span>
                                             </div>
                                         </div>
                                         {/* <!-- Hiển thị sao từ 1 -> 5 --> */}
-                                        <div class="all-star col-lg-9 col-sm-8">
-                                            <div class="all-star-item">
-                                                <div class="star-icon text-center">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
+                                        <div className={cn("all-star", "col-lg-9", "col-sm-8")}>
+                                            <div className={cn("all-start-item", "row", "align-items-center")}>
+                                                <Rating className={cn("col-1")} name="read-only" value={5} readOnly size="large" />
+                                                <div className={cn("process", "col")}>
+                                                    <LinearProgress variant="determinate" value={0} />
                                                 </div>
-                                                <div class="process">
-                                                    <div class="percent-process">
-                                                    </div>
-                                                </div>
-                                                <div class="count-number-review-star">
-                                                    <span></span>
+                                                <div className={cn("count-number-review-star", "col")}>
+                                                    <span>0</span>
                                                 </div>
                                             </div>
-                                            <div class="all-star-item">
-                                                <div class="star-icon text-center">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
+                                            <div className={cn("all-start-item", "row", "align-items-center")}>
+                                                <Rating className={cn("col-1")} name="read-only" value={4} readOnly size="large" />
+                                                <div className={cn("process", "col")}>
+                                                    <LinearProgress variant="determinate" value={0} />
                                                 </div>
-                                                <div class="process">
-                                                    <div class="percent-process">
-
-                                                    </div>
-                                                </div>
-                                                <div class="count-number-review-star">
-                                                    <span></span>
+                                                <div className={cn("count-number-review-star", "col")}>
+                                                    <span>0</span>
                                                 </div>
                                             </div>
-                                            <div class="all-star-item">
-                                                <div class="star-icon text-center">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
+                                            <div className={cn("all-start-item", "row", "align-items-center")}>
+                                                <Rating className={cn("col-1")} name="read-only" value={3} readOnly size="large" />
+                                                <div className={cn("process", "col")}>
+                                                    <LinearProgress variant="determinate" value={0} />
                                                 </div>
-                                                <div class="process">
-                                                    <div class="percent-process" >
-                                                    </div>
-                                                </div>
-                                                <div class="count-number-review-star">
-                                                    <span></span>
+                                                <div className={cn("count-number-review-star", "col")}>
+                                                    <span>0</span>
                                                 </div>
                                             </div>
-                                            <div class="all-star-item">
-                                                <div class="star-icon text-center">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
+                                            <div className={cn("all-start-item", "row", "align-items-center")}>
+                                                <Rating className={cn("col-1")} name="read-only" value={2} readOnly size="large" />
+                                                <div className={cn("process", "col")}>
+                                                    <LinearProgress variant="determinate" value={0} />
                                                 </div>
-                                                <div class="process">
-                                                    <div class="percent-process" >
-
-                                                    </div>
-                                                </div>
-                                                <div class="count-number-review-star">
-                                                    <span></span>
+                                                <div className={cn("count-number-review-star", "col")}>
+                                                    <span>0</span>
                                                 </div>
                                             </div>
-                                            <div class="all-star-item">
-                                                <div class="star-icon text-center">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
+                                            <div className={cn("all-start-item", "row", "align-items-center")}>
+                                                <Rating className={cn("col-1")} name="read-only" value={1} readOnly size="large" />
+                                                <div className={cn("process", "col")}>
+                                                    <LinearProgress variant="determinate" value={0} />
                                                 </div>
-                                                <div class="process">
-                                                    <div class="percent-process" >
-
-                                                    </div>
-                                                </div>
-                                                <div class="count-number-review-star">
-                                                    <span></span>
+                                                <div className={cn("count-number-review-star", "col")}>
+                                                    <span>0</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -351,181 +462,64 @@ export default function ProductDetail() {
                                     </div>
                                 </div>
                                 {/* <!-- End hiển thị điểm đánh giá --> */}
-
-                                {/* <!-- Form đánh giá --> */}
-                                <div class="col-xl-5 col-lg-5 col-12">
-                                    <div class="write-review">
-                                        {/* <!-- Button viết đánh giá --> */}
-                                        <div class="row pt-3 justify-content-center">
-                                            <div class="col-lg-7 col-sm-6 col-7">
-                                                <button type="button" class="btn-write-review btn btn-2"
-                                                    data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                                                    <span>
-                                                        <i class="fa-solid fa-pen"></i>
-                                                    </span>
-                                                    <span>Viết đánh giá</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        {/* <!-- End button viết đánh giá --> */}
-                                        {/* <!-- Form --> */}
-                                        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
-                                            data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
-                                            aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content p-4">
-                                                    {/* <!-- title --> */}
-                                                    <div class="modal-header border-0">
-                                                        <div class="modal-title fs-5 title-form" id="staticBackdropLabel">
-                                                            <h2>Viết đánh giá</h2>
-                                                        </div>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    {/* <!-- Body --> */}
-                                                    <div class="modal-body">
-                                                        <form action="/review/store" class="your-rating" method="post">
-                                                            {/* <!-- Sao --> */}
-                                                            <div class="form-group mt-4">
-                                                                <div class="rate ">
-                                                                    <input type="radio" id="star5" name="rate" value="5" checked />
-                                                                    <label for="star5" title="text">5 stars</label>
-                                                                    <input type="radio" id="star4" name="rate" value="4" />
-                                                                    <label for="star4" title="text">4 stars</label>
-                                                                    <input type="radio" id="star3" name="rate" value="3" />
-                                                                    <label for="star3" title="text">3 stars</label>
-                                                                    <input type="radio" id="star2" name="rate" value="2" />
-                                                                    <label for="star2" title="text">2 stars</label>
-                                                                    <input type="radio" id="star1" name="rate" value="1" required />
-                                                                    <label for="star1" title="text">1 star</label>
-                                                                </div>
-                                                            </div>
-                                                            {/* <!-- Lấy book id --> */}
-                                                            <input type="hidden" name="bookId" value="<?= html_escape($book->id) ?>" />
-                                                            {/* <!-- sesskey --> */}
-                                                            <input type="hidden" value="<?= $_SESSION['sesskey'] ?>" name="sesskey" />
-                                                            {/* <!-- Text area điền đánh giá --> */}
-                                                            <div class="form-group mt-2">
-                                                                <textarea rows="6" name="content" id="" class="input-review"
-                                                                    placeholder="Đánh giá của bạn" required></textarea>
-                                                            </div>
-                                                            {/* <!-- Button đăng và hủy --> */}
-                                                            <div class="modal-footer d-flex justify-content-end border-0">
-                                                                <button type="button"
-                                                                    class="btn d-flex align-items-center justify-content-center gap-2 btn-close-color"
-                                                                    data-bs-dismiss="modal">
-                                                                    <span>Hủy bỏ</span>
-                                                                </button>
-                                                                <button class="btn-review btn-3" type="submit">
-                                                                    Đăng
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* <!-- End form --> */}
-                                    </div>
-                                </div>
-                                {/* <!-- End form đánh giá --> */}
                             </div>
                         </div>
-                        {/* <!-- End hiển thị điểm đánh giá và form đánh giá  --> */}
-
                         {/* <!-- review --> */}
-                        <div class="review-list">
-
-                            <div class="notification-non-review">
-                                <i class="fa-solid fa-inbox"></i>
+                        <div className={cn("review-list")}>
+                            {/* <!-- Thông báo khi không có review --> */}
+                            <div className={cn("notification-non-review")}>
+                                <InboxIcon />
                                 <span>Chưa có đánh giá nào</span>
                             </div>
+                            {/* <!-- End thông báo khi không có review --> */}
                         </div>
-                        {/* <!-- end review --> */}
-
                     </div>
                 </div>
             </section>
+            {/* <!-- End hiển thị điểm đánh giá và form đánh giá  --> */}
             {/* <!-- end review --> */}
 
             {/* <!-- related product --> */}
-            <section class="related-product">
-                <div class="container">
-                    <div class="inner-wrap">
+            <section className={cn("related-product")}>
+                <div className={cn("container")}>
+                    <div className={cn("inner-wrap")}>
                         {/* <!-- Title --> */}
-                        <div class="head-title">
-                            <h2 class="title">Sản phẩm liên quan</h2>
+                        <div className={cn("head-title")}>
+                            <h2 className={cn("title")}>Sản phẩm liên quan</h2>
                         </div>
                         {/* <!-- end title --> */}
-                        <div class="products-list">
+                        <div className={cn("products-list")}>
                             {/* <!-- Hiển thị sách --> */}
-                            <div class="row products">
-                                <div class="col-xl-2 col-md-3 col-6 product">
-                                    <a href="/product/<?= html_escape($book->id) ?>" class="card">
-                                        <div class="card-img">
-                                            <img src="/assets/img/book/<?= html_escape($book->images[0]) ?>" class="card-img-top"
-                                                alt="<?= html_escape($book->name) ?>" />
-                                        </div>
-                                        <div class="card-body content">
-                                            <div class="title">
-                                                <h3></h3>
+                            <div className={cn("row products")}>
+                                {
+                                    productRelated.map(
+                                        item => (
+                                            <div className={cn("col-xl-2", "col-md-3", "col-6")}>
+                                                <Card product={item} />
                                             </div>
-                                            <div class="price-product">
-                                                <div class="current-price">
-                                                    <span></span>
-                                                    <sup>đ</sup>
-                                                </div>
-                                            </div>
-                                            <div class="reviews">
-                                                <div class="star-icon text-center">
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <i class="fa-regular fa-star"></i>
-                                                    <div class="full-state" >
-                                                        <i class="fa-solid fa-star"></i>
-                                                        <i class="fa-solid fa-star"></i>
-                                                        <i class="fa-solid fa-star"></i>
-                                                        <i class="fa-solid fa-star"></i>
-                                                        <i class="fa-solid fa-star"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
+                                        )
+                                    )
+                                }
+
                             </div>
                             {/* <!-- End hiển thị sách --> */}
                             {/* <!-- pagination --> */}
-                            <nav class="nav-pagination" aria-label="Page navigation">
-                                <ul class="pagination">
-                                    <li class="page-item<?= $paginator->getPrevPage() ? '' : ' disabled' ?>">
-                                        <a class="page-link"
-                                            href="?page=<?= html_escape($paginator->getPrevPage()) ?>&limit=12<?= $queryString ? '&' . $queryString : '' ?>"
-                                            aria-label="Previous">
-                                            <i aria-hidden="true" class="fa-solid fa-chevron-left"></i>
-                                        </a>
-                                    </li>
-                                    <li class="page-item<?= $paginator->currentPage == $page ? ' active' : '' ?>">
-                                        <a class="page-link" href="?page=<?= html_escape($page) ?>&limit=12<?= $queryString ? '&' . $queryString : '' ?>">
-                                        </a>
-                                    </li>
-                                    <li class="page-item<?= $paginator->getNextPage() ? '' : ' disabled' ?>">
-                                        <a class="page-link"
-                                            href="?page=<?= html_escape($paginator->getNextPage()) ?>&limit=12<?= $queryString ? '&' . $queryString : '' ?>"
-                                            aria-label="Next">
-                                            <i aria-hidden="true" class="fa-solid fa-chevron-right"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                            <Pagination
+                                count={totalPage}
+                                size="large"
+                                page={currentPage}
+                                shape="rounded"
+                                color="success"
+                                onChange={handleChangePagination}
+                                className={cn("pagination")}
+                            />
                             {/* <!-- end pagination --> */}
                         </div>
                     </div>
                 </div>
             </section>
             {/* <!-- end related product --> */}
+
         </>
     );
 }

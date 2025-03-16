@@ -17,8 +17,11 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Card from "../../components/Card";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { searchProduct } from "../../services/productService";
+import { Link } from "react-router-dom";
+import { routes } from "../../config/routes";
+import { AuthContext } from "../../context/AuthContext";
 const cn = classNames.bind(style);
 
 export default function Home() {
@@ -26,7 +29,7 @@ export default function Home() {
     const [productList1, setProductList1] = useState([]);
     const [productList2, setProductList2] = useState([]);
     const [productList3, setProductList3] = useState([]);
-
+    const { isAuthenticated } = useContext(AuthContext);
     useEffect(() => {
         searchProduct({
             categoryName: "Phân bón"
@@ -50,11 +53,10 @@ export default function Home() {
             }
         )
     }, [])
-    console.log(productList1)
     return (
         <>
             {/* <!-- slide --> */}
-            <section className={cn("col-9", "offset-3")}>
+            <section className={cn("col")}>
                 <Swiper
                     autoplay={{
                         delay: 2500,
@@ -159,12 +161,12 @@ export default function Home() {
 
                         {/* <!-- Xem tất cả button --> */}
                         <div className={cn("footer-view-all")}>
-                            <a href="" className={cn("view-all", "btn-2")}>
+                            <Link to={{ pathname: routes.products, search: "?categoryId=" + productList1[0]?.category.id }} className={cn("view-all", "btn-2")}>
                                 <span>
                                     Xem tất cả
                                 </span>
                                 <ArrowForwardIosIcon />
-                            </a>
+                            </Link>
                         </div>
                         {/* <!-- End xem tất cả button --> */}
                     </div>
@@ -203,12 +205,12 @@ export default function Home() {
 
                         {/* <!-- Xem tất cả button --> */}
                         <div className={cn("footer-view-all")}>
-                            <a href="" className={cn("view-all", "btn-2")}>
+                            <Link to={{ pathname: routes.products, search: "?categoryId=" + productList2[0]?.category.id }} className={cn("view-all", "btn-2")}>
                                 <span>
                                     Xem tất cả
                                 </span>
                                 <ArrowForwardIosIcon />
-                            </a>
+                            </Link>
                         </div>
                         {/* <!-- End xem tất cả button --> */}
                     </div>
@@ -246,12 +248,12 @@ export default function Home() {
 
                         {/* <!-- Xem tất cả button --> */}
                         <div className={cn("footer-view-all")}>
-                            <a href="" className={cn("view-all", "btn-2")}>
+                            <Link to={{ pathname: routes.products, search: "?categoryId=" + productList3[0]?.category.id }} className={cn("view-all", "btn-2")}>
                                 <span>
                                     Xem tất cả
                                 </span>
                                 <ArrowForwardIosIcon />
-                            </a>
+                            </Link>
                         </div>
                         {/* <!-- End xem tất cả button --> */}
                     </div>

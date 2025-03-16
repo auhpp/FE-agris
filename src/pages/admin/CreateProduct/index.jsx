@@ -99,7 +99,7 @@ export default function CreateProduct() {
         name: product?.name ?? null,
         categoryId: product?.category.id ?? null,
         supplierId: product?.supplier.id ?? null,
-        origin: product?.origin ?? null,
+        origin: product?.origin == "Việt Nam" ? "VIET_NAM" : null,
         productionDate: product?.productionDate ?? null,
         expiry: product?.expiry ?? null,
         description: product?.description ?? null,
@@ -213,7 +213,8 @@ export default function CreateProduct() {
             }
         )
         if (isDelete) {
-            deleteAttribute(item.id);
+            //Call Api
+            // deleteAttribute(item.id);
         }
     }
 

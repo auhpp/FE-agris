@@ -2,9 +2,13 @@ import './App.css';
 import ScrollToTop from './components/ScrollToTop';
 import DefaultLayout from './layouts/DefaultLayout/index,';
 import { Routes, Route } from 'react-router-dom'
-import { publicRoutes } from "./routes/route";
+import { adminRoutes, privateRoutes, publicRoutes } from "./routes/route";
 import { Fragment } from 'react';
 import DefaultAdminLayout from './layouts/components/admin/DefaultAdminLayout';
+import ProtectedRoute from './routes/ProtectedRoute';
+import { BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
+import AdminRoute from './routes/AdminRoute';
+
 
 function App() {
   return (
@@ -27,6 +31,40 @@ function App() {
                 path={item.path}
                 element={<Layout><Page /></Layout>}
               />
+            );
+          }
+        )}
+        {privateRoutes.map(
+          (item, index) => {
+            var Page = item.page;
+            var Layout = DefaultLayout;
+            if (item.layout) {
+              Layout = item.layout;
+            }
+            else if (item.layout === null) {
+              Layout = Fragment;
+            }
+            return (
+              <Route element={<ProtectedRoute />}>
+                <Route path={item.path} element={<Layout><Page /></Layout>} />
+              </Route>
+            );
+          }
+        )}
+         {adminRoutes.map(
+          (item, index) => {
+            var Page = item.page;
+            var Layout = DefaultLayout;
+            if (item.layout) {
+              Layout = item.layout;
+            }
+            else if (item.layout === null) {
+              Layout = Fragment;
+            }
+            return (
+              <Route element={<AdminRoute />}>
+                <Route path={item.path} element={<Layout><Page /></Layout>} />
+              </Route>
             );
           }
         )}

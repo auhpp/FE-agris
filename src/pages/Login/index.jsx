@@ -1,16 +1,18 @@
 import classNames from "classnames/bind";
 import style from "./Login.module.css";
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Link, redirect, useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
 import { showPassword } from "../../utils/input";
 import { login } from "../../services/authenticationService";
-import {routes} from "./../../config/routes";
+import { routes } from "./../../config/routes";
+import { AuthContext } from "../../context/AuthContext";
 
 const cn = classNames.bind(style);
 
 export default function Login() {
     var [isShowPassword, setIsShowPassword] = useState("password");
     var navigate = useNavigate();
+    const { loginAction } = useContext(AuthContext);
     const handleToggle = () => {
         setIsShowPassword(showPassword(isShowPassword))
     }
@@ -63,24 +65,19 @@ export default function Login() {
     const handleLogin = (e) => {
         e.preventDefault();
         console.log(input)
-        login(input).then(data => {
-            if(data.code == 200){
-                localStorage.setItem("token", data.result.token);
-                //Navigate to home page
-                navigate(routes.home)
-            }else{
-                setInput({
-                    'userName': '',
-                    'password': ''
-                })
-                setError((prev) => ({
-                    ...prev,
-                    ['userName']: "Mật khẩu hoặc tên người dùng không đúng"
-                }))
-            }
-        })
+        const res = loginAction(input)
+        if (!res) {
+            setInput({
+                'userName': '',
+                'password': ''
+            })
+            setError((prev) => ({
+                ...prev,
+                ['userName']: "Mật khẩu hoặc tên người dùng không đúng"
+            }))
+        }
     };
-    
+
     return (
         <>
             <form
@@ -137,7 +134,7 @@ export default function Login() {
                 <div className={cn("mb-4", "row")}>
                     <label className={cn("col-lg-3", "col-form-label ")}></label>
                     <div className={cn("col-lg-9")}>
-                        <p className={cn("remind-register")}>Bạn mới biết đến Agris? 
+                        <p className={cn("remind-register")}>Bạn mới biết đến Agris?
                             <Link to={"/register"} className={cn("register-link")}>Đăng ký</Link></p>
                     </div>
                 </div>

@@ -41,6 +41,7 @@ export async function createProductImages(imageRequest, productId) {
 }
 
 export async function searchProduct(params) {
+    console.log("param:", params)
     var url = 'http://localhost:8080/product/search?';
     if (params.name) {
         url += 'name=' + params.name + "&";
@@ -51,11 +52,17 @@ export async function searchProduct(params) {
     if (params.categoryName) {
         url += "categoryName=" + params.categoryName + "&";
     }
+    if (params.priceFrom) {
+        url += 'priceFrom=' + params.priceFrom + "&";
+    }
+    if (params.priceTo) {
+        url += "priceTo=" + params.priceTo + "&";
+    }
     if (params.currentPage) {
         url += "page=" + params.currentPage + "&";
     }
     if (params.pageSize) {
-        url += "size=" + params.pageSize + "&";
+        url += "size=" + params.pageSize;
     }
     console.log(url)
     var promise = fetch(url, {
@@ -101,5 +108,15 @@ export async function deleteProduct(productId) {
             'Authorization': `Bearer ${localStorage.getItem("token")}`
         },
     });
+    return promise;
+}
+
+export async function findById(id) {
+    var promise = fetch('http://localhost:8080/product/get/' + id, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem("token")}`
+        },
+    }).then(data => data.json());
     return promise;
 }

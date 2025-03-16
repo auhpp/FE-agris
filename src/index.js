@@ -7,12 +7,18 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import GlobalStyles from './components/GlobalStyles';
 import { BrowserRouter } from 'react-router-dom';
+import { CartProvider } from './components/CartContext';
+import { AuthProvider } from './context/AuthContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <BrowserRouter>
         <GlobalStyles>
-            <App />
+            <AuthProvider>
+                <CartProvider>
+                    <App />
+                </CartProvider>
+            </AuthProvider>
         </GlobalStyles>
     </BrowserRouter>
 );

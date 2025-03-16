@@ -57,7 +57,7 @@ export default function Profile() {
                 phoneNumber: user.phoneNumber || "",
                 email: user.email || "",
                 gender: user.gender || "",
-                dateOfBirth: user.dateOfBirth.substr(0, 10) || "",
+                dateOfBirth: user.dateOfBirth?.substr(0, 10) || "",
                 role: user.role || ""
             });
             setPreviewAvatar(user.avatar)
