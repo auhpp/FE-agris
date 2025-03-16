@@ -64,3 +64,29 @@ export async function changePassword(request) {
         .then(res => res.json())
     return promise;
 }
+
+
+// Address
+export async function createAddress(request) {
+    var promise = fetch("http://localhost:8080/user/address", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify(request)
+        })
+        .then(res => res.json())
+    return promise;
+}
+
+
+export async function deleteAddress(id) {
+    var promise = fetch("http://localhost:8080/user/address/" + id, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+    return promise;
+}

@@ -9,12 +9,13 @@ import {
 } from "react-icons/bs";
 import { use, useRef, useState } from "react";
 import { routes } from "../../../../config/routes";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 const cn = classNames.bind(style);
 
 export default function Sidebar() {
     const sidebarRef = useRef(null);
     const toggleButtonRef = useRef(null);
+    const navigate = useNavigate();
     var [activeLink, setActiveLink] = useState(routes.searchProduct);
 
     function toggleSidebar() {
@@ -61,7 +62,9 @@ export default function Sidebar() {
             <nav id={cn("sidebar")} ref={sidebarRef}>
                 <ul>
                     <li>
-                        <div className={cn("logo")}>
+                        <div
+                            onClick={() => navigate(routes.home)}
+                            className={cn("logo")}>
                             <img src={logo} alt="" />
                         </div>
                         <button onClick={toggleSidebar} id={cn("toggle-btn")} ref={toggleButtonRef}>
@@ -76,7 +79,7 @@ export default function Sidebar() {
                             onClick={handleLinkClick}
                             to={routes.searchProduct}>
                             <BsClipboardPlus className={cn("icon-sidebar-item")} />
-                            <span>Quản lý sản phẩm</span>
+                            <span>Sản phẩm</span>
                         </Link>
                     </li>
                     <li className={cn(activeLink == routes.searchAccount ? 'active' : '')}>
@@ -85,7 +88,7 @@ export default function Sidebar() {
                             onClick={handleLinkClick}
                             to={routes.searchAccount}>
                             <BsPerson className={cn("icon-sidebar-item")} />
-                            <span>Quản lý tài khoản</span>
+                            <span>Tài khoản</span>
                         </Link>
                     </li>
                     <li className={cn(activeLink == routes.searchCategory ? 'active' : '')}>
@@ -94,7 +97,7 @@ export default function Sidebar() {
                             onClick={handleLinkClick}
                             to={routes.searchCategory}>
                             <BsCardList className={cn("icon-sidebar-item")} />
-                            <span>Quản lý danh mục</span>
+                            <span>Danh mục</span>
                         </Link>
                     </li>
                     <li className={cn(activeLink == routes.searchSupplier ? 'active' : '')}>
@@ -103,7 +106,7 @@ export default function Sidebar() {
                             onClick={handleLinkClick}
                             to={routes.searchSupplier}>
                             <BsInboxes className={cn("icon-sidebar-item")} />
-                            <span>Quản lý nhà cung cấp</span>
+                            <span>Nhà cung cấp</span>
                         </Link>
                     </li>
                     {/* <li>

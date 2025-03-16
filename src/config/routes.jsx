@@ -12,5 +12,8 @@ export const routes = {
     address: '/account/address',
     password: "/account/password",
     cart: "/cart",
-    productDetail: "/product-detail"
+    product: "/product",
+    productDetail: "/product/:id",
+    products: "/products",
+    search: "/search"
 };

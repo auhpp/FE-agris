@@ -112,7 +112,7 @@ p {
     border: 2px solid var(--primary-color);
     background-color: var(--primary-color);
     color: white;
-    padding: 8px 20px;
+    padding: 4px 12px;
     border-radius: 4px;
     transition: all 0.3s;
 }
