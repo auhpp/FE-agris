@@ -1,14 +1,14 @@
-// ProtectedRoute.js
-import React, { useContext, useEffect, useState } from 'react';
-import { Navigate, Outlet, Route, useNavigate } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { routes } from '../config/routes';
-import { introspect } from '../services/authenticationService';
+import { jwtDecode } from 'jwt-decode';
 
 const ProtectedRoute = () => {
     const { token } = useContext(AuthContext);
+    var role = jwtDecode(token).scope;
     return (
-        token ?
+        token && role != "ADMIN" ?
             <Outlet />
             : <Navigate to={routes.login} />
     );

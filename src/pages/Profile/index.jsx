@@ -1,39 +1,16 @@
 import { Avatar } from "@mui/material";
 import style from "./Profile.module.css";
 import classNames from "classnames/bind";
-import { use, useEffect, useState } from "react";
-import { getUserInfo, updateUser, uploadAvatar } from "../../services/userService";
+import { useEffect, useState } from "react";
+import { getUserInfo, updateUser, uploadAvatar } from "../../services/customerService";
+import { isEmail, isFullNameValid, isPhoneNumber, isValidImage } from "../../utils/validate";
+import AlertSuccess from "./../../components/AlertSuccess"
 const cn = classNames.bind(style);
 
-const isEmail = (email) =>
-    /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
 
-const isPhoneNumber = (phoneNumber) =>
-    /^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/.test(phoneNumber);
 
-const isFullNameValid = (fullName) =>
-    /^[a-zA-Z0-9À-ỹ ]+$/.test(fullName)
-const isValidImage = (img) => {
-    var allowedExtensions = ["jpg", "jpeg", "png", "gif"];
-    var extension = img.name.split('.').pop().toLowerCase();
-    if (allowedExtensions.indexOf(extension) !== -1 && img.size <= 1048576) {
-        return true;
-    }
-    return false;
-}
 export default function Profile() {
-
     const [user, setUser] = useState();
-    useEffect(
-        () => {
-            getUserInfo().then(
-                data => {
-                    setUser(data.result);
-                }
-            )
-        }, []
-    )
-    console.log(user)
     const [userInput, setUserInput] = useState({
         id: "",
         fullName: "",
@@ -46,14 +23,32 @@ export default function Profile() {
         role: ""
     });
     var [previewAvatar, setPreviewAvatar] = useState("");
+    var [userError, setUserError] = useState({
+        fullName: "",
+        avatar: "",
+        phoneNumber: "",
+        email: "",
+    });
+    const [showAlertSuccess, setShowAlertSuccess] = useState(false)
+    //Get user
+    useEffect(
+        () => {
+            getUserInfo().then(
+                data => {
+                    setUser(data.result);
+                }
+            )
+        }, []
+    )
 
+    //Set user input
     useEffect(() => {
         if (user) {
             setUserInput({
                 id: user.id || "",
                 fullName: user.fullName || "",
                 userName: user.userName || "",
-                avatar: user.avatar || "",
+                avatar: null,
                 phoneNumber: user.phoneNumber || "",
                 email: user.email || "",
                 gender: user.gender || "",
@@ -63,14 +58,9 @@ export default function Profile() {
             setPreviewAvatar(user.avatar)
         }
     }, [user]);
-    console.log(userInput)
-    var [userError, setUserError] = useState({
-        fullName: "",
-        avatar: "",
-        phoneNumber: "",
-        email: "",
-    });
 
+
+    //input
     const onInputChange = (e) => {
         const { name, value } = e.target;
         setUserInput((prev) => ({
@@ -93,7 +83,6 @@ export default function Profile() {
                     break;
 
                 case 'phoneNumber':
-                    console.log(isPhoneNumber(value))
                     if (!isPhoneNumber(value)) {
                         stateObj[name] = 'Vui lòng đúng định dạng số điện thoại.';
                     }
@@ -116,8 +105,8 @@ export default function Profile() {
         });
     };
 
+    //Change avatar
     const handleChangeAvatar = (e) => {
-        console.log(isValidImage(e.target.files[0]))
         if (isValidImage(e.target.files[0])) {
             setUserInput(
                 (prev) => ({
@@ -131,6 +120,7 @@ export default function Profile() {
         }
     }
 
+    //Submit
     const handleSubmit = (e) => {
         e.preventDefault();
         var userRequest = {};
@@ -146,46 +136,61 @@ export default function Profile() {
             userRequest.fullName = userInput.fullName === "" ? user.fullName : userInput.fullName;
             userRequest.phoneNumber = userInput.phoneNumber === "" ? user.phoneNumber : userInput.phoneNumber;
             userRequest.email = userInput.email === "" ? user.email : userInput.email;
-            console.log("input", userInput)
-            console.log(userRequest)
-
         }
         userRequest.gender = userInput.gender == "" ? user.gender : userInput.gender;
         userRequest.dateOfBirth = userInput.dateOfBirth == "" ? user.dateOfBirth : userInput.dateOfBirth;
         if (userInput.avatar) {
             avatarRequest = userInput.avatar;
+            console.log("avatar rq", userInput.avatar)
         }
         else {
             userRequest.avatar = user.avatar;
         }
         if (ok) {
+            console.log("us rq", userRequest)
             //call api
-            console.log(userRequest)
             updateUser(userRequest).then(
                 data => {
-                    console.log(data)
+
+                    console.log("avatar rq", avatarRequest)
                     if (avatarRequest != "") {
                         uploadAvatar(avatarRequest, user.id).then(
-                            data => console.log(data)
+                            d => {
+                                setPreviewAvatar(d.result?.filePath)
+                            }
                         )
                     }
-                    setUser(data.result)
+                    setShowAlertSuccess(true)
+                    setUser(
+                        data.result
+                    )
                 }
             )
         }
-
-
     }
+
     return (
         <>
             <div className={cn("profile")}>
-                <div className={cn("head")}>
-                    <h2>Hồ sơ của tôi</h2>
-                    <p className={cn("des")}>Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+                {/* head */}
+                <div className={cn("head", "row")}>
+                    <div className={cn("main-title", "col")}>
+                        <h4>Hồ sơ của tôi</h4>
+                        <p className={cn("des")}>Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+                    </div>
+                    <div className="col">
+                        <AlertSuccess
+                            message={"Cập nhật thông tin thành công"}
+                            onClose={() => setShowAlertSuccess(false)}
+                            showAlert={showAlertSuccess}
+                        />
+                    </div>
                 </div>
+                {/* content */}
                 <div className={cn("main-content")}>
                     <form onSubmit={handleSubmit} action="" className={cn("row")}>
                         <div className={cn("content", "col-8")}>
+                            {/* user name */}
                             <div className={cn("mb-5 row")}>
                                 <label
                                     for="username-input-login"
@@ -204,8 +209,12 @@ export default function Profile() {
 
                                 </div>
                             </div>
+                            {/* full name */}
                             <div className={cn("mb-5 row")}>
-                                <label for="fullName-input-login" className={cn("col-lg-3", "col-form-label", "input-title")}>Tên</label>
+                                <label for="fullName-input-login"
+                                    className={cn("col-lg-3", "col-form-label", "input-title")}>
+                                    Tên
+                                </label>
                                 <div className={cn("col-lg-9")}>
                                     <input
                                         type="text"
@@ -221,9 +230,13 @@ export default function Profile() {
 
                                 </div>
                             </div>
+                            {/* email */}
                             <div className={cn("mb-5 row")}>
                                 <label
-                                    for="email-input-login" className={cn("col-lg-3", "col-form-label", "input-title")}>Email</label>
+                                    for="email-input-login"
+                                    className={cn("col-lg-3", "col-form-label", "input-title")}>
+                                    Email
+                                </label>
                                 <div className={cn("col-lg-9")}>
                                     <input
                                         type="email"
@@ -238,8 +251,12 @@ export default function Profile() {
 
                                 </div>
                             </div>
+                            {/* phone number */}
                             <div className={cn("mb-5 row")}>
-                                <label for="phoneNumber-input-login" className={cn("col-lg-3", "col-form-label", "input-title")}>Số điện thoại</label>
+                                <label for="phoneNumber-input-login"
+                                    className={cn("col-lg-3", "col-form-label", "input-title")}>
+                                    Số điện thoại
+                                </label>
                                 <div className={cn("col-lg-9")}>
                                     <input
                                         type="tel"
@@ -249,11 +266,14 @@ export default function Profile() {
                                         onChange={onInputChange}
                                         value={userInput.phoneNumber}
                                     />
-                                    {userError.phoneNumber && (<span className={cn("text-danger")}>{userError.phoneNumber}</span>)}
+                                    {userError.phoneNumber && (<span className={cn("text-danger")}>
+                                        {userError.phoneNumber}
+                                    </span>)}
 
 
                                 </div>
                             </div>
+                            {/* gender */}
                             <div className={cn("mb-5 row")}>
                                 <label for="" className={cn("col-lg-3", "col-form-label", "input-title")}>Giới tính</label>
                                 <div className={cn("col-lg-9", "gender-list")}>
@@ -298,6 +318,7 @@ export default function Profile() {
                                     </div>
                                 </div>
                             </div>
+                            {/* Date of birth */}
                             <div className={cn("mb-5 row")}>
                                 <label
                                     for="dateOfBirth-input-login"
@@ -315,8 +336,10 @@ export default function Profile() {
 
                                 </div>
                             </div>
+                            {/* button submit */}
                             <div className={cn("mb-5 row")}>
-                                <label for="username-input-login" className={cn("col-lg-3", "col-form-label", "input-title")}></label>
+                                <label for="username-input-login"
+                                    className={cn("col-lg-3", "col-form-label", "input-title")}></label>
                                 <div className={cn("col-lg-9")}>
                                     <button
 
@@ -324,13 +347,13 @@ export default function Profile() {
                                 </div>
                             </div>
                         </div>
+                        {/* Upload avatar */}
                         <div className={cn("avatar", "col-4")}>
                             <Avatar
                                 alt="Remy Sharp"
                                 src={previewAvatar}
                                 sx={{ width: 100, height: 100 }}
                             />
-                            {/* <img src={previewAvatar} className={cn("avatar-img")} alt="" /> */}
                             <button type="button" className={cn("choose-img-btn", "btn-3")}>
                                 <label htmlFor="upload-avatar-img-input">
                                     Chọn ảnh

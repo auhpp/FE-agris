@@ -1,7 +1,8 @@
+/* Inner content */
 .inner-content {
     padding: 10px 0;
 }
-
+/* side bar */
 .side-bar .account {
     display: flex;
     align-items: center;
@@ -32,8 +33,7 @@
 .side-bar .btn-account:hover .title {
     color: var(--primary-color);
 }
-
-
+/* submenu */
 .sub-menu {
     padding-left: 36px;
 }

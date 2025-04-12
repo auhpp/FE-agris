@@ -39,7 +39,6 @@ export default function Search({ nameInputSearch, nameInputSelect, labelNameInpu
             target: { value },
         } = event;
         setCategoryName(
-            // On autofill we get a stringified value.
             typeof value === 'string' ? value.split(',') : value,
         );
     };

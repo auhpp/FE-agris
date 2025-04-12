@@ -201,20 +201,51 @@ input[type=number]::-webkit-outer-spin-button {
     padding: 10px 0;
 }
 
-.content-right .amount .price{
+.content-right .amount .price {
     color: var(--red-price);
 }
 
-.btn-payment{
+.btn-payment {
     width: 100%;
 }
 
-.img-product, .product-title{
+.img-product,
+.product-title {
     cursor: pointer;
 }
 
-.pagination{
+/* pagination */
+.pagination {
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
+.cart-list .dropdown-btn {
+    white-space: unset;
+}
+
+.cart-list .dropdown-btn span,
+.cart-list .dropdown-btn div {
+    font-size: 14px;
+    color: var(--black-title);
+}
+
+.cart-list .dropdown-menu-list {
+    width: 400px;
+    padding: 6px;
+}
+
+.cart-list .dropdown-menu-list  .dropdown-item-btn:hover {
+    background-color: white;
+}
+
+.cart-list .dropdown-menu-list  .dropdown-item-btn{
+    padding: 0  ;
+}
+
+
+.content-left .cart-list .dropdown-menu-list .dropdown-item-btn:active{
+    background-color: white ;
+}
+

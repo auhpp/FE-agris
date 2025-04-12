@@ -5,7 +5,7 @@ export const routes = {
     searchAccount: "/admin/account",
     searchCategory: "/admin/category",
     searchSupplier: "/admin/supplier",
-    createProduct: "/admin/createProduct",
+    createProduct: "/admin/create_product",
     home: "/",
     account: "/account",
     profile: "/account/profile",
@@ -15,5 +15,12 @@ export const routes = {
     product: "/product",
     productDetail: "/product/:id",
     products: "/products",
-    search: "/search"
+    search: "/search",
+    importGoods: "/admin/goods",
+    goodsReceipt: "/goods/receipt",
+    order: "/order",
+    warehouse: "/admin/warehouse",
+    staff: "/admin/staff",
+    staffAccountConfirmPassword: "/staff_account_confirm_email",
+    stockDetail: "/admin/stock_detail"
 };

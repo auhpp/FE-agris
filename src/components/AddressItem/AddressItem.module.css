@@ -1,0 +1,46 @@
+.address-item {
+    padding: 10px 0;
+    border-top: 1px solid var(--grey-border);
+    display: flex;
+    justify-content: space-between;
+}
+
+.address-item:first-child {
+    border-top: none;
+}
+
+
+.address-item .content .name-and-phone-number {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.address-item .content .name-and-phone-number .name {
+    padding-right: 10px;
+    border-right: 1px solid var(--grey-border);
+}
+
+.address-item .content .name-and-phone-number .phone-number {
+    color: var(--grey-text);
+}
+
+.address-item .address-content {
+    color: var(--grey-text);
+}
+
+
+.action .delete-and-edit div {
+    color: var(--light-blue);
+    cursor: pointer;
+}
+
+.address-item .content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.address-content .address-content-info{
+    font-size: 14px;
+}

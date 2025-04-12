@@ -1,50 +1,13 @@
 import style from "./Password.module.css";
 import classNames from "classnames/bind";
-import AddIcon from '@mui/icons-material/Add';
-import { inputFocus, showPassword } from "./../../utils/input";
-import { useLocation, useNavigate } from "react-router-dom";
+import { showPassword } from "./../../utils/input";
 import { useState } from "react";
 import CheckIcon from "@mui/icons-material/Check";
-import { changePassword } from "../../services/userService";
+import { changePassword } from "../../services/customerService";
 import { Alert } from "@mui/material";
+import { checkPasswordStrength } from "./../../utils/validate";
+
 const cn = classNames.bind(style);
-
-function checkPasswordStrength(password) {
-    // Initialize variables
-    var strength = 0;
-    var tips = "";
-
-    // Check password length
-    if (password.length < 8) {
-        tips += "Phải từ 8 ký tự. ";
-    } else {
-        strength += 1;
-    }
-
-    // Check for mixed case
-    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) {
-        strength += 1;
-    } else {
-        tips += "Phải có cả ký tự hoa và ký tự thường. ";
-    }
-
-    // Check for numbers
-    if (password.match(/\d/)) {
-        strength += 1;
-    } else {
-        tips += "Phải có ít nhất một chữ số. ";
-    }
-
-    // Check for special characters
-    if (password.match(/[^a-zA-Z\d]/)) {
-        strength += 1;
-    } else {
-        tips += "Phải có ít nhất một ký tự đặc biệt. ";
-    }
-
-    // Return results
-    return [strength, tips];
-}
 
 
 export default function Password() {
@@ -62,24 +25,25 @@ export default function Password() {
         confirmPassword: "",
     });
 
+    const [isShowSuccess, setIsShowSuccess] = useState(false);
 
+    // Set is show password
     const handleToggle = () => {
         setIsShowPassword(showPassword(isShowPassword))
     }
 
+    //Input
     const onInputChange = (e) => {
         const { name, value } = e.target;
         setInput((prev) => ({
             ...prev,
             [name]: value,
         }));
-        console.log(name)
         validateInput(e);
     };
 
     const validateInput = (e) => {
         let { name, value } = e.target;
-        console.log(value)
         setError((prev) => {
             const stateObj = { ...prev, [name]: '' };
 
@@ -89,6 +53,7 @@ export default function Password() {
                         stateObj[name] = 'Vui lòng nhập mật khẩu.';
                     }
                     break;
+
                 case 'newPassword':
                     if (!value) {
                         stateObj[name] = 'Vui lòng nhập mật khẩu.';
@@ -107,7 +72,7 @@ export default function Password() {
                 case 'confirmPassword':
                     if (!value) {
                         stateObj[name] = 'Vui lòng nhập mật khẩu.';
-                    } else if (input.password && value !== input.password) {
+                    } else if (input.newPassword && value !== input.newPassword) {
                         stateObj[name] = 'Mật khẩu không khớp.';
                     }
                     break;
@@ -120,11 +85,9 @@ export default function Password() {
         });
     };
 
-    const [isShowSuccess, setIsShowSuccess] = useState(false);
 
     // Handle submit
     const handleSubmit = () => {
-        console.log(error)
         var userRequest = {};
         var ok = true;
         if (error.confirmPassword?.length !== 0 || error.oldPassword?.length !== 0 || error.newPassword?.length !== 0) {
@@ -138,14 +101,11 @@ export default function Password() {
             userRequest.newPassword = input.confirmPassword;
             changePassword(userRequest).then(
                 data => {
-                    console.log(data)
                     if (data.code != 200) {
                         setError((prev) => ({
                             ...prev,
                             oldPassword: "Sai mật khẩu"
                         }))
-
-                        console.log(input)
                     }
                     else {
                         setIsShowSuccess(true);
@@ -162,20 +122,24 @@ export default function Password() {
     return (
         <>
             <div className={cn("password-page")}>
+                {/* Head */}
                 <div className={cn("head")}>
-                    <h2>Đổi mật khẩu</h2>
+                    <h4>Đổi mật khẩu</h4>
                     <p className={cn("note")}>Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác</p>
                 </div>
+                {/* Content */}
                 <div className={cn("main-content")}>
+                    {/* success alert */}
                     {
                         isShowSuccess && (
                             <Alert
-                            className={cn("alert-success")}
-                            icon={<CheckIcon fontSize="inherit" />} severity="success">
+                                className={cn("alert-success")}
+                                icon={<CheckIcon fontSize="inherit" />} severity="success">
                                 Cập nhật mật khẩu thành công.
                             </Alert>
                         )
                     }
+                    {/* Old password */}
                     <div className={cn("mb-5", "row")}>
                         <label for="old-password" className={cn("col-lg-3", "col-form-label", "input-title")}>
                             Mật khẩu cũ</label>
@@ -193,6 +157,7 @@ export default function Password() {
 
                         </div>
                     </div>
+                    {/* New password */}
                     <div className={cn("mb-5", "row")}>
                         <label for="newPassword" className={cn("col-lg-3", "col-form-label", "input-title")}>Mật khẩu mới</label>
                         <div className={cn("col-lg-9")}>
@@ -210,6 +175,7 @@ export default function Password() {
 
                         </div>
                     </div>
+                    {/* confirm password */}
                     <div className={cn("mb-5", "row")}>
                         <label for="confirmPassword" className={cn("col-lg-3", "col-form-label", "input-title")}>
                             Xác nhận mật khẩu</label>
@@ -227,6 +193,7 @@ export default function Password() {
                             {error.confirmPassword && (<span className={cn("text-danger")}>{error.confirmPassword}</span>)}
                         </div>
                     </div>
+                    {/* show password */}
                     <div className={cn("mb-2", "row")}>
                         <label className={cn("col-lg-3", "col-form-label")}></label>
                         <div className={cn("col-lg-9")}>
@@ -242,6 +209,7 @@ export default function Password() {
                             </div>
                         </div>
                     </div>
+                    {/* submit button */}
                     <div className={cn("mt-4", "row")}>
                         <label for="input-confirm-password-register" className={cn("col-lg-3", "col-form-label", "input-title")}>
                         </label>

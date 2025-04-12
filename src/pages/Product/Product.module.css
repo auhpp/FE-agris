@@ -3,6 +3,7 @@
     padding-bottom: 60px;
 }
 
+/* Filter */
 .filter {
     background-color: white;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
@@ -98,6 +99,7 @@
     cursor: pointer;
 }
 
+/* ategory */
 .categories-list {
     max-height: 180px;
     overflow: hidden;

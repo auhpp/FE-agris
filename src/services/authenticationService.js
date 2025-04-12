@@ -1,3 +1,4 @@
+
 export async function login(userRequest) {
     var promise = fetch('http://localhost:8080/auth/token', {
         method: 'POST',
@@ -22,12 +23,12 @@ export async function logout(logoutRequest) {
 
 
 export async function introspect(request) {
-    var promise = fetch('http://localhost:8080/auth/introspect', {
+    var res = await fetch('http://localhost:8080/auth/introspect', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json'
         },
         body: JSON.stringify(request)
-    }).then(data => data.json());
-    return promise;
+    });
+    return res.json();
 }

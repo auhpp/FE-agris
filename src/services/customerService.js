@@ -1,5 +1,5 @@
 export async function createUser(userRequest) {
-    var promise = fetch("http://localhost:8080/user", {
+    var promise = fetch("http://localhost:8080/customer", {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
@@ -12,7 +12,7 @@ export async function createUser(userRequest) {
 
 
 export async function getUserInfo() {
-    var promise = fetch("http://localhost:8080/user/myInfo", {
+    var promise = fetch("http://localhost:8080/customer/myInfo", {
             method: 'GET',
             headers: {
                 "Content-Type": "application/json",
@@ -25,7 +25,7 @@ export async function getUserInfo() {
 
 
 export async function updateUser(userRequest) {
-    var promise = fetch("http://localhost:8080/user/" + userRequest.id, {
+    var promise = fetch("http://localhost:8080/customer/" + userRequest.id, {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
@@ -41,7 +41,7 @@ export async function uploadAvatar(avatarRequest, userId) {
     const formData = new FormData();
     formData.append("avatar", avatarRequest);
     formData.append("customerId", userId);
-    var promise = fetch('http://localhost:8080/user/avatar', {
+    var promise = fetch('http://localhost:8080/customer/avatar', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem("token")}`
@@ -53,7 +53,7 @@ export async function uploadAvatar(avatarRequest, userId) {
 
 
 export async function changePassword(request) {
-    var promise = fetch("http://localhost:8080/user/password", {
+    var promise = fetch("http://localhost:8080/account/password", {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export async function changePassword(request) {
 
 // Address
 export async function createAddress(request) {
-    var promise = fetch("http://localhost:8080/user/address", {
+    var promise = fetch("http://localhost:8080/customer/address", {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
@@ -82,11 +82,11 @@ export async function createAddress(request) {
 
 
 export async function deleteAddress(id) {
-    var promise = fetch("http://localhost:8080/user/address/" + id, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("token")}`
-            }
-        });
+    var promise = fetch("http://localhost:8080/customer/address/" + id, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem("token")}`
+        }
+    });
     return promise;
 }

@@ -1,13 +1,8 @@
-.main {
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: grid;
-  grid-template-columns: auto 1fr;
+.default-layout .main-content{
+    padding-inline:0 ;
+
 }
 
-
-@media(max-width: 800px) {
-  main {
-    grid-template-columns: 1fr;
-  }
+.default-layout{
+    height: 100vh;
 }

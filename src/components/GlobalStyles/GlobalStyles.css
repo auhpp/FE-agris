@@ -4,7 +4,7 @@
 :root {
     --primary-color: #009B49;
     --black-title: #333333;
-    --grey-text:  rgba(0, 0, 0, .54);;
+    --grey-text: #757575;
     --red-sale: #C92127;
     --grey-bg: #F0F0F0;
     --font: "Roboto", sans-serif;
@@ -34,11 +34,12 @@ body {
 }
 
 html {
-    font-size: 10px;
+    font-size: 14px;
 }
 
 a {
     text-decoration: none;
+    color: var(--black-title);
 }
 
 a:hover {
@@ -205,6 +206,14 @@ p {
     background-color: var(--grey-light);
 }
 
+/* btn default */
+.btn-default {
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    background-color: white;
+    padding: 0 4px;
+    font-size: 14px;
+}
 
 .display-text-14 {
     font-size: 14px;
@@ -248,3 +257,4 @@ p {
 .head-inner-title .progress {
     border-radius: 0;
 }
+

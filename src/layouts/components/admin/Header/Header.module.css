@@ -52,3 +52,18 @@
     display: inline-block;
     width: 100%;
 }
+
+
+.btn-profile{
+    display: flex;
+    gap: 10px;
+    width: 200px;
+}
+
+.avatar{
+    height: 32px;
+}
+
+.header{
+    box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
+}

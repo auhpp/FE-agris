@@ -1,131 +1,108 @@
 import classNames from "classnames/bind";
 import style from "./Sidebar.module.css";
 import logo from "./../../../../assets/images/AGRis__2_-removebg-preview.png";
-import {
-    BsPerson,
-    BsClipboardPlus,
-    BsCardList,
-    BsInboxes
-} from "react-icons/bs";
+
 import { use, useRef, useState } from "react";
 import { routes } from "../../../../config/routes";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import PostAddIcon from '@mui/icons-material/PostAdd';
+import Nav from 'react-bootstrap/Nav';
 const cn = classNames.bind(style);
 
 export default function Sidebar() {
-    const sidebarRef = useRef(null);
-    const toggleButtonRef = useRef(null);
-    const navigate = useNavigate();
-    var [activeLink, setActiveLink] = useState(routes.searchProduct);
+  const location = useLocation()
+  const listNav = [
+    {
+      name: "Sản phẩm",
+      link: routes.searchProduct,
+      getIcon: (isActive) => (
+        <AutoAwesomeMosaicIcon style={isActive ? { color: "white" } : {}} />
+      ),
+    },
+    {
+      name: "Kho",
+      link: routes.warehouse,
+      getIcon: (isActive) => (
+        <WarehouseIcon style={isActive ? { color: "white" } : {}} />
+      ),
+    },
+    {
+      name: "Nhập hàng",
+      link: routes.importGoods,
+      getIcon: (isActive) => (
+        <PostAddIcon style={isActive ? { color: "white" } : {}} />
+      ),
+    },
+    {
+      name: "Nhân viên",
+      link: routes.staff,
+      getIcon: (isActive) => (
+        <PeopleAltIcon style={isActive ? { color: "white" } : {}} />
+      ),
+    },
+  ].map((nav) => {
+    const isActive = location.pathname === nav.link;
+    return {
+      ...nav,
+      active: isActive,
+      icon: nav.getIcon(isActive),
+    };
+  });
 
-    function toggleSidebar() {
-        if (!sidebarRef.current || !toggleButtonRef.current) return;
+  const [isEdit, setIsEdit] = useState(false);
+  const navigate = useNavigate()
+  return (
+    <>
 
-        sidebarRef.current.classList.toggle(cn("close"));
-        toggleButtonRef.current.classList.toggle(cn("rotate"));
+      <div className="flex-shrink-0 sticky-top" style={{ width: "280px" }}>
+        <a
+          href="/"
+          className="d-flex align-items-center mb-1 link-body-emphasis text-decoration-none"
+        >
+          <svg
+            className="bi pe-none me-2"
+            width="30"
+            height="24"
+            aria-hidden="true"
+          >
+          </svg>
+          <div className={cn("fs-5 fw-semibold", "logo")}>
+            <img src={logo} alt="" />
+          </div>
+        </a>
+        <ul className={cn("nav", "nav-pills", "list-unstyled p-3", "side-bar-item")}>
+          {
+            listNav.map(
+              (nav, item) => (
+                <li className={cn("mb-1", "nav-link-item-content")}>
+                  <Nav.Link
+                    className={cn("nav-link-btn", "d-inline-flex", "align-items-center")}
+                    data-bs-toggle="collapse"
+                    data-bs-target="#home-collapse"
+                    aria-expanded="true"
+                    active={nav.active}
+                    style={nav.active ? { backgroundColor: "var(--primary-color)" } : {}}
+                    onClick={() => {
+                      navigate(nav.link)
+                      setIsEdit(!isEdit)
 
-        // closeAllSubMenus();
-    }
-
-    // const toggleSubMenu = (e) => {
-    //     const button = e.currentTarget;
-    //     if (!button || !sidebarRef.current) return;
-
-    //     if (!button.nextElementSibling.classList.contains(cn("show"))) {
-    //         closeAllSubMenus();
-    //     }
-
-    //     button.nextElementSibling.classList.toggle(cn("show"));
-    //     button.classList.toggle(cn("rotate"));
-
-    //     if (sidebarRef.current.classList.contains(cn("close"))) {
-    //         sidebarRef.current.classList.remove(cn("close"));
-    //         toggleButtonRef.current.classList.toggle(cn("rotate"));
-    //     }
-    // }
-
-    // function closeAllSubMenus() {
-    //     if (!sidebarRef.current) return;
-
-    //     Array.from(sidebarRef.current.getElementsByClassName(cn("show"))).forEach((ul) => {
-    //         ul.classList.remove(cn("show"));
-    //         ul.previousElementSibling.classList.remove(cn("rotate"));
-    //     });
-    // }
-
-    const handleLinkClick = (e) => {
-        setActiveLink(e.currentTarget.getAttribute('nameLink'));
-    }
-
-    return (
-        <>
-            <nav id={cn("sidebar")} ref={sidebarRef}>
-                <ul>
-                    <li>
-                        <div
-                            onClick={() => navigate(routes.home)}
-                            className={cn("logo")}>
-                            <img src={logo} alt="" />
-                        </div>
-                        <button onClick={toggleSidebar} id={cn("toggle-btn")} ref={toggleButtonRef}>
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
-                                <path d="m313-480 155 156q11 11 11.5 27.5T468-268q-11 11-28 11t-28-11L228-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T468-692q11 11 11 28t-11 28L313-480Zm264 0 155 156q11 11 11.5 27.5T732-268q-11 11-28 11t-28-11L492-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T732-692q11 11 11 28t-11 28L577-480Z" />
-                            </svg>
-                        </button>
-                    </li>
-                    <li className={cn(activeLink == routes.searchProduct ? 'active' : '')}>
-                        <Link
-                            nameLink={routes.searchProduct}
-                            onClick={handleLinkClick}
-                            to={routes.searchProduct}>
-                            <BsClipboardPlus className={cn("icon-sidebar-item")} />
-                            <span>Sản phẩm</span>
-                        </Link>
-                    </li>
-                    <li className={cn(activeLink == routes.searchAccount ? 'active' : '')}>
-                        <Link
-                            nameLink={routes.searchAccount}
-                            onClick={handleLinkClick}
-                            to={routes.searchAccount}>
-                            <BsPerson className={cn("icon-sidebar-item")} />
-                            <span>Tài khoản</span>
-                        </Link>
-                    </li>
-                    <li className={cn(activeLink == routes.searchCategory ? 'active' : '')}>
-                        <Link
-                            nameLink={routes.searchCategory}
-                            onClick={handleLinkClick}
-                            to={routes.searchCategory}>
-                            <BsCardList className={cn("icon-sidebar-item")} />
-                            <span>Danh mục</span>
-                        </Link>
-                    </li>
-                    <li className={cn(activeLink == routes.searchSupplier ? 'active' : '')}>
-                        <Link
-                            nameLink={routes.searchSupplier}
-                            onClick={handleLinkClick}
-                            to={routes.searchSupplier}>
-                            <BsInboxes className={cn("icon-sidebar-item")} />
-                            <span>Nhà cung cấp</span>
-                        </Link>
-                    </li>
-                    {/* <li>
-                        <button id={cn("btn-create")} onClick={toggleSubMenu} className={cn("dropdown-btn")}>
-                            <span>Create</span>
-                        </button>
-                        <ul className={cn("sub-menu")}>
-                            <div>
-                                <li><a href="#">Folder</a></li>
-                                <li><a href="#">Document</a></li>
-                                <li><a href="#">Project</a></li>
-                            </div>
-                        </ul>
-                    </li> */}
-
-
-                </ul>
-            </nav>
-        </>
-    )
+                    }}
+                  >
+                    {nav.icon}
+                    <span style={nav.active ? { color: "white" } : {}}
+                    >
+                      {nav.name}
+                    </span>
+                  </Nav.Link>
+                </li>
+              )
+            )
+          }
+        </ul >
+      </div >
+    </>
+  )
 }
-

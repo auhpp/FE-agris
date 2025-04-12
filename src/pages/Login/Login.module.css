@@ -5,11 +5,9 @@
 }
 
 .login-form{
-    background-color: var(--white-bg);
+    background-color: white;
     padding: 30px;
-    border-radius: 6px;
 }
-
 .login-form .input-title{
     text-align: right;
 }
