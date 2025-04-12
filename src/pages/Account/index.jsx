@@ -3,11 +3,10 @@ import style from "./Account.module.css";
 import classNames from "classnames/bind";
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import DefaultLayout from "./../../layouts/DefaultLayout/index,";
-import avatar from "./../../assets/images/messiprimergol.jpg";
 import { Avatar } from "@mui/material";
 import { useEffect, useState } from "react";
 import { routes } from "../../config/routes";
-import { getUserInfo } from "../../services/userService";
+import { getUserInfo } from "../../services/customerService";
 
 const cn = classNames.bind(style);
 
@@ -16,6 +15,7 @@ export default function Account({ children }) {
     const [showSubMenu, SetShowSubMenu] = useState(true);
 
     const [user, setUser] = useState();
+    //Get user
     useEffect(
         () => {
             getUserInfo().then(
@@ -31,10 +31,11 @@ export default function Account({ children }) {
             <DefaultLayout>
                 <div className={cn("inner-content", "row")}>
                     <div className={cn("side-bar", "col-2")}>
+                        {/* account */}
                         <div className={cn("head")}>
                             <div className={cn("account")}>
                                 <Avatar
-                                    alt="Remy Sharp"
+                                    alt=""
                                     src={
                                         user?.avatar ?? ""
                                     }
@@ -43,6 +44,7 @@ export default function Account({ children }) {
                                 <div className={cn("user-name")}>{user?.userName}</div>
                             </div>
                         </div>
+                        {/* navigation */}
                         <div className={cn("navigate")}>
                             <ul>
                                 <li>
@@ -50,6 +52,7 @@ export default function Account({ children }) {
                                         <Person2OutlinedIcon />
                                         <span className={cn("title")}>Tài khoản của tôi</span>
                                     </button>
+                                    {/* Menu */}
                                     {showSubMenu == true &&
                                         (
                                             <ul className={cn("sub-menu")}>
@@ -76,6 +79,8 @@ export default function Account({ children }) {
                             </ul>
                         </div>
                     </div >
+
+                    {/* Content */}
                     <div className={cn("main-content", "col-10")}>
                         {children}
                     </div>

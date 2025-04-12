@@ -33,12 +33,7 @@ td .delete-icon
     padding: 0 2px;
 }
 
-.edit-icon:hover,
-.menu-icon:hover,
-.delete-icon:hover
-{
-    color: var(--primary-color);
-}
+
 .pagination p
 {
     font-size: 12px;
@@ -89,4 +84,9 @@ td .delete-icon
 .pagination {
     display: flex;
     justify-content: center;
+}
+
+.thumbnail{
+    max-width: 60px;
+
 }

@@ -1,48 +1,46 @@
 import style from "./Cart.module.css";
 import classNames from "classnames/bind";
-import AddIcon from '@mui/icons-material/Add';
-import imgProduct from "./../../assets/images/phan-bon.png";
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import DeleteIcon from '@mui/icons-material/Delete';
-import RemoveIcon from '@mui/icons-material/Remove';
 import { useContext, useEffect, useState } from "react";
 import { addToCart, deleteCart, getAllCart } from "../../services/cartService";
-import { Button, Pagination } from "@mui/material";
+import { Pagination } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../config/routes";
-import CartContext from "../../components/CartContext";
+import CartContext from "../../context/CartContext";
+import { VND } from "../../utils/formatNumber";
+import CartItem from "../../components/CartItem/indx";
+
 const cn = classNames.bind(style);
 
 export default function Cart() {
-    var [quantity, setQuantity] = useState(1);
-    var [showVariantModal, setShowVariantModal] = useState(false);
     var [totalPage, setTotalPage] = useState(1);
     var [currentPage, setCurrentPage] = useState(1);
     var [pageSize, setPageSize] = useState(10);
     var [isUpdate, setIsUpdate] = useState(false);
-
     const cart = useContext(CartContext);
-
     const navigate = useNavigate();
     const [carts, setCarts] = useState([]);
+    var [amount, setAmount] = useState(0);
+    var [productPurchaseList, setProductPurchaseList] = useState([]);
+
+    // Get cart
     useEffect(
         () => {
             getAllCart(currentPage, pageSize).then(
                 data => {
-                    setCarts(data.result.data)
-                    setTotalPage(data.totalPage);
+                    setCarts(data.result?.data)
+                    setTotalPage(data?.totalPage);
+                    console.log("fetch")
                 }
             )
         }, [isUpdate, currentPage]
     )
 
-
-
+    //pagination
     const handleChangePagination = (e, p) => {
         setCurrentPage(p);
     }
 
-    // minus plus button
+    // minus and plus button
     const handleMinus = (item) => {
         if (item.quantity > 1) {
             const cartRequest = {
@@ -51,7 +49,6 @@ export default function Cart() {
             }
             addToCart(cartRequest).then(
                 data => {
-                    console.log(data)
                     setIsUpdate(!isUpdate)
                 }
             )
@@ -63,20 +60,20 @@ export default function Cart() {
             productVariantId: item.variant.id,
             quantity: newQuantity
         }
-        console.log("rq", cartRequest)
         addToCart(cartRequest).then(
             data => {
-                console.log(data)
                 setIsUpdate(!isUpdate)
             }
         )
     }
-    // end minus plus button
+    // end minus and plus button
 
+    //Navigate product detail
     const handleNavigateToProduct = (id) => {
         navigate(routes.product + "/" + id)
     }
 
+    //Delete cart
     const handleDeleteCart = (item) => {
         deleteCart(item.id)
         setCarts(
@@ -85,39 +82,52 @@ export default function Cart() {
         cart.setUpdateCart(!cart.updateCart)
     }
 
-    const handleClickVariant = (variant, cart) => {
-        const cartRequest = {
-            id: cart.id,
-            productVariantId: variant.id,
-            quantity: cart.quantity
+    useEffect(
+        () => {
+            var sum = productPurchaseList.reduce(
+                (a, currentValue) => {
+                    return a + currentValue.quantity * currentValue.variant.sellingPrice;
+                }, 0
+            );
+            setAmount(
+                sum
+            )
+        }, [productPurchaseList]
+    )
+
+    //Calculation amount
+    const handleClickCart = (product, e) => {
+        if (e.target.checked) {
+            setProductPurchaseList(
+                [
+                    ...productPurchaseList,
+                    product
+                ]
+            )
         }
-        console.log("rq", cartRequest)
-        addToCart(cartRequest).then(
+        else {
+            setProductPurchaseList(
+                productPurchaseList.filter(
+                    a => a.id != product.id
+                )
+            )
+        }
+    }
+
+    const changeVariant = (request) => {
+        console.log("re", request)
+        // console.log("request", cartRequest)
+        addToCart(request).then(
             data => {
-                console.log(data)
                 setIsUpdate(!isUpdate)
             }
         )
     }
-    console.log(carts)
-
-    const handleShowVariantModal = (id) => {
-        var modal = document.getElementById(id + "variantModal");
-        console.log(modal.style.display == "none")
-        if (modal.style.display === "none") {
-            modal.style.display = "block";
-        }
-        else {
-            modal.style.display = "none";
-
-        }
-        setIsUpdate(!isUpdate)
-    }
-
 
     return (
         <>
             <div className={cn("inner-content")}>
+                {/* head */}
                 <div className={cn("head")}>
                     <div className={cn("title")}>
                         <span>
@@ -128,14 +138,16 @@ export default function Cart() {
                         </span>
                     </div>
                 </div>
+                {/* main content */}
                 <div className={cn("content", "row")}>
+                    {/* content left */}
                     <div className={cn("content-left", "col-9")}>
+                        {/* header */}
                         <div className={cn("header", "row")}>
                             <div className={cn("form-check", "col-4")}>
-                                <input className={cn("form-check-input")} type="checkbox" value="" id="flexCheckDefault" />
-                                <label className={cn("form-check-label")} for="flexCheckDefault">
-                                    Chọn tất cả ({cart.cartSize} sản phẩm)
-                                </label>
+                                <span>
+                                    Sản phẩm
+                                </span>
                             </div>
                             <div className={cn("product-type", "col-3")}>
 
@@ -150,124 +162,28 @@ export default function Cart() {
 
                             </div>
                         </div>
+                        {/* Cart list */}
                         <div className={cn("cart-list", "row")}>
                             {
-                                carts.map(
+                                carts?.map(
                                     item => (
-                                        <div
-                                            key={item.id}
-                                            className={cn("cart-item", "row")}>
-                                            <div className={cn("form-check", "col-4")}>
-                                                <input className={cn("form-check-input")}
-                                                    type="checkbox" value="" id="flexCheckDefault" />
-                                                {/* card */}
-                                                <div className={cn("card", "mb-3")}>
-                                                    <div className={cn("row g-0")}>
-                                                        <div
-                                                            onClick={() => handleNavigateToProduct(item.product?.id)}
-                                                            className={cn("col-md-4")}>
-                                                            <img
-                                                                src={item.product.thumbnail}
-                                                                className={cn("img-fluid", "rounded-start", "img-product")} alt="..." />
-                                                        </div>
-                                                        <div className={cn("col-md-8")}>
-                                                            <div className={cn("card-body")}>
-                                                                <h5
-                                                                    onClick={() => handleNavigateToProduct(item.product?.id)}
-                                                                    className={cn("card-title", 'title', "product-title")}>
-                                                                    {item.product.name}
-                                                                </h5>
-                                                                <div className={cn("price-product")}>
-                                                                    <div className={cn("current-price")}>
-                                                                        <span>{item.variant?.price}</span>
-                                                                        <sup>đ</sup>
-                                                                    </div>
-                                                                    {
-                                                                        item.variant?.discount != null && (
-                                                                            <div className={cn("discount-price")}>
-                                                                                <div className={cn("original-price")}>
-                                                                                    {item.variant.oldPrice}
-                                                                                    <sup>đ</sup>
-                                                                                </div>
-                                                                            </div>
-                                                                        )
-                                                                    }
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {/* end card */}
-                                            </div>
-                                            <div className={cn("product-type", "col-3")}>
-                                                <button onClick={(e) => { handleShowVariantModal(item.id) }} className={cn("btn-product-type")}>
-                                                    <span>
-                                                        Phân loại hàng:
-                                                    </span>
-                                                    <ArrowDropDownIcon />
-                                                    <div className={cn("value")}>
-                                                        {item.variant?.variantValues[0].value}
-                                                    </div>
-                                                </button>
-                                                <div className={cn("variant-modal")}
-                                                    style={{ display: "none" }}
-                                                    id={item.id + "variantModal"}>
-                                                    <div className={cn("variant-name")}>
-                                                        {item.product.variants[0].variantValues[0].name}
-                                                    </div>
-                                                    <div className={cn("variant-list")}>
-                                                        {
-                                                            item.product.variants.map(
-                                                                variant => (
-                                                                    <Button
-                                                                        key={variant.id}
-                                                                        className={cn("variant-item")}
-                                                                        onClick={() => handleClickVariant(variant, item)}
-                                                                        color="success"
-                                                                        variant={
-                                                                            variant.id == item.variant.id ?
-                                                                                "contained" : "outlined"
-                                                                        }>
-                                                                        {variant.variantValues[0].value}
-                                                                    </Button>
+                                        <CartItem
+                                            cart={item}
+                                            // handleClickVariant={(product, cart) => handleClickVariant(product, cart)}
+                                            handleMinus={(cart) => handleMinus(cart)}
+                                            handlePlus={(cart) => handlePlus(cart)}
+                                            onDeleteCart={(cart) => handleDeleteCart(cart)}
+                                            handleNavigateToProduct={(id) => handleNavigateToProduct(id)}
+                                            handleClickCart={(cart, e) => handleClickCart(cart, e)}
+                                            setUpdate={setIsUpdate}
+                                            isUpdate={isUpdate}
+                                            changeVariant={changeVariant}
+                                        />
 
-                                                                )
-                                                            )
-                                                        }
-                                                    </div>
-                                                    <div className={cn("btn-bottom")}>
-                                                        <div class="modal-footer">
-                                                            <button type="button"
-                                                                style={{ fontSize: 14 }}
-                                                                onClick={(e) => { handleShowVariantModal(item.id) }}
-                                                                class={cn("btn-8", "me-2")}>Hủy</button>
-                                                            {/* <button type="button" class={cn("btn-7")}>Thêm</button> */}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                            <div className={cn("col-2")}>
-                                                <div className={cn("quantity-product")}>
-                                                    <RemoveIcon onClick={() => handleMinus(item)} />
-                                                    <input type="number" value={item.quantity} />
-                                                    <AddIcon onClick={() => handlePlus(item)} />
-                                                </div>
-                                            </div>
-                                            <div className={cn("unit-price", "col-2")}>
-                                                <span>
-                                                    {item.quantity * item.variant?.price}đ
-                                                </span>
-                                            </div>
-                                            <div
-                                                onClick={() => handleDeleteCart(item)}
-                                                className={cn("delete-icon", "col-1")}>
-                                                <DeleteIcon />
-                                            </div>
-                                        </div>
                                     )
                                 )
                             }
+                            {/* pagination */}
                             <Pagination
                                 count={totalPage}
                                 size="large"
@@ -279,17 +195,23 @@ export default function Cart() {
                             />
                         </div>
                     </div>
+                    {/* end content left */}
+                    {/* content right */}
                     <div className={cn("col-3")}>
                         <div className={cn("content-right")}>
                             <div className={cn("money")}>
                                 <span>Thành tiền</span>
-                                <span>0đ</span>
+                                <span>{VND.format(amount)} đ</span>
                             </div>
                             <div className={cn("amount")}>
-                                <span>Tổng số tiền (gồm VAT)</span>
-                                <span className={cn("price")}>0đ</span>
+                                <span>Tổng số tiền</span>
+                                <span className={cn("price")}>{VND.format(amount)} đ</span>
                             </div>
-                            <button className={cn("btn-3", "btn-payment")}>
+                            <button className={cn("btn-3", "btn-payment")}
+                                onClick={() => {
+                                    productPurchaseList.length != 0 && navigate(routes.order, { state: { productPurchaseList } })
+                                }}
+                            >
                                 Thanh toán
                             </button>
                         </div>

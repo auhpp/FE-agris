@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import style from "./SearchProduct.module.css";
 import classNames from "classnames/bind";
-import { getAllCategory } from "../../services/categoryService";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { searchProduct } from "../../services/productService";
 import Card from "../../components/Card";
 import { Pagination } from "@mui/material";
@@ -14,13 +13,17 @@ export default function SearchProduct() {
     const [query, setQuery] = useState(
         new URLSearchParams(location.search).get("name") || ""
     );
-
     var [results, setResults] = useState([]);
     var [totalPage, setTotalPage] = useState(1);
     var [currentPage, setCurrentPage] = useState(1);
     var [pageSize, setPageSize] = useState(10);
     var [totalElement, setTotalElement] = useState(0);
 
+    useEffect(() => {
+        setQuery(new URLSearchParams(location.search).get("name"))
+    }, [new URLSearchParams(location.search).get("name")])
+
+    //Search product
     useEffect(
         () => {
             const name = query;
@@ -33,7 +36,6 @@ export default function SearchProduct() {
                         setCurrentPage(data.result.currentPage)
                         setPageSize(data.result.pageSize)
                         setTotalElement(data.result.totalElements)
-                        console.log(data)
                     }
                 }
             );
@@ -41,6 +43,7 @@ export default function SearchProduct() {
         [query, currentPage]
     )
 
+    //Pagination
     const handleChangePagination = (e, p) => {
         setCurrentPage(p);
     }
@@ -64,8 +67,8 @@ export default function SearchProduct() {
                         </div>
                     </section>
                 </div>
-
                 {/* End breadcrumb */}
+
                 {/* result list */}
                 {/* <!-- product --> */}
                 <div className={cn("products-section")}>
@@ -85,7 +88,6 @@ export default function SearchProduct() {
                             {
                                 results.map(
                                     (item) => (
-
                                         <div key={item.id} className={cn("col-xl-2", "col-md-4", "col-4", "product")}>
                                             <Card product={item} />
                                         </div>

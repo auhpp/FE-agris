@@ -87,7 +87,7 @@ export async function deleteAttribute(attributeId) {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem("token")}`
         },
-    });
+    }).then(data => data.json());
     return promise;
 }
 
@@ -113,6 +113,26 @@ export async function deleteProduct(productId) {
 
 export async function findById(id) {
     var promise = fetch('http://localhost:8080/product/get/' + id, {
+        method: 'GET'
+    }).then(data => data.json());
+    return promise;
+}
+
+
+// variant
+
+export async function getAllVariant() {
+    var promise = fetch('http://localhost:8080/product/variant', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem("token")}`
+        },
+    }).then(data => data.json());
+    return promise;
+}
+
+export async function getVariantValue(name) {
+    var promise = fetch('http://localhost:8080/product/variant/' + name, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem("token")}`

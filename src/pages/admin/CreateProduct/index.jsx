@@ -5,25 +5,159 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getAllCategory } from "../../../services/categoryService";
-import { getAllSupplier } from "../../../services/supplierCategory";
-import { createProduct, createProductThumbnail, createProductImages, deleteImage, deleteAttribute, deleteVariant } from "../../../services/productService";
+import { use, useEffect, useState } from "react";
+import { createCategory, getAllCategory } from "../../../services/categoryService";
+import {
+    deleteImage, deleteAttribute, deleteVariant,
+    getAllVariant,
+    getVariantValue,
+    createProduct,
+    createProductImages,
+    createProductThumbnail
+} from "../../../services/productService";
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import { getStock } from "../../../services/stockService";
+import { formatDate } from "../../../utils/formatDate";
+import AddDynamicInputFields from "../../../components/AddDynamicInputFields";
+import Form from 'react-bootstrap/Form';
+import { cartesianProduct } from "../../../utils/variant";
+import { createCalculationUnit, getCalculationUnit } from "../../../services/calculationUnit";
 import { inputFocus } from "../../../utils/input";
+import ModalWarningDelete from "../../../components/ModalWarningDelete";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import AlertError from "../../../components/AlertError";
+import CloseIcon from '@mui/icons-material/Close';
+import { Box, Breadcrumbs, ImageList, ImageListItem, Typography } from "@mui/material";
+import { styleModal } from "../ImportGoods";
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import { routes } from "../../../config/routes";
 
 const cn = classNames.bind(style);
 
-
+function validateValueArray(array, value) {
+    var valid = true;
+    var values = array.map(a => a.values)
+    values.forEach(
+        a => {
+            a.forEach(element => {
+                if (element == value) {
+                    valid = false;
+                }
+            });
+        }
+    )
+    return valid;
+}
 export default function CreateProduct() {
     const navigate = useNavigate();
     const location = useLocation();
     const product = location.state?.item;
+    const isView = location.state?.isView;
+    const isEdit = location.state?.isEdit;
     var attributeList = [];
     var variantList = [];
     var imageList = [];
+    const [show, setShow] = useState(false);
+    const [showCalculationUnit, setShowCalculationUnit] = useState(false);
+    const [calculationUnitRequest, setCalculationUnitRequest] = useState({
+        name: "",
+        description: ""
+    });
+    const [calculationUnits, setCalculationUnits] = useState([]);
+
+    const [variationTypes, setVariantTypes] = useState([]);
+    const [variation, setVariation] = useState([])
+    const [unavailableCombinations, setUnavailableCombinations] = useState([])
+    const [variantNames, setVariantNames] = useState([]);
+    const [variantCombination, setVariantCombination] = useState([]);
+    const [newVariantError, setNewVariantError] = useState({
+        name: '',
+        existed: ''
+    })
+
+    const [variantValues, setVariantValues] = useState([]);
+    const [shouldCreateCombination, setShouldCreateCombination] = useState(false);
+    const [showModalWarningDelete, setShowModalWarningDelete] = useState(false)
+    const [statusProduct, setStatusProduct] = useState(product?.status ?? "ACTIVE")
+    const [variantDelete, setVariantDelete] = useState({})
+    const [showAlertDeleteError, setShowAlterDeleteError] = useState(false)
+    const [showModalWarningDeleteVariantValue, setShowModalWarningDeleteVariantValue] = useState(false)
+    const [variantValueDelete, setVariantValueDelete] = useState({})
+    const [variantValueNameDelete, setVariantValueNameDelete] = useState({})
+    const [openModalShipment, setOpenModalShipment] = useState(false)
+
+    console.log("product", product)
+    //Variant
+    useEffect(
+        () => {
+            getAllVariant().then(
+                data => {
+                    console.log("variant", data)
+                    setVariantNames(data.result)
+                }
+            )
+        }, []
+    )
+    useEffect(
+        () => {
+            var tempVariantTypes = [];
+            var tempVariantCombination = [];
+            product?.variants?.forEach(element => {
+                var tempObject = {
+                    id: element.id,
+                    variantCombination: element.variantValues.map(
+                        a => a.value
+                    ),
+                    stock: element.stock,
+                    sellingPrice: element.sellingPrice,
+                    capitalPrice: element.capitalPrice,
+                    calculationUnitId: element.calculationUnit.id
+                };
+                tempVariantCombination.push(tempObject)
+                element.variantValues.forEach(
+                    a => {
+                        var isFound = false;
+                        tempVariantTypes.forEach
+                            (
+                                it => {
+                                    if (it.name == a.name) {
+                                        isFound = true
+                                        it.values = [...it.values, a.value]
+                                    }
+                                }
+                            )
+                        if (!isFound) {
+                            tempVariantTypes.push(
+                                {
+                                    id: Math.random(),
+                                    name: a.name,
+                                    values: [a.value]
+                                }
+                            )
+                        }
+                    }
+                )
+            });
+            setVariantTypes(tempVariantTypes)
+            setVariantCombination(tempVariantCombination)
+        }, [product]
+    )
+
+    //calculationUnit
+    useEffect(
+        () => {
+            getCalculationUnit().then(
+                data => {
+                    console.log("calcUnit", data)
+                    setCalculationUnits(data.result)
+                }
+            )
+        }, []
+    )
     if (product) {
         attributeList = product.attributes;
-        console.log(product)
         variantList = product.variants.map(
             (item, index) => {
                 return {
@@ -31,11 +165,8 @@ export default function CreateProduct() {
                     name: item?.variantValues[0].name,
                     value: item?.variantValues[0].value,
                     stock: item?.stock,
-                    price: item?.price,
-                    discount: item?.discount ?? "",
-                    discountUnit: item?.discountUnit ?? "",
-                    startDate: item?.startDate ?? "",
-                    endDate: item?.endDate ?? ""
+                    sellingPrice: item?.sellingPrice,
+                    capitalPrice: item?.capitalPrice
                 }
             }
         );
@@ -50,15 +181,13 @@ export default function CreateProduct() {
         );
     }
     //Preview image
-    const [id, setId] = useState(1);
     const [files, setFile] = useState(imageList);
     const [mainImageError, setMainImageError] = useState("");
     function handleChange(e) {
-        setId(id + 1);
         setFile([
             ...files,
             {
-                id: id,
+                id: window.crypto.randomUUID(),
                 path: URL.createObjectURL(e.target.files[0]),
                 file: e.target.files[0]
             }
@@ -81,27 +210,11 @@ export default function CreateProduct() {
         }, []
     )
 
-    //get all category
-    var [suppliers, setSuppliers] = useState([]);
-    useEffect(
-        () => {
-            getAllSupplier().then(
-                data => {
-                    setSuppliers(data.result)
-
-                }
-            );
-        }, []
-    )
     //Product
     var [productInput, setProductInput] = useState({
         id: product?.id ?? null,
         name: product?.name ?? null,
         categoryId: product?.category.id ?? null,
-        supplierId: product?.supplier.id ?? null,
-        origin: product?.origin == "Việt Nam" ? "VIET_NAM" : null,
-        productionDate: product?.productionDate ?? null,
-        expiry: product?.expiry ?? null,
         description: product?.description ?? null,
         thumbnail: product?.thumbnail ?? null
     });
@@ -110,10 +223,6 @@ export default function CreateProduct() {
         id: null,
         name: null,
         categoryId: null,
-        supplierId: null,
-        origin: null,
-        productionDate: null,
-        expiry: null,
         description: null,
         thumbnail: null
     });
@@ -143,24 +252,6 @@ export default function CreateProduct() {
                         stateObj[name] = 'Vui lòng chọn danh mục';
                     }
                     break;
-
-                case 'supplierId':
-                    if (!value) {
-                        stateObj[name] = 'Vui lòng chọn nhà cung cấp.';
-                    }
-                    break;
-                case 'origin':
-                    if (!value) {
-                        stateObj[name] = 'Vui lòng chọn nguồn gốc';
-                    }
-                    break;
-
-                case 'productionDate':
-                    if (!value) {
-                        stateObj[name] = 'Vui lòng chọn ngày sản xuất.';
-                    }
-                    break;
-
                 case 'description':
                     if (!value) {
                         stateObj[name] = 'Vui lòng nhập mô tả.';
@@ -214,7 +305,7 @@ export default function CreateProduct() {
         )
         if (isDelete) {
             //Call Api
-            // deleteAttribute(item.id);
+            deleteAttribute(item.id);
         }
     }
 
@@ -295,170 +386,41 @@ export default function CreateProduct() {
         )
     }
 
-    //Variant 
-    var [variantInput, setVariantInput] = useState({
-        id: null,
-        name: '',
-        value: '',
-        stock: 0,
-        price: '',
-        discount: '',
-        discountUnit: '',
-        startDate: '',
-        endDate: ''
-    });
-    var [variants, setVariants] = useState([...variantList]);
-    var [variantError, setVariantError] = useState({
-        name: '',
-        value: '',
-        stock: "",
-        price: ""
-    });
+    //Variant    
     var [variantMainError, setVariantMainError] = useState("");
 
-    const onVariantInputChange = (e) => {
-        const { name, value } = e.target;
-        setVariantInput((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-
-        validateVariantInput(e);
-    };
-    const validateVariantInput = (e) => {
-        let { name, value } = e.target;
-        setVariantError((prev) => {
-            const stateObj = { ...prev, [name]: '' };
-
-            switch (name) {
-                case 'name':
-                    if (!value) {
-                        stateObj[name] = 'Vui lòng nhập tên';
-                    }
-                    break;
-                case 'value':
-                    if (!value) {
-                        stateObj[name] = 'Vui lòng nhập giá trị';
-                    }
-                    break;
-                case 'stock':
-                    if (!value) {
-                        stateObj[name] = 'Vui lòng nhập giá trị';
-                    }
-                    break;
-                case 'price':
-                    if (!value) {
-                        stateObj[name] = 'Vui lòng nhập giá';
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            return stateObj;
-        });
-    };
-    const [variantId, setVariantId] = useState(window.crypto.randomUUID());
-    const handleSubmitVariant = (e) => {
-        const field = ["name",
-            "value",
-            "stock",
-            "price"]
-        var ok = true;
-        field.forEach((it) => {
-            if (variantInput[it].length == 0) {
-                ok = false;
-            }
-        })
-        if (ok) {
-            if (variantInput.id !== null) {
-                var element = variants.find((e) => e.id == variantInput.id);
-                element.id = variantInput.id;
-                element.name = variantInput.name;
-                element.value = variantInput.value;
-                element.stock = variantInput.stock;
-                element.price = variantInput.price;
-                element.discount = variantInput.discount;
-                element.discountUnit = variantInput.discountUnit;
-                element.startDate = variantInput.startDate;
-                element.endDate = variantInput.endDate;
-                refreshVariantInput();
-            }
-            else {
-                setVariants([
-                    ...variants,
-                    {
-                        id: variantId,
-                        name: variantInput.name,
-                        value: variantInput.value,
-                        stock: variantInput.stock,
-                        price: variantInput.price,
-                        discount: variantInput.discount,
-                        discountUnit: variantInput.discountUnit,
-                        startDate: variantInput.startDate,
-                        endDate: variantInput.endDate
-                    }
-                ]
-                )
-                setVariantId(window.crypto.randomUUID())
+    const handleDefaultVariant = () => {
+        if (variationTypes.length == 0) {
+            setVariantTypes(
+                prev =>
+                    [...prev, { name: "DEFAULT", values: ["DEFAULT"] }]
+            );
+            setShouldCreateCombination(true)
+        }
+        else if (variationTypes.length == 1) {
+            if (variationTypes[0].name == "DEFAULT") {
+                setShouldCreateCombination(true)
             }
         }
     }
-    const refreshVariantInput = () => {
-        setVariantInput({
-            id: null,
-            name: "",
-            value: "",
-            stock: 0,
-            price: '',
-            discount: '',
-            discountUnit: '',
-            startDate: '',
-            endDate: ''
-        })
-    }
 
-    const handleEditVariant = (variant) => {
-        setVariantInput({
-            id: variant.id,
-            name: variant.name,
-            value: variant.value,
-            stock: variant.stock,
-            price: variant.price,
-            discount: variant.discount,
-            discountUnit: variant.discountUnit,
-            startDate: variant.startDate,
-            endDate: variant.endDate
+    useEffect(() => {
+        if (shouldCreateCombination && variationTypes.length > 0) {
+            handleCreateVariantCombination();
+            setShouldCreateCombination(false); // reset cờ
         }
-        )
-    }
-
-    const handleDeleteVariant = (item) => {
-        var isDelete = false;
-        variantList?.forEach(
-            (it) => {
-                if (it.id == item.id) {
-                    isDelete = true;
-                }
-            }
-        )
-        if (isDelete) {
-            deleteVariant(item.id);
-        }
-    }
-
-
+    }, [variationTypes, shouldCreateCombination]);
 
     // Submit product
     const handleSubmitProduct = () => {
         let productRequest = {
-            id: product?.id ?? null
+            id: product?.id ?? null,
+            status: statusProduct
         };
         let productThumbnailRequest = "";
         let imageRequest = [];
         var ok = true;
-        let fields = ["name", "categoryId", "supplierId",
-            "origin", "productionDate", "description"];
+        let fields = ["name", "categoryId", "description"];
 
         fields.forEach(field => {
             if (productInput[field]) {
@@ -479,7 +441,7 @@ export default function CreateProduct() {
         else {
             setProductError((prev) => ({
                 ...prev,
-                thumbnail: "Vui lòng thêm thumnail"
+                thumbnail: "Vui lòng thêm thumbnail"
             }))
             ok = false
         }
@@ -504,41 +466,14 @@ export default function CreateProduct() {
             // console.log(productRequest.attributes);
         }
         // Variant
-        if (variants.length == 0) {
+        if (variantCombination.length == 0) {
             setVariantMainError("Vui lòng thêm variant cho sản phẩm")
             ok = false
         }
         else {
             setVariantMainError("")
-            const variantRequest = [];
-            const variantValuesRequest = [];
-            variants.forEach((it) => {
-                // Find if the variant name already exists in the variantRequest array
-                let variant = variantRequest.find(v => v.name === it.name);
-                if (!variant) {
-                    // If not found, create a new object for the variant
-                    variant = { name: it.name, values: [] };
-                    variantRequest.push(variant);  // Add it to the array
-                }
-
-                // Push the value into the corresponding variant's values array
-                variant.values.push(it.value);
-                const isNew = !variantList.some(element => element.id === it.id);
-                variantValuesRequest.push({
-                    id: isNew ? null : it.id,
-                    variantCombination: [
-                        it.value
-                    ],
-                    stock: it.stock,
-                    price: it.price,
-                    startDate: it.startDate,
-                    endDate: it.endDate,
-                    discount: it.discount,
-                    discountUnit: it.discountUnit
-                })
-            })
-            productRequest.variants = variantRequest;
-            productRequest.variantValues = variantValuesRequest;
+            productRequest.variants = variationTypes;
+            productRequest.variantValues = variantCombination;
         }
         //image
         if (files.length == 0) {
@@ -552,23 +487,24 @@ export default function CreateProduct() {
                 }
             })
         }
-        // console.log(productRequest)
-        // console.log(imageRequest)
 
         if (ok) {
             console.log("product Request")
             console.log(productRequest)
             if (productRequest.id != null) {
                 createProduct(productRequest).then(
-                    data => console.log(data)
+                    data => {
+                        if (data.code == 200) {
+                            if (productThumbnailRequest != '') {
+                                createProductThumbnail(productThumbnailRequest, productRequest.id);
+                            }
+                            if (imageRequest.length != 0) {
+                                createProductImages(imageRequest, productRequest.id)
+                            }
+                            navigate(-1)
+                        }
+                    }
                 )
-                if (productThumbnailRequest != '') {
-                    createProductThumbnail(productThumbnailRequest, productRequest.id);
-                }
-                if (imageRequest.length != 0) {
-                    createProductImages(imageRequest, productRequest.id)
-                }
-
             }
             else {
                 createProduct(productRequest).then(
@@ -576,50 +512,376 @@ export default function CreateProduct() {
                         // console.log(data);
                         if (data.code == 200) {
                             createProductThumbnail(productThumbnailRequest, data.result.id)
-                            // .then(it => 
-                            //     console.log(it)
-                            // );
+                                .then(it =>
+                                    console.log(it)
+                                );
                             createProductImages(imageRequest, data.result.id)
-                            // .then(
-                            //     it => console.log(it)
-                            // );
+                                .then(
+                                    it => console.log(it)
+                                );
+                            navigate(-1)
                         }
                     }
                 );
             }
         }
     }
+
+    // category Modal 
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+    const [categoryError, setCategoryError] = useState("")
+    const [categoryName, setCategoryName] = useState("");
+    const handleChangeCategoryName = (e) => {
+        const { value } = e.target;
+        setCategoryName(value)
+    }
+    const handleSubmitCategory = (e) => {
+        if (!categoryName) {
+            setCategoryError("Nhập tên danh mục")
+        }
+        else {
+            console.log(categoryName)
+            createCategory({ name: categoryName }).then(
+                data => {
+                    if (data.code == 200) {
+                        getAllCategory().then(
+                            categoryData => setCategories(categoryData?.result)
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    //Warehouse modal
+    const [warehouseList, setWarehouseList] = useState([]);
+    const [showWareHouse, setShowWarehouse] = useState(false);
+    const handleCloseWarehouse = () => setShowWarehouse(false);
+    const handleShowWarehouse = () => setShowWarehouse(true);
+
+    const handleShowWarehouseCard = (id) => {
+        if (product?.id != null) {
+            handleShowWarehouse()
+            getStock(id).then(
+                data => {
+                    console.log(data)
+                    data.result.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate))
+                    setWarehouseList(data.result);
+                }
+            )
+        }
+    }
+
+    useEffect(
+        () => {
+            console.log("variationTypes", variationTypes)
+        }, [variationTypes]
+    )
+
+    useEffect(
+        () => {
+            console.log(variantCombination)
+        }, [variantCombination]
+    )
+
+    const handleCreateVariantCombination = (newVariant) => {
+        var valid = true;
+        if (variationTypes.length == 0) {
+            valid = false
+        }
+        variationTypes.forEach(
+            it => {
+                if (it.name == "") {
+                    valid = false
+                    setNewVariantError({
+                        name: "Hãy chọn thuộc tính"
+                    })
+                    return;
+                }
+                it.values.forEach(
+                    value => {
+                        if (value == "") {
+                            valid = false;
+                            setNewVariantError({
+                                name: "Hãy chọn giá trị"
+                            })
+                            return;
+                        }
+                    }
+                )
+            }
+        )
+        if (!valid) return;
+        else {
+            var values = variationTypes.map(a => a.values);
+            if (newVariant) {
+                values = newVariant.map(a => a.values);
+            }
+            const variantCombinations = cartesianProduct(values);
+            console.log("combinations", variationTypes)
+            var temp = [];
+            var cnt = 0;
+            if (variantCombination?.length > 0) {
+                variantCombination.forEach(
+                    (a, index) => {
+                        if (a.id != null && variantCombinations[index]) {
+                            a.variantCombination = variantCombinations[index];
+                            temp.push(a)
+                        }
+                        else if (variantCombinations[index]) {
+                            temp.push(
+                                {
+                                    id: null,
+                                    variantCombination: variantCombinations[index],
+                                    stock: "",
+                                    sellingPrice: "",
+                                    capitalPrice: "",
+                                    calculationUnitId: ""
+                                }
+                            )
+                        }
+                        cnt++;
+                    }
+                )
+            }
+            if (variantCombination.length > 0 || variantCombination.length < variantCombinations.length) {
+                console.log("yes")
+                var x = cnt;
+                while (x < variantCombinations.length) {
+                    if (variantCombinations[x])
+                        temp.push(
+                            {
+                                id: null,
+                                variantCombination: variantCombinations[x],
+                                stock: "",
+                                sellingPrice: "",
+                                capitalPrice: "",
+                                calculationUnitId: ""
+                            }
+                        )
+                    x++
+                }
+            }
+
+        }
+        setVariantCombination(temp)
+    }
+
+    // Calculation unit
+    const handleSubmitCalculationUnit = () => {
+        createCalculationUnit(calculationUnitRequest).then(
+            data => {
+                console.log(data)
+                setCalculationUnits(prev => [
+                    ...prev, data.result
+                ])
+            }
+        )
+    }
+
+    async function fetchVariant(item) {
+        const data = await getVariantValue(item.name);
+        setVariantValues(data.result)
+    }
+
+    const handleDeleteVariant = () => {
+
+        if (variantDelete.id != null) {
+            deleteVariant(variantDelete.id).then(
+                data => {
+                    if (data.code == 200) {
+                        setVariantCombination(prev =>
+                            prev.filter(variant =>
+                                JSON.stringify(
+                                    variant.variantCombination
+                                )
+                                !== JSON.stringify(
+                                    variantDelete.variantCombination
+                                )
+                            )
+                        )
+                        if (variationTypes[0]?.name == "DEFAULT") {
+                            setVariantTypes(
+                                prev =>
+                                    prev.filter(a => a.name != "DEFAULT")
+
+                            )
+                        }
+                    }
+                    else {
+                        setShowAlterDeleteError(true)
+                    }
+                }
+            )
+        }
+        else if (variantDelete.id == null) {
+            setVariantCombination(prev =>
+                prev.filter(variant =>
+                    JSON.stringify(
+                        variant.variantCombination
+                    )
+                    !== JSON.stringify(
+                        variantDelete.variantCombination
+                    )
+                )
+            )
+            if (variationTypes[0]?.name == "DEFAULT") {
+                setVariantTypes(
+                    prev =>
+                        prev.filter(a => a.name != "DEFAULT")
+
+                )
+            }
+        }
+        setShowModalWarningDelete(false)
+    }
+
+    const handleDeleteVariantValue = () => {
+        var variantIds = [];
+        var temp = [];
+        variantCombination.forEach(
+            a => {
+                var valid = a.variantCombination.some(it => it == variantValueDelete)
+                console.log("valid", a.variantCombination)
+                if (valid) {
+                    if (a.id != null) {
+                        variantIds.push(a.id)
+                    }
+                }
+                else {
+                    temp.push(a)
+                }
+            }
+        )
+        console.log("deleteRequest", variantIds.join(","))
+        deleteVariant(variantIds.join(",")).then(
+            data => {
+                console.log(data)
+                if (data.status == 200) {
+                    setVariantTypes(prev =>
+                        prev.map(variant =>
+                            variant.name === variantValueNameDelete.name
+                                ? { ...variant, values: variant.values.filter(a => a != variantValueDelete) }
+                                : variant
+                        )
+                    )
+                    setVariantCombination(temp);
+                }
+                else {
+                    setShowAlterDeleteError(true)
+                }
+            }
+        )
+        setShowModalWarningDeleteVariantValue(false)
+
+    }
     return (
         <>
-
-            <div className={cn("container", "mt-5")}>
-                <div className="row mb-4">
+            <div className={cn("container", "mt-1")}>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <div
+                        style={{ cursor: "pointer" }}
+                        underline="hover" onClick={() => {
+                            navigate(routes.searchProduct)
+                        }}>
+                        Danh sách sản phẩm
+                    </div>
+                    {
+                        isView &&
+                        <Typography sx={{ color: 'var(--primary-color)' }}>{
+                            product?.name
+                        }</Typography>
+                    }
+                    {
+                        isEdit &&
+                        <Typography sx={{ color: 'var(--primary-color)' }}>
+                            Chỉnh sửa sản phẩm
+                        </Typography>
+                    }
+                    {
+                        !isView && !isEdit &&
+                        <Typography sx={{ color: 'var(--primary-color)' }}>
+                            Thêm sản phẩm
+                        </Typography>
+                    }
+                </Breadcrumbs>
+                <div className="row mb-4 mt-2">
                     <div onClick={() => navigate(-1)} className={cn("back-previous-page", "col")}>
                         <ArrowBackIosIcon />
-                        <span>Quay lại</span>
+                        <span>Sản phẩm</span>
                     </div>
                     <div className={cn("btn-create-product", 'col')}>
-                        <button
-                            onClick={handleSubmitProduct}
-                            className={cn("btn-4")}>Tạo sản phẩm</button>
+                        {isView != true && (
+                            <>
+                                <Button variant="light"
+                                    className={cn("me-2", "btn-status")}
+                                    active={
+                                        statusProduct == "ACTIVE" ?
+                                            false
+                                            :
+                                            true
+
+                                    }
+                                    onClick={() => {
+                                        if (statusProduct == "ACTIVE") {
+                                            setStatusProduct("INACTIVE")
+                                        }
+                                        else {
+                                            setStatusProduct("ACTIVE")
+                                        }
+                                    }}
+                                >
+                                    <div className={cn("content")}>
+                                        {
+                                            statusProduct == "ACTIVE" ? (
+                                                <>
+                                                    <VisibilityIcon />
+                                                    <span>
+                                                        Ẩn
+                                                    </span>
+                                                </>
+                                            )
+                                                :
+                                                <>
+                                                    <VisibilityOffIcon />
+                                                    <span>
+                                                        Hiển thị
+                                                    </span>
+                                                </>
+
+                                        }
+                                    </div>
+                                </Button>
+                                <button
+                                    onClick={handleSubmitProduct}
+                                    className={cn("btn-4")}>{
+                                        isEdit ? "Cập nhật" : "Tạo sản phẩm"
+                                    }</button>
+
+                            </>
+                        )
+                        }
                     </div>
                 </div>
                 <div className="row">
                     {/* back */}
                     {/* Image part */}
-                    <div className={cn("col-3", "img-content")}>
+                    <div className={cn("col-12", "img-content")}>
                         <div className={cn("inner-content")}>
                             <div className={cn("head", "row")}>
-                                <h3 className={cn("title", "col-6")}>Ảnh sản phẩm</h3>
+                                <h4 className={cn("title", "col-6")}>Ảnh sản phẩm</h4>
                                 <div className={cn("add-img", "col-6")}>
-                                    <button className={cn("add-img-btn", "btn-6")}>
-                                        <label for="product-image">
-                                            <AddIcon />
-                                            <span>
-                                                Thêm ảnh
-                                            </span>
-                                        </label>
-                                    </button>
+                                    {isView != true && (
+                                        <button className={cn("add-img-btn", "btn-6")}>
+                                            <label for="product-image">
+                                                <AddIcon />
+                                                <span>
+                                                    Thêm ảnh
+                                                </span>
+                                            </label>
+                                        </button>
+                                    )}
 
                                     <input
                                         multiple
@@ -628,44 +890,41 @@ export default function CreateProduct() {
                                 {mainImageError && (<span className={cn("text-danger")}>{mainImageError}</span>)}
                             </div>
                             <div className={cn("img-list")}>
-                                {
-                                    files?.map(
-                                        (item, index) =>
-                                        (
+                                <ImageList sx={{ width: "100%", height: 164 }} cols={5} rowHeight={164}>
+                                    {files?.map((item) => (
+                                        <ImageListItem key={item.img}>
                                             <div
                                                 key={item.id}
                                                 className={cn("img-item", "row")}>
-                                                <img className={cn("col-9", "img-preview")}
+                                                <img
+                                                    loading="lazy"
+                                                    className={cn("col-9", "img-preview")}
                                                     src={item.path} alt="" />
-                                                <button
-                                                    onClick={() => {
-                                                        setFile(
-                                                            files.filter(it => it.id !== item.id)
-                                                        )
-                                                        handleDeleteImage(item)
-                                                    }}
-                                                    className={cn("delete-btn", "col-3")}>
-                                                    <DeleteIcon />
-                                                    <span>Xóa</span>
-                                                </button>
+                                                {isView != true && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setFile(
+                                                                files.filter(it => it.id !== item.id)
+                                                            )
+                                                            handleDeleteImage(item)
+                                                        }}
+                                                        className={cn("delete-btn", "col-3")}>
+                                                        <DeleteIcon />
+                                                        <span>Xóa</span>
+                                                    </button>
+                                                )}
                                             </div>
-                                        )
-                                    )
-                                }
-                                {/* <button className={cn("load-more-btn", "btn-5")}>
-                                    <AddIcon />
-                                    <span>
-                                        Hiển thị thêm
-                                    </span>
-                                </button> */}
+                                        </ImageListItem>
+                                    ))}
+                                </ImageList>
                             </div>
                         </div>
                     </div>
                     {/* End image part */}
                     {/* Product info */}
-                    <div className={cn("col-9", "product-info")}>
+                    <div className={cn("col-12", "product-info")}>
                         <div className={cn("inner-content")}>
-                            <h3 className={cn("title")}>Thông tin</h3>
+                            <h4 className={cn("title")}>Thông tin</h4>
                             <div className={cn("main-content")}>
                                 <form action="" className={cn("form-create-product")}>
                                     {/* name */}
@@ -675,6 +934,7 @@ export default function CreateProduct() {
                                         <div className={cn("col-9")}>
                                             <input
                                                 type="text"
+                                                disabled={isView ? true : false}
                                                 id="productName"
                                                 className={cn("form-control", "input-item", "productName")}
                                                 name="name"
@@ -689,8 +949,10 @@ export default function CreateProduct() {
                                     <div className={cn("mb-4 row")}>
                                         <label for="categoryId"
                                             className={cn("col-3", "col-form-label", "input-title")}>Danh mục</label>
-                                        <div className={cn("col-9")}>
-                                            <select name="categoryId" id="categoryId"
+                                        <div className={cn("col-8")}>
+                                            <select
+                                                disabled={isView ? true : false}
+                                                name="categoryId" id="categoryId"
                                                 className={cn("form-select", "form-select-item", "categoryId")}
                                                 onChange={onProductInputChange}
                                             >
@@ -712,119 +974,77 @@ export default function CreateProduct() {
                                             </select>
                                             {productError.categoryId && (<span className={cn("text-danger")}>
                                                 {productError.categoryId}</span>)}
+                                        </div>
+                                        {isView != true && (
+                                            <div className={cn("col-1")}>
+                                                {/* category Modal */}
+                                                <Button size="sm" variant="outline-secondary" onClick={handleShow}>
+                                                    <AddIcon />
+                                                </Button>
 
-                                        </div>
-                                    </div>
-                                    {/* Supplier */}
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="supplierId"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Nhà cung cấp</label>
-                                        <div className={cn("col-9")}>
-                                            <select name="supplierId" id="supplierId"
-                                                onChange={onProductInputChange}
-                                                className={cn("form-select", "form-select-item", "supplierId")}>
-                                                <option value="">-- Chọn nhà cung cấp --</option>
-                                                {
-                                                    suppliers?.map(
-                                                        (item, index) => (
-                                                            item.id == productInput.supplierId ?
-                                                                (<option selected={true} key={item.id} value={item.id} >
-                                                                    {item.name}
-                                                                </option>)
-                                                                :
-                                                                (<option key={item.id} value={item.id} >
-                                                                    {item.name}
-                                                                </option>)
-                                                        )
-                                                    )
-                                                }
+                                                <Modal
+                                                    aria-labelledby="contained-modal-title-vcenter"
+                                                    centered
+                                                    show={show} onHide={handleClose}
+                                                    className={cn("category-modal")}
+                                                >
+                                                    <Modal.Header closeButton>
+                                                        <Modal.Title>Thêm danh mục</Modal.Title>
+                                                    </Modal.Header>
 
-                                            </select>
-                                            {productError.supplierId && (<span className={cn("text-danger")}>
-                                                {productError.supplierId}</span>)}
+                                                    <Modal.Body>
+                                                        {/* Name */}
+                                                        <div className={cn("mb-2 row")}>
+                                                            <label for="nameCategory"
+                                                                className={cn("col-3", "col-form-label", "input-title")}>Tên</label>
+                                                            <div className={cn("col-9")}>
+                                                                <input
+                                                                    type="text"
+                                                                    id="nameCategory"
+                                                                    className={cn("form-control", "input-item")}
+                                                                    name="nameCategory"
+                                                                    onChange={handleChangeCategoryName}
+                                                                />
+                                                                {categoryError && (<span className={cn("text-danger")}>{categoryError}</span>)}
 
-                                        </div>
+                                                            </div>
+                                                        </div>
+                                                    </Modal.Body>
+
+                                                    <Modal.Footer>
+                                                        <Button size="lg" variant="outline-secondary" onClick={handleClose}>Hủy</Button>
+                                                        <Button
+                                                            size="lg" variant="success" onClick={(e) => {
+                                                                handleSubmitCategory(e)
+                                                                handleClose()
+
+                                                            }
+                                                            }>Lưu</Button>
+                                                    </Modal.Footer>
+                                                </Modal>
+                                            </div>
+                                        )}
                                     </div>
-                                    {/* Origin */}
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="origin"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Xuất xứ</label>
-                                        <div className={cn("col-9")}>
-                                            <select
-                                                onChange={onProductInputChange}
-                                                name="origin" id="origin"
-                                                className={cn("form-select", "form-select-item", "origin")}
-                                                value={productInput.origin}
-                                            >
-                                                <option value="">-- Chọn quốc gia --</option>
-                                                <option value="VIET_NAM">Việt Nam</option>
-                                            </select>
-                                            {productError.origin && (<span className={cn("text-danger")}>
-                                                {productError.origin}</span>)}
-                                        </div>
-                                    </div>
-                                    {/* create date */}
-                                    {/* <div className={cn("mb-4 row")}>
-                                        <label for="createDate"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Ngày</label>
-                                        <div className={cn("col-9")}>
-                                            <input
-                                                type="createDate"
-                                                id="createDate"
-                                                className={cn("form-control", "input-item")}
-                                               
-                                            />
-                                        </div>
-                                    </div> */}
-                                    {/* production date */}
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="productionDate"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Ngày sản xuất</label>
-                                        <div className={cn("col-9")}>
-                                            <input
-                                                type="date"
-                                                id="productionDate"
-                                                className={cn("form-control", "input-item", "productionDate")}
-                                                name="productionDate"
-                                                onChange={onProductInputChange}
-                                                value={productInput.productionDate}
-                                            />
-                                            {productError.productionDate && (<span className={cn("text-danger")}>
-                                                {productError.productionDate}</span>)}
-                                        </div>
-                                    </div>
-                                    {/* expiry */}
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="expiry"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Hạn sử dụng</label>
-                                        <div className={cn("col-9")}>
-                                            <input
-                                                type="date"
-                                                id="expiry"
-                                                className={cn("form-control", "input-item", "expiry")}
-                                                name="expiry"
-                                                onChange={onProductInputChange}
-                                                value={productInput.expiry}
-                                            />
-                                            {productError.expiry && (<span className={cn("text-danger")}>
-                                                {productError.expiry}</span>)}
-                                        </div>
-                                    </div>
+
+
+
                                     {/* Thumbnail */}
                                     <div className={cn("mb-4 row")}>
                                         <label
                                             className={cn("col-3", "col-form-label", "input-title")}>Thumbnail</label>
                                         <div className={cn("col-9")}>
-                                            <button className={cn("add-img-btn", "btn-3", "thumbnail")}
-                                                type="button"
-                                            >
-                                                <label for="productThumbnail">
-                                                    <AddIcon />
-                                                    <span>
-                                                        Thêm ảnh
-                                                    </span>
-                                                </label>
-                                            </button>
+                                            {isView != true && (
+                                                <button className={cn("add-img-btn", "btn-3", "thumbnail")}
+                                                    type="button"
+                                                >
+                                                    <label for="productThumbnail">
+                                                        <AddIcon />
+                                                        <span>
+                                                            Thêm ảnh
+                                                        </span>
+                                                    </label>
+                                                </button>
+                                            )}
                                             {productError.thumbnail && (<span className={cn("text-danger")}>
                                                 {productError.thumbnail}</span>)}
                                             <input
@@ -843,6 +1063,7 @@ export default function CreateProduct() {
                                             className={cn("col-3", "col-form-label", "input-title")}>Mô tả</label>
                                         <div className={cn("col-9")}>
                                             <textarea
+                                                disabled={isView ? true : false}
                                                 type="text"
                                                 id="description"
                                                 className={cn("form-control", "input-item", "description")}
@@ -855,21 +1076,23 @@ export default function CreateProduct() {
                                             {productError.description && (<span className={cn("text-danger")}>
                                                 {productError.description}</span>)}
                                         </div>
-
                                     </div>
+
                                     {/* attribute */}
                                     <div className={cn("mb-4", "row", "product-attribute")}>
                                         <label for="attribute"
                                             className={cn("col-3", "col-form-label", "input-title")}>Chi tiết sản phẩm</label>
                                         <div className={cn("col-9")}>
-                                            <button type="button"
-                                                data-bs-toggle="modal" data-bs-target="#attribute-modal"
-                                                className={cn("btn-6", "btn-open-attribute-dialog")}>
-                                                <AddIcon />
-                                                <span>
-                                                    Thêm
-                                                </span>
-                                            </button>
+                                            {isView != true && (
+                                                <button type="button"
+                                                    data-bs-toggle="modal" data-bs-target="#attribute-modal"
+                                                    className={cn("btn-6", "btn-open-attribute-dialog")}>
+                                                    <AddIcon />
+                                                    <span>
+                                                        Thêm
+                                                    </span>
+                                                </button>
+                                            )}
                                             {attributeMainError && (<span className={cn("text-danger")}>
                                                 {attributeMainError}</span>)}
                                         </div>
@@ -881,7 +1104,9 @@ export default function CreateProduct() {
                                                     <tr>
                                                         <th scope="col">Tên</th>
                                                         <th scope="col">Giá trị</th>
-                                                        <th scope="col">Thao tác</th>
+                                                        {isView != true && (
+                                                            <th scope="col">Thao tác</th>
+                                                        )}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -891,20 +1116,22 @@ export default function CreateProduct() {
                                                                 <tr>
                                                                     <td>{item.name}</td>
                                                                     <td>{item.value}</td>
-                                                                    <td>
-                                                                        <EditIcon
-                                                                            onClick={() => handleEditAttribute(item)}
-                                                                            data-bs-toggle="modal" data-bs-target="#attribute-modal"
-                                                                            className={cn("table-icon")} sx={{ fontSize: 20 }} />
-                                                                        <DeleteIcon
-                                                                            onClick={() => {
-                                                                                setAttributes(
-                                                                                    attributes.filter(a => a.id !== item.id)
-                                                                                )
-                                                                                handleDeleteAttribute(item)
-                                                                            }}
-                                                                            className={cn("table-icon")} sx={{ fontSize: 20 }} />
-                                                                    </td>
+                                                                    {isView != true && (
+                                                                        <td>
+                                                                            <EditIcon
+                                                                                onClick={() => handleEditAttribute(item)}
+                                                                                data-bs-toggle="modal" data-bs-target="#attribute-modal"
+                                                                                className={cn("table-icon")} sx={{ fontSize: 20 }} />
+                                                                            <DeleteIcon
+                                                                                onClick={() => {
+                                                                                    setAttributes(
+                                                                                        attributes.filter(a => a.id !== item.id)
+                                                                                    )
+                                                                                    handleDeleteAttribute(item)
+                                                                                }}
+                                                                                className={cn("table-icon")} sx={{ fontSize: 20 }} />
+                                                                        </td>
+                                                                    )}
                                                                 </tr>
 
                                                             )
@@ -913,72 +1140,433 @@ export default function CreateProduct() {
 
                                                 </tbody>
                                             </table>
-                                            {/* <button type="button" className={cn("load-more-btn", "btn-5")}>
-                                                <AddIcon />
-                                                <span>
-                                                    Hiển thị thêm
-                                                </span>
-                                            </button> */}
                                         </div>
                                     </div>
-                                    {/* variant */}
-                                    <div className={cn("mt-4", "row", "product-variant")}>
-                                        <label for=""
-                                            className={cn("col-3", "col-form-label", "input-title", "mb-4")}>Product variant </label>
-                                        <div className={cn("col-9")}>
+                                    {/* new variant */}
+                                    <div className={cn("product-variant")}>
+                                        <h5>
+                                            Biến thể
+                                        </h5>
+                                        {
+                                            isView != true &&
+                                            <Button className="mb-2"
+                                                onClick={handleDefaultVariant}
+                                                variant="primary">
+                                                Biến thể mặc định
+                                            </Button>
+                                        }
+                                        <AlertError showAlert={showAlertDeleteError}
+                                            message={"Xóa thất bại! Sản phẩm đã được sử dụng hoặc sản phẩm phải có ít nhất một biến thể!"}
+                                            onClose={() => setShowAlterDeleteError(false)}
+                                        />
+                                        {variationTypes?.filter(a => a.name != "DEFAULT").map((item, index) => (
+                                            <div className="row">
+                                                <div className="variant-name col">
+                                                    <div className="title">
+                                                        Thuộc tính
+                                                    </div>
+                                                    <div className={cn("flex-cus")}>
+                                                        <AddDynamicInputFields
+                                                            isAdd={false}
+                                                            values={variantNames}
+                                                            setInputs={setVariantTypes}
+                                                            object={item}
+                                                            disable={isView}
+                                                            errorMessage={"Lỗi! Thuộc tính chưa chọn hoặc trùng lặp"}
+                                                            error={newVariantError}
+                                                            value={item.name}
+                                                            type={"name"}
+                                                            isEdit={
+                                                                product ? true : false
+                                                            }
+                                                            setError={setNewVariantError}
+                                                            onChange={
+                                                                (e) => {
+                                                                    var key = e.target.value
+                                                                    var existedKey = variationTypes.find(e => e.name == key)
+                                                                    if (existedKey) {
+                                                                        setNewVariantError({
+                                                                            name: "Lỗi! Thuộc tính chưa chọn hoặc trùng lặp"
+                                                                        })
+                                                                    }
+                                                                    if (key != "--Chọn--" && !existedKey) {
+                                                                        setNewVariantError({
+                                                                            name: ""
+                                                                        })
+                                                                        setVariantTypes(
+                                                                            prev =>
+                                                                                prev.filter(a => a.name != "")
+
+                                                                        )
+                                                                        setVariantTypes(
+                                                                            prev =>
+                                                                                [...prev, { name: key, values: [""] }]
+
+                                                                        )
+                                                                    }
+                                                                }
+                                                            }
+                                                        />
+                                                        {
+                                                            !item?.id && (
+                                                                <DeleteIcon
+                                                                    onClick={() => {
+                                                                        const newArray = [...variationTypes];
+                                                                        newArray.splice(index, 1);
+                                                                        setVariantTypes(newArray);
+                                                                        handleCreateVariantCombination(newArray)
+                                                                    }}
+                                                                />
+                                                            )
+
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div className="variant-value col">
+                                                    <div className="title">
+                                                        Giá trị
+                                                    </div>
+                                                    {
+                                                        item?.values?.map(
+                                                            (valueInput, index) => (
+                                                                <AddDynamicInputFields
+                                                                    isAdd={true}
+                                                                    type={"value"}
+                                                                    keyName={item.name}
+                                                                    value={valueInput}
+                                                                    index={index}
+                                                                    disable={isView}
+                                                                    array={item.values}
+                                                                    isEdit={
+                                                                        product ? true : false
+                                                                    }
+                                                                    handleAddInput={
+                                                                        () => setVariantTypes
+                                                                    }
+                                                                    setInputs={setVariantTypes}
+                                                                    errorMessage={"Lỗi! Giá trị chưa chọn hoặc trùng lặp"}
+                                                                    error={newVariantError}
+                                                                    setError={setNewVariantError}
+                                                                    onClick={
+                                                                        () => {
+                                                                            fetchVariant(item)
+                                                                        }
+                                                                    }
+                                                                    onChange={
+                                                                        (e) => {
+                                                                            var value = e.target.value
+                                                                            var valid = validateValueArray(variationTypes, value);
+                                                                            console.log("valid", valid)
+                                                                            if (!valid) {
+                                                                                setNewVariantError({
+                                                                                    name: "Lỗi! Giá trị chưa chọn hoặc trùng lặp"
+                                                                                })
+                                                                            }
+                                                                            if (value != "--Chọn--" && valid) {
+                                                                                setNewVariantError({
+                                                                                    name: ""
+                                                                                })
+
+                                                                                setVariantTypes(prev =>
+                                                                                    prev.map(variant =>
+                                                                                        variant.name === item.name
+                                                                                            ?
+                                                                                            {
+                                                                                                ...variant,
+                                                                                                values: variant.values.map((v, i) => i === index ? value : v)
+                                                                                            }
+                                                                                            : variant
+                                                                                    )
+                                                                                );
+
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    onDelete={() => {
+
+                                                                        setVariantValueNameDelete(item)
+                                                                        setVariantValueDelete(valueInput)
+                                                                        setShowModalWarningDeleteVariantValue(true)
+                                                                    }}
+                                                                    length={item.values.length}
+                                                                />
+                                                            )
+                                                        )
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        {
+                                            isView != true &&
                                             <button
                                                 type="button"
-                                                className={cn("btn-open-variant-dialog", "btn-6")}
-                                                data-bs-toggle="modal" data-bs-target="#product-variant-modal"
-                                            >
+                                                onClick={() => {
+                                                    var valid = true;
+                                                    variationTypes.forEach(
+                                                        it => {
+                                                            if (it.name == "") {
+                                                                valid = false
+                                                                setNewVariantError({
+                                                                    name: "Hãy chọn thuộc tính"
+                                                                })
+                                                            }
+                                                            it.values.forEach(
+                                                                value => {
+                                                                    if (value == "") {
+                                                                        valid = false;
+                                                                        setNewVariantError({
+                                                                            name: "Hãy chọn giá trị"
+                                                                        })
+                                                                    }
+                                                                }
+                                                            )
+                                                        }
+                                                    )
+                                                    if (variationTypes[0]?.name == "DEFAULT") {
+                                                        valid = false;
+                                                    }
+                                                    if (valid)
+                                                        setVariantTypes(prev => [...prev, { name: "", values: [""] }]);
+                                                }
+                                                }
+                                                className={cn("load-more-btn", "btn-5")}>
                                                 <AddIcon />
                                                 <span>
-                                                    Thêm
+                                                    Thêm thuộc tính
                                                 </span>
                                             </button>
-                                            {variantMainError && (<span className={cn("text-danger")}>
-                                                {variantMainError}</span>)}
-                                        </div>
+                                        }
+                                        {
+                                            isView != true &&
+                                            <button type="button"
+                                                onClick={() => {
+                                                    handleCreateVariantCombination()
+                                                }
+                                                }
+                                                className={cn("load-more-btn", "btn-3", "mt-2")}>
+                                                <span>
+                                                    Xong
+                                                </span>
+                                            </button>
+                                        }
+                                        {variantMainError && (<span className={cn("text-danger")}>{variantMainError}</span>)}
+
+                                    </div>
+                                    {/* old variant */}
+                                    <div className={cn("mt-4", "row", "product-variant")}>
+
                                         <div className={cn("product-variant-list")}>
                                             <table className={cn("table table-hover")}>
                                                 <thead>
                                                     <tr>
-                                                        <th scope="col">Tên</th>
-                                                        <th scope="col">Giá trị</th>
+                                                        <th scope="col">Biến thể</th>
+                                                        <th scope="col">Đơn vị tính</th>
                                                         <th scope="col">Stock</th>
-                                                        <th scope="col">Giá</th>
-                                                        <th scope="col">Giảm giá</th>
-                                                        <th scope="col">Ngày bắt đầu</th>
-                                                        <th scope="col">Ngày kết thúc</th>
+                                                        <th scope="col">Giá bán</th>
+                                                        <th scope="col">Giá vốn</th>
                                                         <th scope="col">Thao tác</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {
-                                                        variants?.map(
+                                                        variantCombination?.map(
                                                             (item, index) => (
-                                                                <tr key={item.id}>
-                                                                    <td>{item.name}</td>
-                                                                    <td>{item.value}</td>
-                                                                    <td>{item.stock}</td>
-
-                                                                    <td>{item.price}</td>
-                                                                    <td>{item.discount + ' %'}</td>
-                                                                    <td>{item.startDate}</td>
-                                                                    <td>{item.endDate}</td>
+                                                                <tr
+                                                                    key={index}
+                                                                >
+                                                                    <td>{item.variantCombination?.join(" - ")}</td>
                                                                     <td>
-                                                                        <EditIcon
-                                                                            onClick={() => handleEditVariant(item)}
-                                                                            data-bs-toggle="modal" data-bs-target="#product-variant-modal"
-                                                                            className={cn("table-icon")} sx={{ fontSize: 20 }} />
-                                                                        <DeleteIcon
-                                                                            onClick={(() => {
-                                                                                setVariants(
-                                                                                    variants?.filter(a => a.id !== item.id)
-                                                                                )
-                                                                                handleDeleteVariant(item)
-                                                                            })}
-                                                                            className={cn("table-icon")} sx={{ fontSize: 20 }} />
+                                                                        {/* Calculation Unit*/}
+                                                                        <div className="row">
+                                                                            <div className={cn("col-8", "p-0")}>
+                                                                                <select
+                                                                                    disabled={isView}
+                                                                                    name="calculationUnit" id="calculationUnit"
+                                                                                    className={cn("form-select", "form-select-item", "calculationUnit")}
+                                                                                    onChange={(e) => {
+                                                                                        setVariantCombination(prev =>
+                                                                                            prev.map(variant =>
+                                                                                                JSON.stringify(
+                                                                                                    variant.variantCombination
+                                                                                                )
+                                                                                                    === JSON.stringify(
+                                                                                                        item.variantCombination
+                                                                                                    )
+                                                                                                    ? {
+                                                                                                        ...variant,
+                                                                                                        calculationUnitId: e.target.value
+                                                                                                    }
+                                                                                                    : variant
+                                                                                            )
+
+                                                                                        )
+                                                                                    }
+                                                                                    }
+                                                                                >
+                                                                                    <option value="">-- Chọn đvt</option>
+                                                                                    {
+                                                                                        calculationUnits.map(
+                                                                                            (calcUnit, index) => (
+                                                                                                item.calculationUnitId == calcUnit.id ?
+                                                                                                    (<option selected={true} value={calcUnit.id} >
+                                                                                                        {calcUnit.name}
+                                                                                                    </option>
+                                                                                                    ) :
+                                                                                                    (<option value={calcUnit.id} >
+                                                                                                        {calcUnit.name}
+                                                                                                    </option>)
+                                                                                            )
+                                                                                        )
+                                                                                    }
+                                                                                </select>
+                                                                            </div>
+                                                                            {isView != true && (
+                                                                                <div className={cn("col-1")}>
+                                                                                    {/* calculation Modal */}
+                                                                                    <Button size="sm"
+                                                                                        variant="outline-secondary"
+                                                                                        onClick={
+                                                                                            () => {
+                                                                                                setShowCalculationUnit(true)
+                                                                                            }
+
+                                                                                        }>
+                                                                                        <AddIcon />
+                                                                                    </Button>
+
+
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <Form.Control
+                                                                            type="number"
+                                                                            name="stock"
+                                                                            value={item.stock}
+                                                                            disabled={isView}
+                                                                            onChange={
+                                                                                (e) => {
+                                                                                    setVariantCombination(prev =>
+                                                                                        prev.map(variant =>
+                                                                                            JSON.stringify(
+                                                                                                variant.variantCombination
+                                                                                            )
+                                                                                                === JSON.stringify(
+                                                                                                    item.variantCombination
+                                                                                                )
+                                                                                                ? {
+                                                                                                    ...variant,
+                                                                                                    stock: e.target.value
+                                                                                                }
+                                                                                                : variant
+                                                                                        )
+
+                                                                                    )
+                                                                                }
+                                                                            }
+                                                                        />
+                                                                    </td>
+
+                                                                    <td>
+                                                                        <Form.Control
+                                                                            type="number"
+                                                                            name="sellingPrice"
+                                                                            disabled={isView}
+                                                                            value={item.sellingPrice}
+                                                                            onChange={
+                                                                                (e) => {
+                                                                                    setVariantCombination(prev =>
+                                                                                        prev.map(variant =>
+                                                                                            JSON.stringify(
+                                                                                                variant.variantCombination
+                                                                                            )
+                                                                                                === JSON.stringify(
+                                                                                                    item.variantCombination
+                                                                                                )
+                                                                                                ? {
+                                                                                                    ...variant,
+                                                                                                    sellingPrice: e.target.value
+                                                                                                }
+                                                                                                : variant
+                                                                                        )
+
+                                                                                    )
+                                                                                }
+                                                                            }
+                                                                        />
+                                                                    </td>
+                                                                    <td>
+                                                                        <Form.Control
+                                                                            type="number"
+                                                                            name="capitalPrice"
+                                                                            disabled={isView}
+                                                                            value={item.capitalPrice}
+                                                                            onChange={
+                                                                                (e) => {
+                                                                                    setVariantCombination(prev =>
+                                                                                        prev.map(variant =>
+                                                                                            JSON.stringify(
+                                                                                                variant.variantCombination
+                                                                                            )
+                                                                                                === JSON.stringify(
+                                                                                                    item.variantCombination
+                                                                                                )
+                                                                                                ? {
+                                                                                                    ...variant,
+                                                                                                    capitalPrice: e.target.value
+                                                                                                }
+                                                                                                : variant
+                                                                                        )
+
+                                                                                    )
+                                                                                }
+                                                                            }
+                                                                        />
+                                                                    </td>
+                                                                    <td>
+                                                                        {
+                                                                            isView != true &&
+                                                                            <DeleteIcon
+                                                                                onClick={() => {
+                                                                                    setShowModalWarningDelete(true)
+                                                                                    setVariantDelete(item)
+                                                                                    // setVariantCombination(prev =>
+                                                                                    //     prev.filter(variant =>
+                                                                                    //         JSON.stringify(
+                                                                                    //             variant.variantCombination
+                                                                                    //         )
+                                                                                    //         !== JSON.stringify(
+                                                                                    //             item.variantCombination
+                                                                                    //         )
+                                                                                    //     )
+                                                                                    // )
+                                                                                    // if (variationTypes[0]?.name == "DEFAULT") {
+                                                                                    //     setVariantTypes(
+                                                                                    //         prev =>
+                                                                                    //             prev.filter(a => a.name != "DEFAULT")
+
+                                                                                    //     )
+                                                                                    // }
+                                                                                }}
+                                                                            />
+                                                                        }
+                                                                        {
+                                                                            isView && (
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className="btn-3"
+                                                                                    onClick={() =>
+                                                                                        navigate(routes.stockDetail,
+                                                                                            { state: { id: item.id, item, product: product } })
+                                                                                    }
+                                                                                >
+                                                                                    <WarehouseIcon />
+                                                                                </button>
+                                                                            )
+                                                                        }
                                                                     </td>
                                                                 </tr>
                                                             )
@@ -986,14 +1574,10 @@ export default function CreateProduct() {
                                                     }
                                                 </tbody>
                                             </table>
-                                            {/* <button className={cn("load-more-btn", "btn-5")}>
-                                                <AddIcon />
-                                                <span>
-                                                    Hiển thị thêm
-                                                </span>
-                                            </button> */}
+
                                         </div>
                                     </div>
+
                                 </form>
                             </div>
                         </div>
@@ -1063,149 +1647,136 @@ export default function CreateProduct() {
                             </div>
                         </div>
                     </div>
-
                     {/* End attribute form */}
-                    {/* product variant form */}
-                    <div class="modal fade " tabindex="-1" id="product-variant-modal" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                            <div class={cn("modal-content", "modal-inner-content")}>
-                                <div class="modal-header">
-                                    <h3 className={cn("modal-title")}>Product variant</h3>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class={cn("modal-body", "product-variant-form")}>
-                                    {/* Name */}
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="nameVariant"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Tên</label>
-                                        <div className={cn("col-9")}>
-                                            <input
-                                                type="text"
-                                                id="nameVariant"
-                                                className={cn("form-control", "input-item")}
-                                                name="name"
-                                                onChange={onVariantInputChange}
-                                                value={variantInput.name}
-                                            />
-                                            {variantError.name && (<span className={cn("text-danger")}>{variantError.name}</span>)}
 
-                                        </div>
-                                    </div>
-                                    {/* value */}
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="variantValue"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Giá trị</label>
-                                        <div className={cn("col-9")}>
-                                            <input
-                                                type="text"
-                                                id="variantValue"
-                                                className={cn("form-control", "input-item")}
-                                                name="value"
-                                                onChange={onVariantInputChange}
-                                                value={variantInput.value}
-                                            />
-                                            {variantError.value && (<span className={cn("text-danger")}>{variantError.value}</span>)}
+                    {/* Calculation unit modal */}
+                    <Modal
+                        aria-labelledby="contained-modal-title-vcenter"
+                        centered
+                        show={showCalculationUnit} onHide={() => {
+                            setShowCalculationUnit(false)
+                        }}
+                        className={cn("category-modal")}
+                    >
+                        <Modal.Header closeButton>
+                            <Modal.Title>Thêm đơn vị tính</Modal.Title>
+                        </Modal.Header>
 
-                                        </div>
-                                    </div>
-                                    {/* stock */}
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="stock"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Stock</label>
-                                        <div className={cn("col-9")}>
-                                            <input
-                                                type="number"
-                                                id="stock"
-                                                className={cn("form-control", "input-item", "w-10")}
-                                                name="stock"
-                                                onChange={onVariantInputChange}
-                                                value={variantInput.stock}
-                                            />
-                                            {variantError.stock && (<span className={cn("text-danger")}>{variantError.stock}</span>)}
+                        <Modal.Body>
+                            {/* Name */}
+                            <div className={cn("mb-2 row")}>
+                                <label for="nameCategory"
+                                    className={cn("col-3", "col-form-label", "input-title")}>Tên</label>
+                                <div className={cn("col-9")}>
+                                    <input
+                                        type="text"
+                                        id="nameCategory"
+                                        className={cn("form-control", "input-item")}
+                                        name="nameCalculationUnit"
+                                        onChange={
+                                            (e) => {
+                                                setCalculationUnitRequest(
+                                                    prev => ({
+                                                        ...prev,
+                                                        name: e.target.value
+                                                    })
+                                                )
+                                            }
+                                        }
+                                    />
 
-                                        </div>
-                                    </div>
-
-                                    {/* price */}
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="variantPrice"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Giá</label>
-                                        <div className={cn("col-9")}>
-                                            <input
-                                                type="number"
-                                                id="variantPrice"
-                                                className={cn("form-control", "input-item")}
-                                                name="price"
-                                                onChange={onVariantInputChange}
-                                                value={variantInput.price}
-                                            />
-                                        </div>
-                                    </div>
-                                    {/* Discount price */}
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="discountPrice"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Giảm giá</label>
-                                        <div className={cn("col-9")}>
-                                            <input
-                                                type="number"
-                                                id="discountPrice"
-                                                className={cn("form-control", "input-item")}
-                                                name="discount"
-                                                onChange={onVariantInputChange}
-                                                value={variantInput.discount}
-                                            />
-                                            <select
-                                                onChange={onVariantInputChange}
-                                                name="discountUnit" id="supplier" className={cn("mt-2", "form-select", "form-select-item")}>
-
-                                                <option defaultChecked value="%">%</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="startDate"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Ngày bắt đầu</label>
-                                        <div className={cn("col-9")}>
-                                            <input
-                                                type="date"
-                                                id="startDate"
-                                                className={cn("form-control", "input-item")}
-                                                name="startDate"
-                                                onChange={onVariantInputChange}
-                                                value={variantInput.startDate}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className={cn("mb-4 row")}>
-                                        <label for="endDate"
-                                            className={cn("col-3", "col-form-label", "input-title")}>Ngày kết thúc</label>
-                                        <div className={cn("col-9")}>
-                                            <input
-                                                type="date"
-                                                id="endDate"
-                                                className={cn("form-control", "input-item")}
-                                                name="endDate"
-                                                onChange={onVariantInputChange}
-                                                value={variantInput.endDate}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class={cn("btn-8")} data-bs-dismiss="modal">Hủy</button>
-                                    <button
-                                        onClick={handleSubmitVariant}
-                                        data-bs-dismiss="modal"
-                                        type="button" class={cn("btn-7")}>Thêm</button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* End product variant form */}
+                            {/* description */}
+                            <div className={cn("mb-2 row")}>
+                                <label for="nameCategory"
+                                    className={cn("col-3", "col-form-label", "input-title")}>
+                                    Mô tả
+                                </label>
+                                <div className={cn("col-9")}>
+                                    <input
+                                        type="text"
+                                        id="nameCategory"
+                                        className={cn("form-control", "input-item")}
+                                        name="description"
+                                        onChange={
+                                            (e) => {
+                                                setCalculationUnitRequest(
+                                                    prev => ({
+                                                        ...prev,
+                                                        description: e.target.value
+                                                    })
+                                                )
+                                            }
+                                        }
+                                    />
+
+                                </div>
+                            </div>
+                        </Modal.Body>
+
+                        <Modal.Footer>
+                            <Button size="lg" variant="outline-secondary" onClick={() => {
+                                setShowCalculationUnit(false)
+                            }}>Hủy</Button>
+                            <Button
+                                size="lg" variant="success" onClick={(e) => {
+                                    handleSubmitCalculationUnit(e)
+                                    setShowCalculationUnit(false)
+
+                                }
+                                }>Lưu</Button>
+                        </Modal.Footer>
+                    </Modal>
                 </div >
             </div >
             {/* End variant and attribute form */}
+
+            {/* Modal delete variant */}
+            <ModalWarningDelete
+                show={showModalWarningDelete}
+                setShow={setShowModalWarningDelete}
+                onCLickAgree={() => {
+                    handleDeleteVariant()
+                }
+                }
+            />
+            <ModalWarningDelete
+                show={showModalWarningDeleteVariantValue}
+                setShow={setShowModalWarningDeleteVariantValue}
+                onCLickAgree={() => {
+                    handleDeleteVariantValue()
+                }
+                }
+            />
+            {/* shipment */}
+            <Modal
+                open={openModalShipment}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+                className={cn("receipt-modal")}
+            >
+                <Box sx={styleModal}>
+                    <div className={cn("head")}>
+                        <span>Lô - Hạn sử dụng</span>
+                        <CloseIcon onClick={() => openModalShipment(false)} />
+                    </div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Số lô</th>
+                                <th scope="col">Hạn sử dụng</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Tồn kho</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </Box>
+            </Modal>
         </>
     )
 }

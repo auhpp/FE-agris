@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import style from "./Product.module.css";
 import classNames from "classnames/bind";
 import { getAllCategory } from "../../services/categoryService";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { searchProduct } from "../../services/productService";
 import Card from "../../components/Card";
 import { Pagination } from "@mui/material";
@@ -10,7 +10,6 @@ import { Pagination } from "@mui/material";
 const cn = classNames.bind(style);
 
 export default function Product() {
-    const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
     const location = useLocation();
     const [query, setQuery] = useState({
@@ -18,7 +17,13 @@ export default function Product() {
         priceFrom: null,
         priceTo: null
     });
+    const [categoryQuery, setCategoryQuery] = useState([]);
+    var [results, setResults] = useState([]);
+    var [totalPage, setTotalPage] = useState(1);
+    var [currentPage, setCurrentPage] = useState(1);
+    var [pageSize, setPageSize] = useState(10);
 
+    //Get all category
     useEffect(() => {
         getAllCategory().then(
             data => {
@@ -27,16 +32,15 @@ export default function Product() {
         )
     }, [])
 
-    const [categoryQuery, setCategoryQuery] = useState([]);
+    // Input
     const onInputChange = (e) => {
         const { name, value } = e.target;
-        console.log(e.target)
         setQuery((prev) => ({
             ...prev,
             [name]: value,
         }));
     };
-
+    //category check box change
     const onChangeCheckCategory = (e) => {
         const { value } = e.target;
         if (e.target.checked) {
@@ -51,11 +55,7 @@ export default function Product() {
         }
     };
 
-    var [results, setResults] = useState([]);
-    var [totalPage, setTotalPage] = useState(1);
-    var [currentPage, setCurrentPage] = useState(1);
-    var [pageSize, setPageSize] = useState(10);
-
+    //Submit search
     const handleSubmit = (e) => {
         e.preventDefault();
         setQuery((prev) => ({
@@ -64,6 +64,7 @@ export default function Product() {
         }))
     }
 
+    //Search product
     useEffect(
         () => {
             const name = "";
@@ -77,7 +78,6 @@ export default function Product() {
                         setTotalPage(data.result.totalPage)
                         setCurrentPage(data.result.currentPage)
                         setPageSize(data.result.pageSize)
-                        console.log(data)
                     }
                 }
             );
@@ -85,6 +85,7 @@ export default function Product() {
         [query, currentPage]
     )
 
+    //Pagination
     const handleChangePagination = (e, p) => {
         setCurrentPage(p);
     }
@@ -123,7 +124,8 @@ export default function Product() {
                                                                 type="checkbox" name="categoryId"
                                                                 value={item.id}
                                                                 id={item.id} />
-                                                            <label className={cn("name-category")} htmlFor={item.id}>
+                                                            <label className={cn("name-category")}
+                                                                htmlFor={item.id}>
                                                                 {/* Tên danh mục */}
                                                                 {item.name}
                                                             </label>
@@ -145,7 +147,8 @@ export default function Product() {
                                                 </label>
                                                 <input
                                                     onChange={onInputChange}
-                                                    className={cn("ms-3")} type="number" name="priceFrom" id="inputPriceFrom" />
+                                                    className={cn("ms-3")} type="number"
+                                                    name="priceFrom" id="inputPriceFrom" />
                                             </li>
                                             <li className={cn("category-item")}>
                                                 <label className={cn("name-category")} htmlFor="input-price">
@@ -199,6 +202,7 @@ export default function Product() {
                             </div>
                         </div>
                         {/* end filter */}
+
                         {/* <!-- product --> */}
                         <div className={cn("col-lg-9")}>
                             <div className={cn("products-section")}>
@@ -207,14 +211,15 @@ export default function Product() {
                                     <h2 className={cn("title")}>Sản phẩm</h2>
                                 </div>
                                 {/* <!-- end title --> */}
-                                {/* <!-- Hiển thị sách --> */}
+                                {/* <!-- Hiển thị products --> */}
                                 <div className={cn("products-list")}>
                                     <div className={cn("row", "products")}>
                                         {
                                             results.map(
                                                 (item) => (
 
-                                                    <div key={item.id} className={cn("col-xl-3", "col-md-3", "col-6", "product")}>
+                                                    <div key={item.id}
+                                                        className={cn("col-xl-3", "col-md-3", "col-6", "product")}>
                                                         <Card product={item} />
                                                     </div>
                                                 )
@@ -222,7 +227,7 @@ export default function Product() {
                                         }
                                     </div>
                                 </div>
-                                {/* <!-- End hiển thị sách --> */}
+                                {/* <!-- End hiển thị products --> */}
 
                                 {/* <!-- pagination --> */}
                                 <Pagination

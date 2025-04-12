@@ -10,7 +10,8 @@ import { getAllCategory } from "../../../services/categoryService";
 import { useEffect, useState } from "react";
 import { deleteProduct, searchProduct } from "../../../services/productService";
 import { Pagination } from "@mui/material";
-
+import Button from 'react-bootstrap/Button';
+import Badge from 'react-bootstrap/Badge';
 const cn = classNames.bind(style);
 
 
@@ -61,7 +62,7 @@ export default function SearchProduct() {
             const categoryId = query.categoryId;
             searchProduct({ name, categoryId, currentPage, pageSize }).then(
                 data => {
-                    if (data.result.data) {
+                    if (data.result?.data) {
                         setResults(data.result.data)
                         setTotalPage(data.result.totalPage)
                         setCurrentPage(data.result.currentPage)
@@ -135,12 +136,12 @@ export default function SearchProduct() {
                     <thead>
                         <tr>
                             <th scope="col">Tên</th>
-                            <th scope="col">Hạn sử dụng</th>
-                            <th scope="col">Ngày tạo</th>
-                            <th scope="col">Xuất xứ</th>
+                            <th></th>
                             <th scope="col">Danh mục</th>
-                            <th scope="col">Nhà cung cấp</th>
+                            <th scope="col">Tồn kho</th>
+                            <th scope="col">Trạng thái</th>
                             <th scope="col">Thao tác</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -149,21 +150,47 @@ export default function SearchProduct() {
                                 (item, index) => (
                                     <tr>
                                         <td>{item.name}</td>
-                                        <td>{item.expiry}</td>
-                                        <td>{item.productionDate}</td>
-                                        <td>{item.origin}</td>
-                                        <td>{item.category.name}</td>
-                                        <td>{item.supplier.name}</td>
                                         <td>
-                                            <EditIcon
-                                                onClick={() => {
-                                                    navigate(routes.createProduct, { state: { item } })
-                                                }}
-                                                className={cn("edit-icon")} />
-                                            <MenuIcon className={cn("menu-icon")} />
-                                            <DeleteIcon
-                                                onClick={() => handleDeleteProduct(item)}
-                                                className={cn("delete-icon")} />
+                                            <img className={cn("thumbnail")} src={item.thumbnail} alt="" />
+                                        </td>
+                                        <td>{item.category.name}</td>
+                                        <td>{
+                                            item.stock + " trong " + item.variants.length + " biến thể"
+                                        }</td>
+                                        <td>
+                                            <Badge bg={item.status == "ACTIVE" ? "success" : "warning"}>
+
+                                                {item.status}
+                                            </Badge>
+                                        </td>
+                                        <td>
+                                            <Button variant="secondary"
+                                                size="sm"
+                                                className="me-1"
+                                            >
+                                                <EditIcon
+                                                    onClick={() => {
+                                                        navigate(routes.createProduct, { state: { item, isEdit: true } })
+                                                    }}
+                                                    className={cn("edit-icon")} />
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                className="me-1"
+                                                variant="success">
+                                                <MenuIcon className={cn("menu-icon")}
+                                                    onClick={() => {
+                                                        navigate(routes.createProduct, { state: { isView: true, item } })
+                                                    }}
+                                                />
+                                            </Button>
+                                            <Button variant="danger"
+                                                size="sm"
+                                            >
+                                                <DeleteIcon
+                                                    onClick={() => handleDeleteProduct(item)}
+                                                    className={cn("delete-icon")} />
+                                            </Button>
                                         </td>
                                     </tr>
                                 )

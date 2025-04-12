@@ -1,0 +1,20 @@
+.input-select {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.input-container {
+    margin-bottom: 10px;
+}
+
+.btn-add-more {
+    margin-top: 10px;
+}
+
+.input-container .input-select .select-menu {
+    overflow: hidden;
+    overflow-y: auto;
+    max-height: calc(100vh - 150px);
+
+}

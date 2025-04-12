@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import style from "./ProductDetail.module.css";
 import classNames from "classnames/bind";
 import { findById, searchProduct } from "../../services/productService";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/free-mode';
@@ -19,16 +19,32 @@ import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
 import { LinearProgress, Pagination, Rating } from "@mui/material";
 import Card from "../../components/Card";
 import { addToCart } from "../../services/cartService";
-import CartContext from "../../components/CartContext";
+import CartContext from "../../context/CartContext";
+import { AuthContext } from "../../context/AuthContext";
+import { routes } from "../../config/routes";
+import { convertToVariantType, findUnavailableCombinations, getVariantIdSelected } from "../../utils/variant";
+import Variant from "../../components/Variant";
 const cn = classNames.bind(style);
 
-export default function ProductDetail({ route }) {
-    const [thumbsSwiper, setThumbsSwiper] = useState(null);
-    const [product, setProduct] = useState();
+export default function ProductDetail() {
     const { id } = useParams();
+    const [product, setProduct] = useState();
     const cart = useContext(CartContext);
-    // minus plus button
+    const [thumbsSwiper, setThumbsSwiper] = useState(null);
     var [quantity, setQuantity] = useState(1);
+    const [currentProduct, setCurrentProduct] = useState();
+
+    const [attribute, setAttribute] = useState([]);
+    const [productRelated, setProductRelated] = useState([]);
+    var [totalPage, setTotalPage] = useState(1);
+    var [currentPage, setCurrentPage] = useState(1);
+    var [pageSize, setPageSize] = useState(10);
+    const { token } = useContext(AuthContext);
+    const navigate = useNavigate();
+    const [selectedVariants, setSelectedVariants] = useState({})
+    const [variantTypes, setVariantTypes] = useState({});
+    const [unavailableComb, setUnavailableComb] = useState()
+    // minus and plus button
     const handleMinus = () => {
         if (quantity > 1) {
             setQuantity(quantity - 1);
@@ -37,106 +53,48 @@ export default function ProductDetail({ route }) {
     const handlePlus = () => {
         setQuantity(quantity + 1)
     }
-    // end minus plus button
+    // end minus and plus button
+
+    //Get product
     useEffect(
         () => {
             findById(id).then(
                 data => {
+                    console.log(data.result)
                     setProduct(data.result)
+                    setVariantTypes(convertToVariantType(data.result.variants))
                 }
             )
         }, []
     )
-    const [currentProduct, setCurrentProduct] = useState();
+
     useEffect(
         () => {
-            if (product) {
-                setCurrentProduct(product?.variants[0])
-            }
-        }, [product]
-    )
-    //Variant
-    const [variant, setVariant] = useState({
-        id: "",
-        name: '',
-        values: [{
-            value: '',
-            id: ''
-        }]
-    });
-    useEffect(() => {
-        if (product) {
-            var variantValues = [];
-            let variantName = "";
-
-            product?.variants?.forEach((item) => {
-                variantName = item.variantValues[0].name;
-                variantValues.push({
-                    value: item.variantValues[0].value,
-                    id: item.id
-                });
-            });
-
-            setVariant({
-                name: variantName,
-                values: variantValues
-            });
-        }
-    }, [product]);
-
-    console.log("current", currentProduct)
-    console.log(product)
-    console.log(variant)
-    const [attribute, setAttribute] = useState([]);
-    useEffect(() => {
-        if (product) {
-            var attrs = [];
-            product?.attributes.forEach((it) => {
-                let attribute = attrs.find(v => v.name === it.name);
-                if (!attribute) {
-                    attribute = { name: it.name, values: [] };
-                    attrs.push(attribute);  // Add it to the array
+            setUnavailableComb(
+                findUnavailableCombinations(variantTypes, product?.variants)
+            )
+            var variantFirst = product?.variants[0];
+            var selectVariant = {}
+            variantFirst?.variantValues.forEach(
+                a => {
+                    selectVariant[a.name] = a.value
                 }
-
-                attribute.values.push(it.value);
-            })
-            setAttribute(attrs);
-        }
-    }, [product]);
-    console.log(product?.attributes)
-    console.log(attribute)
-
-
-    //Product related
-    const [productRelated, setProductRelated] = useState([]);
-    var [totalPage, setTotalPage] = useState(1);
-    var [currentPage, setCurrentPage] = useState(1);
-    var [pageSize, setPageSize] = useState(10);
+            )
+            setSelectedVariants(selectVariant)
+        }, [variantTypes]
+    )
+    console.log("variant type", variantTypes)
+    //Set current product variant 
     useEffect(
         () => {
-            if (product) {
-                const categoryId = product?.category.id;
-                searchProduct({ categoryId, currentPage, pageSize }).then(
-                    data => {
-                        if (data.result.data) {
-                            setProductRelated(data.result.data)
-                            setTotalPage(data.result.totalPage)
-                            setPageSize(data.result.pageSize)
-                            console.log("related:", data)
-                        }
-                    }
-                );
-            }
-        },
-        [product, currentPage]
+            var selectedVariantId = getVariantIdSelected(product?.variants, selectedVariants);
+            var currentVariantProduct = product?.variants.find(a => a.id == selectedVariantId)
+            setCurrentProduct(currentVariantProduct)
+        }, [selectedVariants, product]
     )
 
 
-
-    const handleChangePagination = (e, p) => {
-        setCurrentPage(p);
-    }
-
+    //variant
     const handleClickVariant = (variant) => {
         if (product) {
             product?.variants.forEach(element => {
@@ -147,18 +105,65 @@ export default function ProductDetail({ route }) {
         }
     }
 
+    //Get attribute list
+    useEffect(() => {
+        if (product) {
+            var attrs = [];
+            product?.attributes.forEach((it) => {
+                let attribute = attrs.find(v => v.name === it.name);
+                if (!attribute) {
+                    attribute = { id: it.id, name: it.name, values: [] };
+                    attrs.push(attribute);
+                }
 
-    const handleAddToCart = () => {
-        var cartRequest = {
-            id: null,
-            productVariantId: currentProduct?.id,
-            quantity: quantity
+                attribute.values.push(it.value);
+            })
+            setAttribute(attrs);
         }
-        addToCart(cartRequest).then(
-            data => {
-                cart.setUpdateCart(!cart.updateCart)
+    }, [product]);
+
+    //Product related list
+    useEffect(
+        () => {
+            if (product) {
+                const categoryId = product?.category.id;
+                searchProduct({ categoryId, currentPage, pageSize }).then(
+                    data => {
+                        if (data.result.data) {
+                            setProductRelated(data.result.data)
+                            setTotalPage(data.result.totalPage)
+                            setPageSize(data.result.pageSize)
+                        }
+                    }
+                );
             }
-        )
+        },
+        [product, currentPage]
+    )
+
+    //pagination
+    const handleChangePagination = (e, p) => {
+        setCurrentPage(p);
+    }
+
+
+    //Cart
+    const handleAddToCart = () => {
+        if (token) {
+            var cartRequest = {
+                id: null,
+                productVariantId: currentProduct?.id,
+                quantity: quantity
+            }
+            addToCart(cartRequest).then(
+                data => {
+                    cart.setUpdateCart(!cart.updateCart)
+                }
+            )
+        }
+        else {
+            navigate(routes.login)
+        }
     }
 
     return (
@@ -173,7 +178,7 @@ export default function ProductDetail({ route }) {
                                     <ol className={cn("breadcrumb", "breadcrumb-cus")}>
                                         <li className={cn("breadcrumb-item", "breadcrumb-item-cus")}><Link to={"/"}>Trang chủ</Link></li>
                                         <li className={cn("breadcrumb-item", "breadcrumb-item-cus", "active")} aria-current="page">
-                                            <a>Phân bón</a>
+                                            <a>{product?.category.name}</a>
                                         </li>
                                     </ol>
                                 </nav>
@@ -203,7 +208,7 @@ export default function ProductDetail({ route }) {
                                         {
                                             product?.images.map(
                                                 (item, index) => (
-                                                    <SwiperSlide className={cn("swiper-slide-cus")}>
+                                                    <SwiperSlide key={item.id} className={cn("swiper-slide-cus")}>
                                                         <img src={item.filePath} />
                                                     </SwiperSlide>
                                                 )
@@ -222,7 +227,7 @@ export default function ProductDetail({ route }) {
                                         {
                                             product?.images.map(
                                                 (item, index) => (
-                                                    <SwiperSlide>
+                                                    <SwiperSlide key={item.id}>
                                                         <img src={item.filePath} />
                                                     </SwiperSlide>
                                                 )
@@ -235,20 +240,11 @@ export default function ProductDetail({ route }) {
 
                             {/* Product Info */}
                             <div className={cn("col-lg-7")}>
+                                {/* info */}
                                 <div className={cn("detail-content")}>
-                                    <h1 className={cn("name-product")}>
+                                    <h3 className={cn("name-product")}>
                                         {product?.name}
-                                    </h1>
-                                    <div className={cn("product-view")}>
-                                        <div className={cn("info-item", "row")}>
-                                            <span className={cn("col-2")}>Xuất xứ: </span>
-                                            <span className={cn("col")}>{product?.origin}</span>
-                                        </div>
-                                        <div className={cn("info-item", "row")}>
-                                            <span className={cn("col-2")}>Nhà cung cấp: </span>
-                                            <span className={cn("col")}>{product?.supplier.name}</span>
-                                        </div>
-                                    </div>
+                                    </h3>
                                     <div className={cn("product-view-rate")}>
                                         <div className={cn("rating")}>
                                             <span className={cn("rating-number")}>0</span>
@@ -257,27 +253,36 @@ export default function ProductDetail({ route }) {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className={cn("variants", "row")}>
-                                        <div className={cn("variants-name", "col-2")}>
-                                            {variant.name}:
-                                        </div>
-                                        <div className={cn("variant-values", "col")}>
-                                            {variant.values.map(
-                                                item => (
-                                                    <Button
-                                                        onClick={() => handleClickVariant(item)}
-                                                        color="success"
-                                                        variant={
-                                                            item.id == currentProduct?.id ? "contained" : "outlined"
-                                                        }>{item.value}</Button>
-                                                )
-                                            )}
-                                        </div>
-                                    </div>
+                                    {
+                                        product?.variants.length != 1 &&
+                                        Object.keys(variantTypes).map(
+                                            (variant, index) => (
+                                                <>
+                                                    <div className={cn("variants", "row", "mb-2")}>
+                                                        <div className={cn("variants-name", "col-2")}>
+                                                            {variant}:
+                                                        </div>
+                                                        <div className={cn("variant-values", "col")}>
+                                                            <Variant
+                                                                variantName={variant}
+                                                                variationTypes={variantTypes}
+                                                                selectedVariants={selectedVariants}
+                                                                unavailableComb={unavailableComb}
+                                                                setSelectedVariants={setSelectedVariants}
+                                                                variation={product?.variants}
+                                                                indexVariantName={index}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )
+                                        )
+                                    }
+                                    {/* price */}
                                     <div className={cn("price-product", "row")}>
                                         <div className={cn("current-price", "col-3")}>
                                             <span>
-                                                {VND.format(currentProduct?.price)}
+                                                {VND.format(currentProduct?.sellingPrice)}
                                             </span> <sup>đ</sup>
                                         </div>
                                         {/* {currentProduct?.discount != null &&
@@ -296,35 +301,40 @@ export default function ProductDetail({ route }) {
                                     </div>
 
                                     {/* Add to Cart Form */}
-                                    <form>
-
-                                        <div className={cn("quantity-product")}>
+                                    <div className="row align-items-center">
+                                        {/* quantity */}
+                                        <div className={cn("quantity-product", "col-2")}>
                                             <RemoveIcon onClick={handleMinus} />
                                             <input type="number" value={quantity} />
                                             <AddIcon onClick={handlePlus} />
                                         </div>
-                                        <input type="hidden" name="bookId" />
-                                        <div className={cn("btn-product", "row")}>
-                                            <div className={cn("col-6")}>
-                                                <button type="button"
-                                                    className={cn("btn-add-cart", "btn-2")}
-                                                    name="action"
-                                                    value="add-shopping-cart"
-                                                    onClick={handleAddToCart}
-                                                >
-                                                    <AddShoppingCartIcon />
-                                                    <span>
-                                                        Thêm vào giỏ hàng
-                                                    </span>
-                                                </button>
-                                            </div>
-                                            <div className={cn("col-6")}>
-                                                <button type="button"
-                                                    className={cn("btn-buy", "btn-3")}
-                                                    name="action" value="buy-now">Mua ngay</button>
-                                            </div>
+                                        <span className={cn("col", "stock")}>
+                                            {currentProduct?.stock} sản phẩm có sẵn
+                                        </span>
+                                    </div>
+                                    {/* button add to cart and buy now*/}
+                                    <div className={cn("btn-product", "row")}>
+                                        {/* button add to cart */}
+                                        <div className={cn("col-6")}>
+                                            <button type="button"
+                                                className={cn("btn-add-cart", "btn-2")}
+                                                name="action"
+                                                value="add-shopping-cart"
+                                                onClick={handleAddToCart}
+                                            >
+                                                <AddShoppingCartIcon />
+                                                <span>
+                                                    Thêm vào giỏ hàng
+                                                </span>
+                                            </button>
                                         </div>
-                                    </form>
+                                        {/* button buy now */}
+                                        <div className={cn("col-6")}>
+                                            <button type="button"
+                                                className={cn("btn-buy", "btn-4")}
+                                                name="action" value="buy-now">Mua ngay</button>
+                                        </div>
+                                    </div>
                                 </div>
                                 {/* <!-- Địa chỉ user --> */}
                                 <div className={cn("info-address")}>
@@ -359,13 +369,13 @@ export default function ProductDetail({ route }) {
                             {/* Attribute */}
                             {attribute.map(
                                 (item) => (
-                                    <div className={cn("description", "content-item")}>
+                                    <div key={item.id} className={cn("description", "content-item")}>
                                         <div className={cn("name")}>{item.name}</div>
                                         <ul className={cn("content")}>
                                             {
                                                 item.values.map(
                                                     (it) => (
-                                                        <li>{it}</li>
+                                                        <li key={it}>{it}</li>
                                                     )
                                                 )
                                             }
@@ -485,7 +495,7 @@ export default function ProductDetail({ route }) {
                     <div className={cn("inner-wrap")}>
                         {/* <!-- Title --> */}
                         <div className={cn("head-title")}>
-                            <h2 className={cn("title")}>Sản phẩm liên quan</h2>
+                            <h3 className={cn("title")}>Sản phẩm liên quan</h3>
                         </div>
                         {/* <!-- end title --> */}
                         <div className={cn("products-list")}>
@@ -494,7 +504,7 @@ export default function ProductDetail({ route }) {
                                 {
                                     productRelated.map(
                                         item => (
-                                            <div className={cn("col-xl-2", "col-md-3", "col-6")}>
+                                            <div key={item.id} className={cn("col-xl-2", "col-md-3", "col-6")}>
                                                 <Card product={item} />
                                             </div>
                                         )

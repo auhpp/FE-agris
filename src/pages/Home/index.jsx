@@ -1,14 +1,9 @@
 import style from "./Home.module.css";
 import classNames from "classnames/bind";
-// Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
-
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
-
-// import required modules
-import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import { Autoplay, Pagination } from 'swiper/modules';
 import slide1 from "./../../assets/images/banner-1.png";
 import slide2 from "./../../assets/images/banner-2.png";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
@@ -17,11 +12,10 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Card from "../../components/Card";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { searchProduct } from "../../services/productService";
 import { Link } from "react-router-dom";
 import { routes } from "../../config/routes";
-import { AuthContext } from "../../context/AuthContext";
 const cn = classNames.bind(style);
 
 export default function Home() {
@@ -29,13 +23,13 @@ export default function Home() {
     const [productList1, setProductList1] = useState([]);
     const [productList2, setProductList2] = useState([]);
     const [productList3, setProductList3] = useState([]);
-    const { isAuthenticated } = useContext(AuthContext);
+    // Get product
     useEffect(() => {
         searchProduct({
             categoryName: "Phân bón"
         }).then(
             data => {
-                setProductList1(data.result.data)
+                setProductList1(data.result?.data)
             }
         )
         searchProduct({
@@ -53,6 +47,7 @@ export default function Home() {
             }
         )
     }, [])
+
     return (
         <>
             {/* <!-- slide --> */}
@@ -152,7 +147,8 @@ export default function Home() {
                         {
                             productList1?.map(
                                 (item, index) =>
-                                (<div key={item.id} className={cn("col-xl-2", "mb-4", "col-md-3", "col-6")}>
+                                (<div key={item.id} 
+                                className={cn("col-xl-2", "mb-4", "col-md-3", "col-6")}>
                                     <Card product={item} />
                                 </div>
                                 )
@@ -161,7 +157,8 @@ export default function Home() {
 
                         {/* <!-- Xem tất cả button --> */}
                         <div className={cn("footer-view-all")}>
-                            <Link to={{ pathname: routes.products, search: "?categoryId=" + productList1[0]?.category.id }} className={cn("view-all", "btn-2")}>
+                            <Link to={{ pathname: routes.products, search: "?categoryId=" + productList1[0]?.category.id }}
+                             className={cn("view-all", "btn-2")}>
                                 <span>
                                     Xem tất cả
                                 </span>
@@ -170,7 +167,7 @@ export default function Home() {
                         </div>
                         {/* <!-- End xem tất cả button --> */}
                     </div>
-                    {/* <!-- End hiển thị sách --> */}
+                    {/* <!-- End hiển thị sản phẩm --> */}
                 </div>
             </section >
             {/* <!-- end Phân bón --> */}
@@ -200,12 +197,10 @@ export default function Home() {
                                 )
                             )
                         }
-
-
-
                         {/* <!-- Xem tất cả button --> */}
                         <div className={cn("footer-view-all")}>
-                            <Link to={{ pathname: routes.products, search: "?categoryId=" + productList2[0]?.category.id }} className={cn("view-all", "btn-2")}>
+                            <Link to={{ pathname: routes.products, search: "?categoryId=" + productList2[0]?.category.id }}
+                             className={cn("view-all", "btn-2")}>
                                 <span>
                                     Xem tất cả
                                 </span>
@@ -214,10 +209,11 @@ export default function Home() {
                         </div>
                         {/* <!-- End xem tất cả button --> */}
                     </div>
-                    {/* <!-- End hiển thị sách --> */}
+                    {/* <!-- End hiển thị sản phẩm --> */}
                 </div>
             </section>
             {/* <!-- end Hạt giống --> */}
+
             {/* <!--  Dụng cụ làm vườn --> */}
             <section className={cn("fertilizer-list")}>
                 <div className={cn("container")}>
@@ -244,11 +240,10 @@ export default function Home() {
                             )
                         }
 
-
-
                         {/* <!-- Xem tất cả button --> */}
                         <div className={cn("footer-view-all")}>
-                            <Link to={{ pathname: routes.products, search: "?categoryId=" + productList3[0]?.category.id }} className={cn("view-all", "btn-2")}>
+                            <Link to={{ pathname: routes.products, search: "?categoryId=" + productList3[0]?.category.id }} 
+                            className={cn("view-all", "btn-2")}>
                                 <span>
                                     Xem tất cả
                                 </span>
@@ -257,13 +252,10 @@ export default function Home() {
                         </div>
                         {/* <!-- End xem tất cả button --> */}
                     </div>
-                    {/* <!-- End hiển thị sách --> */}
+                    {/* <!-- End hiển thị sản phẩm --> */}
                 </div>
             </section>
             {/* <!-- end Dụng cụ làm vườn --> */}
-
-
-
         </>
     );
 }

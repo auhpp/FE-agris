@@ -1,35 +1,37 @@
 import style from "./Header.module.css";
-// import "./Header";
-import Search from "../Search";
 import logo from "./../../../assets/images/logo.png";
 import {
     BsPersonFill, BsCartFill, BsChevronDown, BsList,
     BsSearch
 } from "react-icons/bs";
-
 import classNames from "classnames/bind";
 import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
-import { use, useContext, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { routes } from "../../../config/routes";
 import { getAllCategory } from "../../../services/categoryService";
-import { getAllCart } from "../../../services/cartService";
-import CartContext from "../../../components/CartContext";
-import { introspect, logout } from "../../../services/authenticationService";
+import { introspect } from "../../../services/authenticationService";
 import { AuthContext } from "../../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import CartContext from "../../../context/CartContext";
 const cn = classNames.bind(style);
 
 export default function Header() {
-    const location = useLocation();
     const [showCategory, setShowCategory] = useState(false);
     const navigate = useNavigate();
-    const { logoutAction } = useContext(AuthContext);
+    const { logoutAction, token } = useContext(AuthContext);
     const [categories, setCategories] = useState([]);
     var role = "";
-    if (localStorage.getItem("token")) {
-        role = jwtDecode(localStorage.getItem("token")).scope;
+    var [query, setQuery] = useState("");
+    var cart = useContext(CartContext);
+    const [showAccount, setShowAccount] = useState(false);
+    const [isAuth, setIsAuth] = useState();
+
+    //Get role
+    if (token) {
+        role = jwtDecode(token).scope;
     }
+    //Get all category
     useEffect(() => {
         getAllCategory().then(
             data => {
@@ -37,23 +39,23 @@ export default function Header() {
             }
         )
     }, [])
-    var [query, setQuery] = useState("");
-    var cart = useContext(CartContext);
+
+    //submit search
     const handleSubmit = (e) => {
         e.preventDefault();
         navigate({ pathname: routes.search, search: "?name=" + query })
     }
-    const [showAccount, setShowAccount] = useState(false);
+
+    //Logout
     const handleLogout = () => {
         logoutAction()
     }
 
-    const [isAuth, setIsAuth] = useState();
+    //Set is auth
     useEffect(
         () => {
-            introspect({ token: localStorage.getItem("token") }).then(
+            introspect({ token: token }).then(
                 data => {
-                    console.log(data)
                     setIsAuth(data.result?.valid)
                 }
             )
@@ -75,7 +77,6 @@ export default function Header() {
                             {/* <!-- end logo --> */}
 
                             {/* <!-- Input search san pham --> */}
-                            {/* <!-- Input search san pham --> */}
                             <div className={cn("col-xl-6", "col-12", "myOrder-lg-1")}>
                                 <form onSubmit={handleSubmit} className={cn("search-bar")}>
                                     <input type="text" name="name" placeholder="Tìm kiếm ở đây..."
@@ -87,7 +88,6 @@ export default function Header() {
                                 </form>
                             </div>
                             {/* <!-- end Input search san pham --> */}
-                            {/* end search */}
                             <div className={cn("col-xl-4", "col-lg-2", "col-sm-2", "col-3")}>
                                 <div className={cn("content-right")}>
                                     {/* So dien thoai */}
@@ -105,7 +105,6 @@ export default function Header() {
                                         <button onClick={() => {
                                             setShowAccount(!showAccount)
                                         }}
-                                            onHoV
                                             className={cn("account")}>
                                             <BsPersonFill className={cn("person-icon")} />
                                             <span className={cn("name-content-right")}>Tài khoản</span>
@@ -152,7 +151,6 @@ export default function Header() {
                                     {/* Gio hang */}
                                     <a onClick={() => {
                                         navigate(routes.cart)
-
                                     }} className={cn("shopping-cart")}>
                                         <BsCartFill className={cn("cart-icon")} />
                                         <span className={cn("name-content-right")}>Giỏ hàng</span>
@@ -163,9 +161,9 @@ export default function Header() {
                                     {/* <!--end Gio hang --> */}
                                 </div>
                             </div>
-                            <div className={cn("col-lg-1", "col-sm-2", "col-2")}>
+                            {/* <div className={cn("col-lg-1", "col-sm-2", "col-2")}>
                                 <i className={cn("fa-solid", "fa-bars", "bars")}></i>
-                            </div>
+                            </div> */}
                         </div>
                         <div className={cn("row", "header-bottom")}>
                             <div className={cn("col-3")}>
@@ -189,13 +187,13 @@ export default function Header() {
                                             }
 
                                             <li className={cn("category-item", "load-all")}>
-                                                <a href="/products">Xem tất cả</a>
+                                                <Link to={routes.products}>Xem tất cả</Link>
                                             </li>
                                         </ul>
                                     )}
                                 </div>
                             </div>
-                            {/* <!-- phan navigation --> */}
+                            {/* <!-- navigation --> */}
                             <div className={cn("offset-4", "col-5")}>
                                 <nav className={cn("nav-list")}>
                                     {/* <!-- navigation o man hinh lon --> */}

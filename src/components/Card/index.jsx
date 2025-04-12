@@ -24,7 +24,7 @@ export default function Card({ product }) {
                     <div className={cn("price-product")}>
                         {/* current price */}
                         <div className={cn("current-price")}>
-                            <span>{VND.format(product.variants[0].price)}</span>
+                            <span>{VND.format(product.variants[0].sellingPrice)}</span>
                             <sup>đ</sup>
                         </div>
                         {/* price discount */}
