@@ -22,7 +22,7 @@ import { formatDate } from "../../../utils/formatDate";
 import AddDynamicInputFields from "../../../components/AddDynamicInputFields";
 import Form from 'react-bootstrap/Form';
 import { cartesianProduct } from "../../../utils/variant";
-import { createCalculationUnit, getCalculationUnit } from "../../../services/calculationUnit";
+import { createCalculationUnit, getCalculationUnit } from "../../../services/calculationUnitService";
 import { inputFocus } from "../../../utils/input";
 import ModalWarningDelete from "../../../components/ModalWarningDelete";
 import VisibilityIcon from '@mui/icons-material/Visibility';

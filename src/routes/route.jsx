@@ -28,6 +28,7 @@ import OrderManagement from "../pages/admin/OrderManagement";
 import OrderDetailManagement from "../pages/admin/OrderDetailManagement";
 import OrderDetail from "./../pages/OrderDetail"
 import CategoryManagement from "../pages/admin/CategoryManagement";
+import CalculationUnit from "../pages/admin/CalculationUnit";
 
 export const publicRoutes = [
     { path: routes.login, page: Login },
@@ -65,6 +66,6 @@ export const adminRoutes = [
     { path: routes.orderManagement, page: OrderManagement, layout: DefaultAdminLayout },
     { path: routes.orderDetailManagement, page: OrderDetailManagement, layout: DefaultAdminLayout },
     { path: routes.categoryManagement, page: CategoryManagement, layout: DefaultAdminLayout },
-
+    { path: routes.calculationUnit, page: CalculationUnit, layout: DefaultAdminLayout },
 
 ]

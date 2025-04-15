@@ -19,7 +19,7 @@ import { routes } from "../../../config/routes";
 import { createWarehouseReceipt, getAllWarehouse } from "../../../services/warehouseService";
 import Dropdown from 'react-bootstrap/Dropdown';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { getAllShipment } from "../../../services/shipment";
+import { getAllShipment } from "../../../services/shipmentService";
 import CloseIcon from '@mui/icons-material/Close';
 import { formatDate } from "../../../utils/formatDate";
 import { searchStaff } from "../../../services/staffService";

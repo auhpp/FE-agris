@@ -1,6 +1,6 @@
 import { Button, FormControl, InputLabel, Menu, MenuItem, OutlinedInput, Select } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getAllShipment } from "../../services/shipment";
+import { getAllShipment } from "../../services/shipmentService";
 import { formatDate } from "../../utils/formatDate";
 import Dropdown from 'react-bootstrap/Dropdown';
 import CloseIcon from '@mui/icons-material/Close';
