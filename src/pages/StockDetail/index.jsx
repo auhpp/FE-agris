@@ -11,7 +11,7 @@ import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 import { useEffect, useState } from "react";
 import { getAllWarehouse } from "../../services/warehouseService";
-import { searchShipment } from "../../services/shipment";
+import { searchShipment } from "../../services/shipmentService";
 import { routes } from "../../config/routes";
 
 const cn = classNames.bind(style);

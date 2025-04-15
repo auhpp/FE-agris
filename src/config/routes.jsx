@@ -27,5 +27,5 @@ export const routes = {
     orderDetail: "/user/purchase/order",
     orderManagement: "/admin/order",
     orderDetailManagement: "/admin/order_detail",
-
+    calculationUnit: "/admin/calculation_unit"
 };

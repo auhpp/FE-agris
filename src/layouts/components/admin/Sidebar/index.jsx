@@ -12,6 +12,8 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import Nav from 'react-bootstrap/Nav';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CategoryIcon from '@mui/icons-material/Category';
+import CalculateIcon from '@mui/icons-material/Calculate';
+
 const cn = classNames.bind(style);
 
 export default function Sidebar() {
@@ -29,6 +31,13 @@ export default function Sidebar() {
       link: routes.categoryManagement,
       getIcon: (isActive) => (
         <CategoryIcon style={isActive ? { color: "white" } : {}} />
+      )
+    },
+    {
+      name: "Đơn vị tính",
+      link: routes.calculationUnit,
+      getIcon: (isActive) => (
+        <CalculateIcon style={isActive ? { color: "white" } : {}} />
       )
     },
     {
