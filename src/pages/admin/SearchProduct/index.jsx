@@ -139,6 +139,7 @@ export default function SearchProduct() {
                             <th></th>
                             <th scope="col">Danh mục</th>
                             <th scope="col">Tồn kho</th>
+                            <th scope="col">KH đặt</th>
                             <th scope="col">Trạng thái</th>
                             <th scope="col">Thao tác</th>
 
@@ -157,6 +158,9 @@ export default function SearchProduct() {
                                         <td>{
                                             item.stock + " trong " + item.variants.length + " biến thể"
                                         }</td>
+                                        <td className="text-center">
+                                            {item.reserved}
+                                        </td>
                                         <td>
                                             <Badge bg={item.status == "ACTIVE" ? "success" : "warning"}>
 

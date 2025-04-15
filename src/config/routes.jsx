@@ -3,7 +3,7 @@ export const routes = {
     register: "/register",
     searchProduct: "/admin/product",
     searchAccount: "/admin/account",
-    searchCategory: "/admin/category",
+    categoryManagement: "/admin/category",
     searchSupplier: "/admin/supplier",
     createProduct: "/admin/create_product",
     home: "/",
@@ -22,5 +22,10 @@ export const routes = {
     warehouse: "/admin/warehouse",
     staff: "/admin/staff",
     staffAccountConfirmPassword: "/staff_account_confirm_email",
-    stockDetail: "/admin/stock_detail"
+    stockDetail: "/admin/stock_detail",
+    purchase: "/user/purchase",
+    orderDetail: "/user/purchase/order",
+    orderManagement: "/admin/order",
+    orderDetailManagement: "/admin/order_detail",
+
 };

@@ -1,0 +1,21 @@
+.notification-non-review {
+    display: flex;
+    align-items: center;
+    padding: 20px 0;
+    flex-direction: column;
+    background-color: white;
+    margin-top: 10px;
+    height: 100vh;
+    justify-content: center;
+}
+
+.notification-non-review svg {
+    margin-bottom: 10px;
+    font-size: 80px;
+    color: var(--grey-light);
+}
+
+.notification-non-review span {
+    color: var(--grey-light);
+    font-size: 18px;
+}

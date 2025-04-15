@@ -10,6 +10,8 @@ import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import Nav from 'react-bootstrap/Nav';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import CategoryIcon from '@mui/icons-material/Category';
 const cn = classNames.bind(style);
 
 export default function Sidebar() {
@@ -23,6 +25,13 @@ export default function Sidebar() {
       ),
     },
     {
+      name: "Danh mục sản phẩm",
+      link: routes.categoryManagement,
+      getIcon: (isActive) => (
+        <CategoryIcon style={isActive ? { color: "white" } : {}} />
+      )
+    },
+    {
       name: "Kho",
       link: routes.warehouse,
       getIcon: (isActive) => (
@@ -34,15 +43,22 @@ export default function Sidebar() {
       link: routes.importGoods,
       getIcon: (isActive) => (
         <PostAddIcon style={isActive ? { color: "white" } : {}} />
-      ),
+      )
     },
     {
       name: "Nhân viên",
       link: routes.staff,
       getIcon: (isActive) => (
         <PeopleAltIcon style={isActive ? { color: "white" } : {}} />
-      ),
+      )
     },
+    {
+      name: "Đơn hàng",
+      link: routes.orderManagement,
+      getIcon: (isActive) => (
+        <AssignmentIcon style={isActive ? { color: "white" } : {}} />
+      )
+    }
   ].map((nav) => {
     const isActive = location.pathname === nav.link;
     return {

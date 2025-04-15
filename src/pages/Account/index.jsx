@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import style from "./Account.module.css";
 import classNames from "classnames/bind";
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
@@ -7,14 +7,15 @@ import { Avatar } from "@mui/material";
 import { useEffect, useState } from "react";
 import { routes } from "../../config/routes";
 import { getUserInfo } from "../../services/customerService";
-
+import AssignmentIcon from '@mui/icons-material/Assignment';
 const cn = classNames.bind(style);
 
 export default function Account({ children }) {
 
-    const [showSubMenu, SetShowSubMenu] = useState(true);
+    const [showSubMenu, setShowSubMenu] = useState(true);
 
     const [user, setUser] = useState();
+    const navigate = useNavigate()
     //Get user
     useEffect(
         () => {
@@ -48,7 +49,7 @@ export default function Account({ children }) {
                         <div className={cn("navigate")}>
                             <ul>
                                 <li>
-                                    <button onClick={() => SetShowSubMenu(!showSubMenu)} className={cn("dropdown-btn", "btn-account")}>
+                                    <button onClick={() => setShowSubMenu(!showSubMenu)} className={cn("dropdown-btn", "btn-account")}>
                                         <Person2OutlinedIcon />
                                         <span className={cn("title")}>Tài khoản của tôi</span>
                                     </button>
@@ -57,7 +58,8 @@ export default function Account({ children }) {
                                         (
                                             <ul className={cn("sub-menu")}>
                                                 <li>
-                                                    <Link to={routes.profile}>
+                                                    <Link
+                                                        to={routes.profile}>
                                                         Hồ sơ
                                                     </Link>
                                                 </li>
@@ -75,6 +77,18 @@ export default function Account({ children }) {
                                             </ul>
                                         )
                                     }
+                                </li>
+                                <li>
+                                    <button
+                                        onClick={() => {
+                                            setShowSubMenu(false)
+                                            navigate(routes.purchase)
+                                        }}
+                                        className={cn("dropdown-btn", "btn-account")}>
+                                        <AssignmentIcon />
+                                        <span className={cn("title")}>Đơn hàng</span>
+                                    </button>
+
                                 </li>
                             </ul>
                         </div>
