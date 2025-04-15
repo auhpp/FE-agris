@@ -136,8 +136,7 @@
 }
 
 .info-pay .sum-price .all-price,
-.current-price
-{
+.current-price {
     color: var(--red-sale);
 }
 
@@ -147,6 +146,12 @@
     border-radius: 10px;
     margin-top: 18px;
     padding-inline: 56px;
+}
+
+.info-pay .pay-btn:hover {
+    background-color: var(--red-sale);
+    border-color: var(--red-sale);
+
 }
 
 .info-pay .content {
@@ -164,9 +169,10 @@
     text-align: center;
 }
 
-.info-product{
+.info-product {
     overflow: hidden;
 }
+
 .info-product .name-product {
     color: var(--black-title);
     font-size: 14px;

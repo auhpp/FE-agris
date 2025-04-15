@@ -23,6 +23,11 @@ import Warehouse from "../pages/admin/Warehouse";
 import Staff from "../pages/admin/Staff";
 import StaffConfirmPassword from "../pages/StaffConfirmPassword";
 import StockDetail from "../pages/StockDetail";
+import Purchase from "../pages/Purchase";
+import OrderManagement from "../pages/admin/OrderManagement";
+import OrderDetailManagement from "../pages/admin/OrderDetailManagement";
+import OrderDetail from "./../pages/OrderDetail"
+import CategoryManagement from "../pages/admin/CategoryManagement";
 
 export const publicRoutes = [
     { path: routes.login, page: Login },
@@ -40,7 +45,11 @@ export const privateRoutes = [
     { path: routes.address, page: Address, layout: Account },
     { path: routes.password, page: Password, layout: Account },
     { path: routes.cart, page: Cart },
-    { path: routes.order, page: Order, layout: HeaderLayout }
+    { path: routes.order, page: Order, layout: HeaderLayout },
+    { path: routes.purchase, page: Purchase, layout: Account },
+    { path: routes.orderDetail, page: OrderDetail, layout: Account }
+
+
 ]
 
 export const adminRoutes = [
@@ -52,5 +61,10 @@ export const adminRoutes = [
     { path: routes.goodsReceipt, page: GoodsReceipt, layout: null },
     { path: routes.warehouse, page: Warehouse, layout: DefaultAdminLayout },
     { path: routes.staff, page: Staff, layout: DefaultAdminLayout },
-    { path: routes.stockDetail, page: StockDetail, layout: DefaultAdminLayout }
+    { path: routes.stockDetail, page: StockDetail, layout: DefaultAdminLayout },
+    { path: routes.orderManagement, page: OrderManagement, layout: DefaultAdminLayout },
+    { path: routes.orderDetailManagement, page: OrderDetailManagement, layout: DefaultAdminLayout },
+    { path: routes.categoryManagement, page: CategoryManagement, layout: DefaultAdminLayout },
+
+
 ]

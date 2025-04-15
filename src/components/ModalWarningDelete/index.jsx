@@ -4,8 +4,8 @@ import Modal from 'react-bootstrap/Modal';
 export default function ModalWarningDelete({ show, setShow, onCLickAgree }) {
     return (
         <>
-            <Modal show={show} onHide={() => { setShow(false) }}>
-                <Modal.Header closeButton>
+            <Modal show={show}>
+                <Modal.Header >
                     <Modal.Title className="text-danger">Cảnh báo!</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>Bạn có chắc chắn xóa ?</Modal.Body>

@@ -49,3 +49,7 @@
 .sub-menu li a:hover{
     color: var(--primary-color);
 }
+
+.navigate li{
+    padding-block: 6px;
+}

@@ -62,7 +62,7 @@ export default function ProductDetail() {
                 data => {
                     console.log(data.result)
                     setProduct(data.result)
-                    setVariantTypes(convertToVariantType(data.result.variants))
+                    setVariantTypes(convertToVariantType(data.result?.variants))
                 }
             )
         }, []

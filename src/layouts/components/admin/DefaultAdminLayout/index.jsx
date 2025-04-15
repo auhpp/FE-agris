@@ -34,7 +34,7 @@ export default function DefaultAdminLayout({ children }) {
                         <Header />
                         {/* </header> */}
 
-                        <div className={cn("container")}>
+                        <div className={cn("container", "content")}>
                             {children}
                         </div>
 
