@@ -20,3 +20,15 @@ export async function searchStaff(request, page, size) {
         }).then(data => data.json());
     return promise;
 }
+
+export async function getStaffInfo() {
+    var promise = fetch("http://localhost:8080/staff/myInfo", {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${localStorage.getItem("token")}`
+            }
+        })
+        .then(res => res.json())
+    return promise;
+}

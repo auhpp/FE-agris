@@ -14,7 +14,7 @@ import { use, useEffect, useState } from "react";
 import { searchProductVariant } from "../../../services/productVariantService";
 import { VND } from "../../../utils/formatNumber";
 import Modal from 'react-bootstrap/Modal';
-import { createSupplier, searchSupplier } from "../../../services/supplierService";
+import { createSupplier, findSupplier, searchSupplier } from "../../../services/supplierService";
 import { routes } from "../../../config/routes";
 import { createWarehouseReceipt, getAllWarehouse } from "../../../services/warehouseService";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -205,9 +205,9 @@ export default function GoodsReceipt() {
             else {
                 name = supplierQuery;
             }
-            searchSupplier(name, phoneNumber).then(
+            findSupplier(name, phoneNumber).then(
                 data => {
-                    console.log(data)
+                    console.log("search supplier", data)
                     SetSupplierList(data.result);
                     setShowSupplier(true)
                 }
@@ -412,7 +412,6 @@ export default function GoodsReceipt() {
                                                                         <div className={cn("variant-type", "col")}>
                                                                             {
                                                                                 item.variantValues[0].name != "DEFAULT"
-                                                                                && item.variantValues.length > 1
                                                                                 && (
                                                                                     <>
                                                                                         <span>

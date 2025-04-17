@@ -33,7 +33,7 @@ export default function OrderItem({ order,
                     </div>
                     <div className={cn("status-order")}>
                         {
-                            OrderStatus[order?.orderStatus]
+                            OrderStatus[order?.orderStatus]?.name
                         }
                     </div>
                 </div>
@@ -91,7 +91,7 @@ export default function OrderItem({ order,
                                         )
                                     }
                                     {
-                                        order.orderStatus != "WAIT_FOR_CONFIRMATION" &&
+                                        order.orderStatus != "WAIT_FOR_CONFIRMATION" && isAdmin &&
                                         <div className="col mt-2 bold">
                                             <span>Các kho và lô lấy hàng:</span>
                                             {

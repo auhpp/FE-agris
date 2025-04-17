@@ -23,13 +23,38 @@ export async function createSupplier(request) {
 }
 
 
-export async function searchSupplier(name, phoneNumber) {
-    var promise = fetch('http://localhost:8080/supplier/search?name=' + name + "&phoneNumber=" + phoneNumber, {
+export async function findSupplier(name, phoneNumber) {
+    var promise = fetch('http://localhost:8080/supplier/find?name=' + name + "&phoneNumber=" + phoneNumber, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem("token")}`,
             'Content-Type': 'application/json',
         }
     }).then(data => data.json());
+    return promise;
+}
+
+
+export async function searchSupplier(name, email, phoneNumber, page, size, id="") {
+    var promise = fetch('http://localhost:8080/supplier/search?name=' + name + "&phoneNumber=" + phoneNumber +
+        "&email=" + email + "&page=" + page + "&size=" + size + "&id=" + id, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("token")}`,
+                'Content-Type': 'application/json',
+            }
+        }).then(data => data.json());
+    return promise;
+}
+
+
+export async function deleteSupplier(id) {
+    var promise = fetch('http://localhost:8080/supplier/' + id, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem("token")}`,
+            'Content-Type': 'application/json',
+        }
+    }).then(res => res.json());
     return promise;
 }

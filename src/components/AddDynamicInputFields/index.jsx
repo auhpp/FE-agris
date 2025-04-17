@@ -34,7 +34,7 @@ function checkName(array, name) {
 export default function AddDynamicInputFields({ inputs, object,
     keyName, setInputs, isAdd, values = [], onChange, handleAddInput, array,
     index, onDelete, length, value, error, setError, errorMessage, onClick, isEdit,
-    type, disable
+    type, disable, isView
 }) {
     const [inputAdd, setInputAdd] = useState("");
     const [showInputAdd, setShowInputAdd] = useState(false);
@@ -70,7 +70,7 @@ export default function AddDynamicInputFields({ inputs, object,
                                     disabled={disable}
                                 />
                                 {
-                                    index > 0 && (
+                                    index > 0 && !isView && (
                                         <CloseIcon onClick={onDelete} />
                                     )
                                 }

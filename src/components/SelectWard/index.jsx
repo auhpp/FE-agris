@@ -17,7 +17,7 @@ export default function SelectWard({ value, setWard, districtId }) {
     )
     return (
         <>
-            <Form.Select className="mt-2"
+            <Form.Select className=""
                 onChange={(e) => {
                     console.log(e.target)
                     setWard({

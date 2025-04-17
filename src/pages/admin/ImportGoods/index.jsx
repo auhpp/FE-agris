@@ -3,11 +3,11 @@ import classNames from "classnames/bind";
 import AddIcon from '@mui/icons-material/Add';
 
 import Search from "../../../layouts/components/admin/Search";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { routes } from "../../../config/routes";
 import { useEffect, useState } from "react";
-import { getAllWarehouseReceipt, importWarehouse } from "../../../services/warehouseService";
-import { Pagination } from "@mui/material";
+import { getAllWarehouseReceipt, importWarehouse, searchWarehouseReceipt } from "../../../services/warehouseService";
+import { Button, Chip, Pagination } from "@mui/material";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
 import { VND } from "../../../utils/formatNumber";
 import * as React from 'react';
@@ -15,9 +15,14 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import CloseIcon from '@mui/icons-material/Close';
-import Button from 'react-bootstrap/Button';
 import WarehouseReceipt from "../../../components/WarehouseReceipt";
 import ReactPDF from '@react-pdf/renderer';
+import Badge from 'react-bootstrap/Badge';
+import Row from 'react-bootstrap/Row';
+import Form from 'react-bootstrap/Form';
+import Col from 'react-bootstrap/Col';
+import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import { getAllSupplier } from "../../../services/supplierService";
 
 const cn = classNames.bind(style);
 
@@ -38,9 +43,12 @@ export default function ImportGoods() {
     var [currentPage, setCurrentPage] = useState(1);
     var [pageSize, setPageSize] = useState(10);
     var [isEdit, setIsEdit] = useState(false);
-
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search)
+    var supplierId = searchParams.get("supplierId") ?? ""
+    const [suppliers, setSuppliers] = useState([])
     useEffect(() => {
-        getAllWarehouseReceipt(currentPage, pageSize).then(
+        searchWarehouseReceipt(supplierId, currentPage, pageSize).then(
             data => {
                 if (data.result?.data) {
                     setResults(data.result.data)
@@ -51,7 +59,18 @@ export default function ImportGoods() {
                 }
             }
         )
-    }, [currentPage, isEdit])
+    }, [currentPage, isEdit, supplierId])
+
+    useEffect(
+        () => {
+            getAllSupplier().then(
+                data => {
+                    setSuppliers(data.result)
+                }
+            )
+        }, []
+
+    )
 
     const handleChangePagination = (e, p) => {
         setCurrentPage(p)
@@ -79,61 +98,87 @@ export default function ImportGoods() {
     }
     return (
         <>
-            <Search nameInputSearch={"name"} displaySelect={false} />
-            <button
-                onClick={() => navigate(routes.goodsReceipt)}
-                className={cn("btn-8", "mb-2", "col-2", "offset-7")}>
-                <AddIcon />
-                <span>
-                    Nhập hàng
-                </span>
-            </button>
-            <div className={cn("result-table")}>
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col">Mã phiếu nhập</th>
-                            <th scope="col">Ngày tạo</th>
-                            <th scope="col">Nhà cung cấp</th>
-                            <th scope="col">Tiền nợ NCC</th>
-                            <th scope="col">Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            results?.map(
-                                (item, index) => (
-                                    <tr onClick={() => handleClickReceipt(item)}>
-                                        <td>{item.id}</td>
-                                        <td>{formatDateTime(item.createdDate)}</td>
-                                        <td>{item.supplier.name}</td>
-                                        <td>{VND.format(item.outstandingDebt)}</td>
-                                        {
-                                            item.importStatus != "Đã nhập hàng" ?
-                                                <td><Button variant="danger">{item.importStatus}</Button>
-                                                </td> :
-                                                <td><Button variant="success">{item.importStatus}</Button>
-                                                </td>
-                                        }
-                                    </tr>
+            <div className={cn("main-content")}>
+                <div className={cn("filter-form")}>
+                    <Row className="mb-3">
+                        <Form.Group className="col-5" as={Col} controlId="formGridState">
+                            <Form.Select
+                                onChange={(e) => {
+                                    navigate(
+                                        `?${new URLSearchParams({
+                                            supplierId: e.target.value
+                                        })}`
+                                    )
+                                }}
+                            >
+                                <option selected value={""}>-- Chọn nhà cung cấp --</option>
+                                {
+                                    suppliers?.map(
+                                        (item, index) => (
+                                            <option key={item.id} value={item.id}>{item.name}</option>
+                                        )
+                                    )
+                                }
+
+                            </Form.Select>
+                        </Form.Group>
+                        <div className="col-2"
+                        >
+                            <Button onClick={() => navigate(routes.goodsReceipt)}
+                                variant="contained" color="primary">
+                                <ControlPointIcon />
+                                <span>Nhập hàng</span>
+                            </Button>
+                        </div>
+                    </Row>
+                </div>
+                <div className={cn("result-table")}>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th className="text-center" scope="col">Mã phiếu nhập</th>
+                                <th scope="col">Ngày tạo</th>
+                                <th scope="col">Nhà cung cấp</th>
+                                <th scope="col">Tổng tiền</th>
+                                <th scope="col">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                results?.map(
+                                    (item, index) => (
+                                        <tr onClick={() => handleClickReceipt(item)}>
+                                            <td className="text-center">{item.id}</td>
+                                            <td>{formatDateTime(item.createdDate)}</td>
+                                            <td>{item.supplier.name}</td>
+                                            <td>{VND.format(item.amount)}</td>
+                                            {
+                                                item.importStatus != "Đã nhập hàng" ?
+                                                    <td>
+                                                        <Chip
+                                                            // style={{fontSize: "14px"}}
+                                                            variant="filled" color="error" label={item.importStatus} />
+                                                    </td> :
+                                                    <td>  <Chip variant="filled" color="success" label={item.importStatus} />
+                                                    </td>
+                                            }
+                                        </tr>
+                                    )
                                 )
-                            )
-                        }
-                    </tbody>
-                </table>
-                <Pagination
-                    count={totalPage}
-                    size="large"
-                    page={currentPage}
-                    shape="rounded"
-                    color="success"
-                    onChange={handleChangePagination}
-                    className={cn("pagination")}
-                />
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
-
-
+            <Pagination
+                count={totalPage}
+                size="large"
+                page={currentPage}
+                shape="rounded"
+                color="success"
+                onChange={handleChangePagination}
+                className={cn("pagination", "mt-2")}
+            />
 
             <div>
                 <Modal

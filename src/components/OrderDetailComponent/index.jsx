@@ -22,7 +22,7 @@ export default function OrderDetailComponent({ order, setOrder, isAdmin }) {
     const [isUpdate, setIsUpdate] = useState(false)
     useEffect(
         () => {
-            searchOrder(order.id, "", "", 1, 10).then(
+            searchOrder(order?.id, "", "", 1, 10).then(
                 data => {
                     console.log(data)
                     setOrder(data.result.data[0])
@@ -147,7 +147,7 @@ export default function OrderDetailComponent({ order, setOrder, isAdmin }) {
                 </div>
             </section >
             {
-                order.orderStatus != "CANCELED" &&
+                order?.orderStatus != "CANCELED" &&
                 <div className={cn("btn-cancel")}>
                     {
                         isAdmin && order.orderStatus == "WAIT_FOR_CONFIRMATION" && (

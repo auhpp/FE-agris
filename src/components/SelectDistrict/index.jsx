@@ -18,7 +18,7 @@ export default function SelectDistrict({ value, provinceId, setDistrict }) {
     )
     return (
         <>
-            <Form.Select className="mt-2" aria-label="Default select example"
+            <Form.Select className="" aria-label="Default select example"
                 onChange={(e) => {
                     setDistrict(
                         {

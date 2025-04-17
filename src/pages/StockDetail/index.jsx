@@ -1,6 +1,6 @@
 import classNames from "classnames/bind";
 import style from "./StockDetail.module.css";
-import { Breadcrumbs, Pagination, Typography } from "@mui/material";
+import { Breadcrumbs, Chip, Pagination, Typography } from "@mui/material";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Form from 'react-bootstrap/Form';
@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { getAllWarehouse } from "../../services/warehouseService";
 import { searchShipment } from "../../services/shipmentService";
 import { routes } from "../../config/routes";
+import { ShipmentStatus } from "../../utils/status";
 
 const cn = classNames.bind(style);
 
@@ -182,10 +183,17 @@ export default function StockDetail() {
                                     shipments?.map(
                                         sm => (
                                             <tr>
-                                                <td>{sm.name}</td>
-                                                <td>{sm.expiry}</td>
-                                                <td>{sm.status}</td>
-                                                <td>{sm.quantity}</td>
+                                                <td>{sm?.name}</td>
+                                                <td>{sm?.expiry}</td>
+                                                <td>
+                                                    {
+                                                        sm?.status &&
+                                                        <Chip label={ShipmentStatus[sm.status].name}
+                                                            style={{ "fontSize": "13px" }}
+                                                            color={ShipmentStatus[sm?.status].color} variant="outlined" />
+                                                    }
+                                                </td>
+                                                <td>{sm?.quantity}</td>
                                             </tr>
                                         )
                                     )

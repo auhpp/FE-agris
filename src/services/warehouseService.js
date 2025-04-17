@@ -12,14 +12,15 @@ export async function createWarehouseReceipt(request) {
 }
 
 
-export async function getAllWarehouseReceipt(page, size) {
-    var promise = fetch("http://localhost:8080/warehouse/receipt?page=" + page + "&size" + size, {
-            method: 'GET',
-            headers: {
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${localStorage.getItem("token")}`
-            }
-        })
+export async function searchWarehouseReceipt(supplierId = "", page, size) {
+    var promise = fetch("http://localhost:8080/warehouse/receipt/search?page=" + page + "&size=" + size +
+            "&supplierId=" + supplierId, {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                }
+            })
         .then(res => res.json())
     return promise;
 }

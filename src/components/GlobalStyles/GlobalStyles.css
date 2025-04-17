@@ -267,3 +267,19 @@ p {
 .price{
     color: var(--red-price);
 }
+
+.bold{
+    font-weight: bold;
+}
+
+.f-16{
+    font-size: 16px;
+}
+
+.f-14{
+    font-size: 14px;
+}
+
+.f-15{
+    font-size: 15px;
+}

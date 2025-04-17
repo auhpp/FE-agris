@@ -10,7 +10,7 @@ import Empty from "../../components/Empty";
 const cn = classNames.bind(style);
 
 
-function SubPurchasePage(props) {
+export function SubPurchasePage(props) {
     const { children, value, index, } = props;
 
     return (

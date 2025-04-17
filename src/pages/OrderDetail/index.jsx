@@ -1,13 +1,26 @@
 import { useLocation } from "react-router-dom";
 import OrderDetailComponent from "../../components/OrderDetailComponent";
+import { useEffect, useState } from "react";
+import { searchOrder } from "../../services/orderService";
 
 export default function OrderDetail() {
     const location = useLocation();
-    var order = location.state?.order;
-    console.log("order detail", order)
+    var orderId = location.state?.order;
+    const [order, setOrder] = useState();
+    useEffect(
+        () => {
+            searchOrder(orderId.id, "", "", 1, 10).then(
+                data => {
+                    setOrder(data.result.data[0])
+                }
+            )
+        }, []
+    )
     return (
         <>
-            <OrderDetailComponent order={order} />
+            <OrderDetailComponent order={order}
+                setOrder={setOrder}
+            />
         </>
     )
 }
