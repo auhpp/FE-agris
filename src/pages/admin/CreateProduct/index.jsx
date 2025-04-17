@@ -1237,6 +1237,7 @@ export default function CreateProduct() {
                                                                     index={index}
                                                                     disable={isView}
                                                                     array={item.values}
+                                                                    isView={isView}
                                                                     isEdit={
                                                                         product ? true : false
                                                                     }

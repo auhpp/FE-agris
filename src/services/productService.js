@@ -64,6 +64,9 @@ export async function searchProduct(params) {
     if (params.pageSize) {
         url += "size=" + params.pageSize;
     }
+    if (params.searchAllStock) {
+        url += "&searchAllStock=" + params.searchAllStock;
+    }
     console.log(url)
     var promise = fetch(url, {
         method: 'GET'

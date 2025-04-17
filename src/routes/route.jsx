@@ -4,7 +4,7 @@ import Register from "../pages/Register";
 import { routes } from "./../config/routes";
 import SearchProductAdmin from "../pages/admin/SearchProduct";
 import SearchAccount from "../pages/admin/SearchAccount";
-import SearchSupplier from "../pages/admin/SearchSupplier";
+import SearchSupplier from "../pages/admin/Supplier";
 import CreateProduct from "../pages/admin/CreateProduct";
 import Home from "../pages/Home";
 import Account from "../pages/Account";
@@ -29,6 +29,9 @@ import OrderDetailManagement from "../pages/admin/OrderDetailManagement";
 import OrderDetail from "./../pages/OrderDetail"
 import CategoryManagement from "../pages/admin/CategoryManagement";
 import CalculationUnit from "../pages/admin/CalculationUnit";
+import Supplier from "../pages/admin/Supplier";
+import SupplierDetail from "../pages/admin/SupplierDetail";
+import PaymentSlip from "../pages/admin/PaymentSlip";
 
 export const publicRoutes = [
     { path: routes.login, page: Login },
@@ -67,5 +70,7 @@ export const adminRoutes = [
     { path: routes.orderDetailManagement, page: OrderDetailManagement, layout: DefaultAdminLayout },
     { path: routes.categoryManagement, page: CategoryManagement, layout: DefaultAdminLayout },
     { path: routes.calculationUnit, page: CalculationUnit, layout: DefaultAdminLayout },
-
+    { path: routes.supplier, page: Supplier, layout: DefaultAdminLayout },
+    { path: routes.supplierDetail, page: SupplierDetail, layout: DefaultAdminLayout },
+    { path: routes.paymentSlip, page: PaymentSlip, layout: DefaultAdminLayout }
 ]

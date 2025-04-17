@@ -4,8 +4,8 @@ export const routes = {
     searchProduct: "/admin/product",
     searchAccount: "/admin/account",
     categoryManagement: "/admin/category",
-    searchSupplier: "/admin/supplier",
-    createProduct: "/admin/create_product",
+    supplier: "/admin/supplier",
+    createProduct: "/admin/product/create",
     home: "/",
     account: "/account",
     profile: "/account/profile",
@@ -27,5 +27,8 @@ export const routes = {
     orderDetail: "/user/purchase/order",
     orderManagement: "/admin/order",
     orderDetailManagement: "/admin/order_detail",
-    calculationUnit: "/admin/calculation_unit"
+    calculationUnit: "/admin/calculation_unit",
+    supplierDetail: "/admin/supplier/:id",
+    paymentSlip: "/admin/payment_slip"
+
 };

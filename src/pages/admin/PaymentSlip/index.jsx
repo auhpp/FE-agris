@@ -1,8 +1,7 @@
-import style from "./CategoryManagement.module.css";
+import style from "./PaymentSlip.module.css";
 import classNames from "classnames/bind";
 
 import { Breadcrumbs, Button, Chip, Pagination, Typography } from "@mui/material";
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
@@ -22,57 +21,38 @@ import EditIcon from '@mui/icons-material/Edit';
 import CreateCategoryModal from "../../../components/CreateCategoryModal";
 import ModalWarningDelete from "../../../components/ModalWarningDelete";
 import AlertError from "../../../components/AlertError";
+import { searchPaymentSlip } from "../../../services/paymentSlipService";
+import CreatePaymentSlipModal from "../../../components/CreatePaymentSlipModal";
 
 const cn = classNames.bind(style);
-export default function CategoryManagement() {
-    const [categories, setCategories] = useState([])
+export default function PaymentSlip() {
+    const [paymentSlips, setPaymentSlips] = useState([])
     var [totalPage, setTotalPage] = useState(1);
     var [currentPage, setCurrentPage] = useState(1);
     var [pageSize, setPageSize] = useState(10);
     const navigate = useNavigate()
     const location = useLocation();
     const [showCreateModal, setShowCreateModal] = useState(false)
-    const [showWaringDelete, setShowWarningDelete] = useState(false)
-    const [categoryDelete, setCategoryDelete] = useState({
-        id: null, name: ""
-    });
-    const [showDeleteError, setShowDeleteError] = useState(false)
 
     const [isUpdate, setIsUpdate] = useState(false)
     const searchParams = new URLSearchParams(location.search)
-    var name = searchParams.get("name") ?? ""
-    const [categoryEdit, setCategoryEdit] = useState({
-        id: null, name: ""
-    });
+    var id = searchParams.get("id") ?? ""
+
     useEffect(
         () => {
-            searchCategory(name, currentPage, pageSize).then(
+            searchPaymentSlip(id, currentPage, pageSize).then(
                 data => {
                     console.log("data", data)
-                    setCategories(data?.result?.data)
+                    setPaymentSlips(data?.result?.data)
                     setTotalPage(data.result?.totalPage)
                     setCurrentPage(data.result?.currentPage)
                     setPageSize(data.result?.pageSize)
                 }
             )
-        }, [currentPage, name, isUpdate]
+        }, [currentPage, id, isUpdate]
     )
     const handleChangePagination = (e, p) => {
         setCurrentPage(p)
-    }
-    const handleDelete = () => {
-        deleteCategory(categoryDelete.id).then(
-            data => {
-                if (data.code == 200) {
-                    setIsUpdate(!isUpdate)
-                }
-                else {
-                    setShowDeleteError(true)
-
-                }
-                setShowWarningDelete(false)
-            }
-        )
     }
     console.log(showCreateModal)
     return (
@@ -83,15 +63,15 @@ export default function CategoryManagement() {
                         <Form.Group
                             className="col-4"
                             as={Col} controlId="formGridCity">
-                            <Form.Control placeholder={"Tên danh mục ..."}
+                            <Form.Control placeholder={"Mã phiếu chi..."}
                                 onChange={(e) => {
                                     navigate(
                                         `?${new URLSearchParams({
-                                            name: e.target.value
+                                            id: e.target.value
                                         })}`
                                     )
                                 }}
-                                value={name}
+                                value={id}
                             />
                         </Form.Group>
                         <div className="col-2"
@@ -99,58 +79,48 @@ export default function CategoryManagement() {
                             <Button onClick={() => setShowCreateModal(true)}
                                 variant="contained" color="primary">
                                 <ControlPointIcon />
-                                <span>Thêm danh mục</span>
+                                <span>Tạo phiếu chi</span>
                             </Button>
                         </div>
-                        <AlertError
-                          
-                            showAlert={showDeleteError}
-                            onClose={() => setShowDeleteError(false)}
-                            message={"Danh mục đã có sản phẩm!"}
-                        />
+
                     </Row>
                 </div>
                 <div className={cn("shipment-table")}>
                     <Table hover>
                         <thead>
                             <tr>
-                                <th className="text-center">Mã danh mục</th>
-                                <th>Tên</th>
-                                <th>Thao tác</th>
+                                <th className="text-center">Mã phiếu </th>
+                                <th>Ngày lập</th>
+                                <th>Lý do</th>
+                                <th>Người nhận</th>
+                                <th>Giá trị</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
-                                categories?.map(
-                                    cate => (
-                                        <tr key={cate.id}
+                                paymentSlips?.map(
+                                    ps => (
+                                        <tr key={ps?.id}
                                             className={cn("category")}>
-                                            <td className="text-center">{cate.id}</td>
-                                            <td>{cate.name}</td>
+                                            <td className="text-center">{ps?.id}</td>
+                                            <td>{ps?.createdDate && formatDateTime(ps?.createdDate)}</td>
+                                            <td>{ps?.paymentReason}</td>
                                             <td>
-                                                <Button variant="contained"
-                                                    size="sm"
-                                                    color="info"
-                                                    className="me-1"
-                                                    onClick={() => {
-                                                        setShowCreateModal(true)
-                                                        setCategoryEdit(cate)
-                                                    }}
+                                                <div>
+                                                    {ps?.payeeName}
+                                                </div>
+                                                <div 
+                                                style={{ 
+                                                    // color: "var(--grey-text)"
+                                                    fontSize: "14px"
+                                                 }}
+                                                 className="text-primary"
                                                 >
-                                                    <EditIcon
-                                                        className={cn("edit-icon")} />
-                                                </Button>
-                                                <Button variant="contained"
-                                                    color="error"
-                                                    size="sm"
-                                                    onClick={() => {
-                                                        setCategoryDelete(cate)
-                                                        setShowWarningDelete(true)
-                                                    }}
-                                                >
-                                                    <DeleteIcon
-                                                        className={cn("delete-icon")} />
-                                                </Button>
+                                                    {ps?.payeeType}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {VND.format(ps?.paid)}
                                             </td>
                                         </tr>
                                     )
@@ -161,7 +131,7 @@ export default function CategoryManagement() {
                 </div>
             </div>
             {
-                categories?.length != 0 &&
+                paymentSlips?.length != 0 &&
                 <Pagination
                     count={totalPage}
                     size="large"
@@ -172,19 +142,13 @@ export default function CategoryManagement() {
                     className={cn("pagination")}
                 />
             }
-            <CreateCategoryModal
+            <CreatePaymentSlipModal
                 show={showCreateModal}
                 setShow={setShowCreateModal}
-                category={categoryEdit}
-                setCategory={setCategoryEdit}
+                isUpdate={isUpdate}
+                setIsUpdate={setIsUpdate}
             />
-            <ModalWarningDelete
-                show={showWaringDelete}
-                setShow={setShowWarningDelete}
-                onCLickAgree={() => {
-                    handleDelete()
-                }}
-            />
+
         </>
     )
 }

@@ -4,9 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";
-import { Pagination } from "@mui/material";
+import { Button, Chip, Pagination } from "@mui/material";
 import Modal from 'react-bootstrap/Modal';
-import Button from "react-bootstrap/esm/Button";
 import { createWarehouse, deleteWarehouse, searchWarehouse } from "../../../services/warehouseService";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModalWarningDelete from "../../../components/ModalWarningDelete";
@@ -15,14 +14,18 @@ import AlertSuccess from "../../../components/AlertSuccess";
 import { isEmail, isPhoneNumber } from "../../../utils/validate";
 import { createStaff, searchStaff } from "../../../services/staffService";
 import { sendConfirmAccountEmail } from "../../../services/emailService";
+import Row from 'react-bootstrap/Row';
+import Form from 'react-bootstrap/Form';
+import Col from 'react-bootstrap/Col';
+import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import { StaffStatus } from "../../../utils/status";
 
 const cn = classNames.bind(style);
 export default function Staff() {
     const navigate = useNavigate();
     const location = useLocation();
-    const [query, setQuery] = useState(
-        new URLSearchParams(location.search).get("query") || ""
-    );
+    var searchParams = new URLSearchParams(location.search);
+    var query = searchParams.get("query") ?? ""
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [staffRequest, setStaffRequest] = useState(
         {
@@ -109,16 +112,6 @@ export default function Staff() {
     var [currentPage, setCurrentPage] = useState(1);
     var [pageSize, setPageSize] = useState(10);
 
-    const handleSubmitSearch = (e) => {
-        e.preventDefault();
-
-        // Update URL with query parameters when form is submitted
-        const searchParams = new URLSearchParams();
-        if (query) searchParams.set("query", query);
-
-        navigate(`?${searchParams.toString()}`);
-
-    }
     useEffect(
         () => {
             var request = {
@@ -156,29 +149,35 @@ export default function Staff() {
     }
     return (
         <>
+            <div className={cn("main-content")}>
+                <div className={cn("filter-form")}>
+                    <Row className="mb-3">
+                        <Form.Group className="col-5" as={Col} controlId="formGridState">
+                            <Form.Control placeholder="Nhập từ khóa tìm kiếm..."
+                                onChange={(e) => {
+                                    navigate(
+                                        `?${new URLSearchParams({
+                                            query: e.target.value
+                                        })}`
+                                    )
+                                }}
+                                value={query}
+                            />
+                        </Form.Group>
+                        <div className="col-2"
+                        >
+                            <Button onClick={() => setShowCreateModal(true)}
+                                variant="contained" color="primary">
+                                <ControlPointIcon />
+                                <span>Thêm nhân viên</span>
+                            </Button>
+                        </div>
+                    </Row>
+                </div>
 
-            <div className="container">
-                <form
-                    onSubmit={handleSubmitSearch}
-                    method="get">
-                    <div className={cn("row", "form-search-content")}>
-                        <input type="text"
-                            className={cn("input-search", "col-6")}
-                            placeholder="Nhập từ khóa tìm kiếm tại đây..."
-                            onChange={(e) => setQuery(e.target.value)}
-                            name="name"
-                            value={query}
-                        />
-                        <button className={cn("btn-3", "btn-search", "col-1", "ms-2")} type="submit">
-                            <span>Tìm kiếm</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div className="row">
-                <div className="col-4">
-                    {/* <AlertError message={showAlertError.message
+                <div className="row">
+                    <div className="col-4">
+                        {/* <AlertError message={showAlertError.message
                     }
                         showAlert={showAlertError.show}
                         onClose={() => setShowAlertError({ ...showAlertError, show: false })}
@@ -188,70 +187,73 @@ export default function Staff() {
                         showAlert={showAlertSuccess.show}
                         onClose={() => setShowAlertSuccess({ ...showAlertSuccess, show: false })}
                     /> */}
+                    </div>
                 </div>
-            </div>
 
-            <button onClick={() => setShowCreateModal(true)} className={cn("btn-8", "mb-2", "col-2", "offset-10")}>
-                <AddIcon />
-                <span>
-                    Thêm nhân viên
-                </span>
-            </button>
-            <div className={cn("result-table")}>
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col">Tên</th>
-                            <th scope="col">Tên đăng nhập</th>
-                            <th scope="col">SĐT</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Trạng thái</th>
-                            <th scope="col">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            results?.map(
-                                (item, index) => (
-                                    <tr>
-                                        <td>{item.fullName}</td>
-                                        <td>{item.userName}</td>
-                                        <td>{item.phoneNumber}</td>
-                                        <td>{item.email}</td>
-                                        <td>{item.status}</td>
-                                        <td>
-                                            <EditIcon
+                <div className={cn("result-table")}>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tên</th>
+                                <th scope="col">Tên đăng nhập</th>
+                                <th scope="col">SĐT</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Trạng thái</th>
+                                {/* <th scope="col">Thao tác</th> */}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                results?.map(
+                                    (item, index) => (
+                                        <tr>
+                                            <td>{item.fullName}</td>
+                                            <td>{item.userName}</td>
+                                            <td>{item.phoneNumber}</td>
+                                            <td>{item.email}</td>
+                                            <td>
+                                                <Chip
+                                                    variant="outlined"
+                                                    size="small"
+                                                    style={{ fontSize: "14px" }}
+                                                    color={item.status == "ACTIVE" ? "success" : "error"}
+                                                    label={StaffStatus[item.status]}
+                                                />
+                                            </td>
+                                            {/* <td>
+                                                <EditIcon
+                                                    // onClick={() => {
+                                                    //     setWarehouseRequest(item)
+                                                    //     setShowCreateModal(true)
+                                                    // }}
+                                                    className={cn("edit-icon")} />
+                                                <DeleteIcon
+                                                    className={cn("edit-icon")}
+
                                                 // onClick={() => {
                                                 //     setWarehouseRequest(item)
-                                                //     setShowCreateModal(true)
+                                                //     setShowWarning(true)
                                                 // }}
-                                                className={cn("edit-icon")} />
-                                            <DeleteIcon
-                                                className={cn("edit-icon")}
+                                                />
+                                            </td> */}
 
-                                            // onClick={() => {
-                                            //     setWarehouseRequest(item)
-                                            //     setShowWarning(true)
-                                            // }}
-                                            />
-                                        </td>
-
-                                    </tr>
+                                        </tr>
+                                    )
                                 )
-                            )
-                        }
-                    </tbody>
-                </table>
-                <Pagination
-                    count={totalPage}
-                    size="large"
-                    page={currentPage}
-                    shape="rounded"
-                    color="success"
-                    onChange={handleChangePagination}
-                    className={cn("pagination")}
-                />
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            <Pagination
+                count={totalPage}
+                size="large"
+                page={currentPage}
+                shape="rounded"
+                color="success"
+                onChange={handleChangePagination}
+                className={cn("pagination", "mt-2")}
+            />
             <Modal
                 centered
                 show={showCreateModal} onHide={handleCloseCreateModal}>

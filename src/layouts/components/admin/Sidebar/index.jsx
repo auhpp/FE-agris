@@ -13,7 +13,8 @@ import Nav from 'react-bootstrap/Nav';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CategoryIcon from '@mui/icons-material/Category';
 import CalculateIcon from '@mui/icons-material/Calculate';
-
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
+import PaymentsIcon from '@mui/icons-material/Payments';
 const cn = classNames.bind(style);
 
 export default function Sidebar() {
@@ -38,7 +39,8 @@ export default function Sidebar() {
       link: routes.calculationUnit,
       getIcon: (isActive) => (
         <CalculateIcon style={isActive ? { color: "white" } : {}} />
-      )
+      ),
+      border: <div className="border-bottom mt-1 mb-1" style={{ width: "220px" }}></div>
     },
     {
       name: "Kho",
@@ -55,6 +57,15 @@ export default function Sidebar() {
       )
     },
     {
+      name: "Nhà cung cấp",
+      link: routes.supplier,
+      getIcon: (isActive) => (
+        <AddBusinessIcon style={isActive ? { color: "white" } : {}} />
+      ),
+      border: <div className="border-bottom mt-1 mb-1" style={{ width: "220px" }}></div>
+
+    },
+    {
       name: "Nhân viên",
       link: routes.staff,
       getIcon: (isActive) => (
@@ -67,9 +78,16 @@ export default function Sidebar() {
       getIcon: (isActive) => (
         <AssignmentIcon style={isActive ? { color: "white" } : {}} />
       )
+    },
+    {
+      name: "Phiếu chi",
+      link: routes.paymentSlip,
+      getIcon: (isActive) => (
+        <PaymentsIcon style={isActive ? { color: "white" } : {}} />
+      )
     }
   ].map((nav) => {
-    const isActive = location.pathname === nav.link;
+    const isActive = location.pathname.includes(nav.link);
     return {
       ...nav,
       active: isActive,
@@ -103,6 +121,7 @@ export default function Sidebar() {
             listNav.map(
               (nav, item) => (
                 <li className={cn("mb-1", "nav-link-item-content")}>
+
                   <Nav.Link
                     className={cn("nav-link-btn", "d-inline-flex", "align-items-center")}
                     data-bs-toggle="collapse"
@@ -122,6 +141,8 @@ export default function Sidebar() {
                       {nav.name}
                     </span>
                   </Nav.Link>
+                  {nav?.border && nav.border}
+
                 </li>
               )
             )

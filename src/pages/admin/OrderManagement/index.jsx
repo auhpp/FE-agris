@@ -26,9 +26,9 @@ export default function OrderManagement() {
     const navigate = useNavigate()
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search)
-    var id = searchParams.get("id") || ""
-    var paymentStatus = searchParams.get("paymentStatus") || ""
-    var orderStatus = searchParams.get("orderStatus") || ""
+    var id = searchParams.get("id") ?? ""
+    var paymentStatus = searchParams.get("paymentStatus") ?? ""
+    var orderStatus = searchParams.get("orderStatus") ?? ""
     useEffect(
         () => {
             searchOrder(id, orderStatus, paymentStatus, currentPage, pageSize).then(
@@ -139,9 +139,9 @@ export default function OrderManagement() {
                                             <td>{formatDateTime(od.createdAt)}</td>
                                             <td>{od.customer.fullName}</td>
                                             <td>
-                                                <Chip label={OrderStatus[od.orderStatus]}
+                                                <Chip label={OrderStatus[od.orderStatus].name}
                                                     style={{ "fontSize": "13px" }}
-                                                    color="primary" variant="outlined" />
+                                                    color={OrderStatus[od.orderStatus].color} variant="outlined" />
 
                                             </td>
                                             <td>
