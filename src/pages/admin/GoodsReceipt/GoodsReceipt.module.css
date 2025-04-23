@@ -173,8 +173,9 @@
     font-size: 14px;
 }
 
-.result-list .card {
-    padding: 4px;
+.result-list .card,
+.supplier-result-list .card  {
+    padding: 10px 6px;
 }
 
 .result-list,
@@ -183,6 +184,8 @@
     position: absolute;
     right: 0;
     z-index: 200;
+    max-height: 600px;
+    overflow-y: scroll;
 }
 
 .result-list .card:hover,
@@ -267,5 +270,12 @@
 
 .content-right {
     position: sticky;
+    top: 0;
 }
 
+.custom-container {
+    padding-left: 30px;
+    padding-right: 30px;
+    margin: 0 auto;
+    max-width: 100%;
+}

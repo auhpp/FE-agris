@@ -1,7 +1,7 @@
 import style from "./CalculationUnit.module.css";
 import classNames from "classnames/bind";
 
-import { Button, Pagination } from "@mui/material";
+import { Button, CircularProgress, Pagination } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
@@ -37,19 +37,39 @@ export default function CalculationUnit() {
     const [calculationUnitEdit, setCalculationUnitEdit] = useState({
         id: null, name: "", description: ""
     });
-    useEffect(
-        () => {
-            searchCalculationUnit(name, currentPage, pageSize).then(
-                data => {
-                    console.log("data", data)
-                    setCalculationUnits(data?.result?.data)
-                    setTotalPage(data.result?.totalPage)
-                    setCurrentPage(data.result?.currentPage)
-                    setPageSize(data.result?.pageSize)
-                }
-            )
-        }, [currentPage, name, isUpdate]
-    )
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const data = await searchCalculationUnit(name, currentPage, pageSize);
+                console.log("data", data)
+                setCalculationUnits(data?.result?.data)
+                setTotalPage(data.result?.totalPage)
+                setCurrentPage(data.result?.currentPage)
+                setPageSize(data.result?.pageSize)
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+            finally {
+                setLoading(false);
+            }
+        })()
+    }, [currentPage, name, isUpdate])
+
+    // useEffect(
+    //     () => {
+    //         searchCalculationUnit(name, currentPage, pageSize).then(
+    //             data => {
+    //                 console.log("data", data)
+    //                 setCalculationUnits(data?.result?.data)
+    //                 setTotalPage(data.result?.totalPage)
+    //                 setCurrentPage(data.result?.currentPage)
+    //                 setPageSize(data.result?.pageSize)
+    //             }
+    //         )
+    //     }, [currentPage, name, isUpdate]
+    // )
     const handleChangePagination = (e, p) => {
         setCurrentPage(p)
     }
@@ -64,6 +84,13 @@ export default function CalculationUnit() {
                 }
                 setShowWarningDelete(false)
             }
+        )
+    }
+    if (loading) {
+        return (
+            <div className='d-flex justify-content-center align-items-center w-100 h-100'>
+                <CircularProgress color="success" size="3rem" />
+            </div>
         )
     }
     return (

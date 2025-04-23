@@ -9,7 +9,8 @@ export const CartProvider = ({ children }) => {
     useEffect(() => {
         getAllCart().then(
             data => {
-                setCartSize(data.result?.totalElements ?? 0)
+                console.log("all cart", data)
+                setCartSize(data.result?.data.length ?? 0)
             }
         )
     }, [updateCart])

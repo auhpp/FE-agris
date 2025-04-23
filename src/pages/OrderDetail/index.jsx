@@ -9,7 +9,7 @@ export default function OrderDetail() {
     const [order, setOrder] = useState();
     useEffect(
         () => {
-            searchOrder(orderId.id, "", "", 1, 10).then(
+            searchOrder("", orderId.id, "", "", 1, 10).then(
                 data => {
                     setOrder(data.result.data[0])
                 }

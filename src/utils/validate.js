@@ -57,3 +57,4 @@ export function checkPasswordStrength(password) {
     // Return results
     return [strength, tips];
 }
+

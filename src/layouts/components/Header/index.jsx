@@ -43,7 +43,8 @@ export default function Header() {
     //submit search
     const handleSubmit = (e) => {
         e.preventDefault();
-        navigate({ pathname: routes.search, search: "?name=" + query })
+        if (query != "")
+            navigate({ pathname: routes.search, search: "?name=" + query })
     }
 
     //Logout
@@ -97,7 +98,7 @@ export default function Header() {
                                         </div>
                                         <div className={cn("phone-number-text", "col")}>
                                             <p className={cn("text-nowrap")}>Gọi mua hàng</p>
-                                            <p>012345678</p>
+                                            <p>0896455184</p>
                                         </div>
                                     </div>
                                     {/* <!-- Tai khoan nguoi dung --> */}

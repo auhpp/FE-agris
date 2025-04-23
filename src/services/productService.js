@@ -58,11 +58,14 @@ export async function searchProduct(params) {
     if (params.priceTo) {
         url += "priceTo=" + params.priceTo + "&";
     }
+    if (params.status) {
+        url += "status=" + params.status;
+    }
     if (params.currentPage) {
-        url += "page=" + params.currentPage + "&";
+        url += "&page=" + params.currentPage;
     }
     if (params.pageSize) {
-        url += "size=" + params.pageSize;
+        url += "&size=" + params.pageSize;
     }
     if (params.searchAllStock) {
         url += "&searchAllStock=" + params.searchAllStock;

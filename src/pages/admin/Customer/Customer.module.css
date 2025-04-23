@@ -1,0 +1,15 @@
+.pagination {
+    display: flex;
+    justify-content: center;
+}
+
+.main-content {
+    background-color: white;
+    padding: 24px 0;
+    margin-top: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.filter-form {
+    padding-inline: 10px;
+}

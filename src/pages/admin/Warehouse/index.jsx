@@ -6,7 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";
 import { searchProduct } from "../../../services/productService";
-import { Button, Pagination } from "@mui/material";
+import { Button, CircularProgress, Pagination } from "@mui/material";
 import Modal from 'react-bootstrap/Modal';
 import { createWarehouse, deleteWarehouse, searchWarehouse } from "../../../services/warehouseService";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -88,7 +88,7 @@ export default function Warehouse() {
     var [totalPage, setTotalPage] = useState(1);
     var [currentPage, setCurrentPage] = useState(1);
     var [pageSize, setPageSize] = useState(10);
-
+   
     useEffect(
         () => {
             searchWarehouse(name, currentPage, pageSize).then(

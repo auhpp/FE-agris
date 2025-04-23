@@ -3,7 +3,7 @@
 .pay-method,
 .other-info,
 .re-check-order,
-.info-pay {
+.info-pay, .ship-address {
     background-color: white;
     padding: 12px 16px;
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;

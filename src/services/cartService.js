@@ -29,3 +29,13 @@ export async function deleteCart(id) {
     }).then();
     return promise;
 }
+
+export async function findCartById(id) {
+    var promise = fetch('http://localhost:8080/cart/' + id, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem("token")}`
+        }
+    }).then(data => data.json());
+    return promise;
+}

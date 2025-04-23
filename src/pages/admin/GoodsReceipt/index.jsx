@@ -233,17 +233,29 @@ export default function GoodsReceipt() {
             setSupplierError("Phải chọn nhà cung cấp")
             ok = false;
         }
+        else {
+            setSupplierError("")
+        }
         if (!staff) {
             setStaffError("Phải chọn nhân viên")
             ok = false;
+        }
+        else {
+            setStaffError("")
         }
         if (productImportList.length == 0) {
             setProductError("Phải chọn sản phẩm")
             ok = false;
         }
+        else {
+            setProductError("")
+        }
         if (!warehouse) {
             setWarehouseError("Phải chọn kho")
             ok = false
+        }
+        else {
+            setWarehouseError("")
         }
         if (ok) {
             var request = {};
@@ -251,7 +263,7 @@ export default function GoodsReceipt() {
             request.supplierId = supplier?.id;
             request.amount = goodsAmount;
             request.note = note;
-            request.moneyForSupplier = moneyForSupplier;
+            request.paid = moneyForSupplier;
             request.paymentMethod = paymentMethod;
             request.staffId = staff.id;
             request.receiptDetails = productImportList.map(
@@ -329,9 +341,11 @@ export default function GoodsReceipt() {
     useEffect(
         () => {
             var request = {
+                id: "",
                 fullName: "",
                 phoneNumber: "",
-                email: ""
+                email: "",
+                status: "ACTIVE"
             };
             if (isEmail(staffQuery)) {
                 request.email = staffQuery;
@@ -356,7 +370,7 @@ export default function GoodsReceipt() {
     )
     return (
         <>
-            <div className={cn("container", "mt-5")}>
+            <div className={cn("custom-container", "mt-5")}>
                 <div className={cn("main-content", "row")}>
                     <div className={cn("content-left", "col-8")}>
                         <div className={cn("input-search-product", "row")}>
@@ -407,7 +421,9 @@ export default function GoodsReceipt() {
                                                                         </div>
                                                                         <div className={cn("price", "col")}>
                                                                             <span>Giá: </span>
-                                                                            <span className="ms-1"> {item.capitalPrice} </span>
+                                                                            <span className="ms-1"> {
+                                                                                VND.format(item.capitalPrice)
+                                                                            } </span>
                                                                         </div>
                                                                         <div className={cn("variant-type", "col")}>
                                                                             {
@@ -472,7 +488,10 @@ export default function GoodsReceipt() {
                                             <>
                                                 <div
                                                     className={cn("cart-item", "row")}>
-                                                    <div className={cn("form-check", "col-3")}>
+                                                    <div className={cn("p-0", "col-3", "d-flex")}>
+                                                        <img src={item?.thumbnail} alt=""
+                                                            style={{ width: 50, height: 50 }}
+                                                        />
                                                         {/* card */}
                                                         <div className={cn("card", "mb-3")}>
                                                             <div className={cn("card-body")}>
@@ -488,6 +507,9 @@ export default function GoodsReceipt() {
                                                     </div>
                                                     {/* variant */}
                                                     <div className={cn("product-type", "col-2")}>
+                                                        <div className="text-primary">
+                                                            Đvt: {item?.calculationUnit.name}
+                                                        </div>
                                                         <div
                                                             className={cn("btn-product-type")}
                                                         >
@@ -514,7 +536,7 @@ export default function GoodsReceipt() {
                                                     </div>
                                                     {/* end variant */}
                                                     {/* quantity */}
-                                                    <div className={cn("col-2")}>
+                                                    <div className={cn("col-2", "p-0")}>
                                                         <Form.Control
                                                             disabled
                                                             readOnly
@@ -531,6 +553,7 @@ export default function GoodsReceipt() {
                                                     {/* price */}
                                                     <div className={cn("unit-price", "col-2")}>
                                                         <Form.Control
+                                                            onWheel={(e) => e.target.blur()}
                                                             className={cn("quantity")}
                                                             onChange={(e) => {
                                                                 item.capitalPrice = e.target.value
@@ -542,7 +565,9 @@ export default function GoodsReceipt() {
                                                                 setGoodsAmount(sum(productImportList))
                                                             }}
                                                             value={item.capitalPrice}
-                                                            type="number" />
+                                                            type="number"
+
+                                                        />
                                                     </div>
                                                     {/* complete price*/}
                                                     <div className={cn("unit-price", "col-2")}>
@@ -552,7 +577,7 @@ export default function GoodsReceipt() {
                                                             }, 0
                                                         )) : 0} đ
                                                     </div>
-                                                    <div className={cn("col-1")}>
+                                                    <div className={cn("col-1", "p-0")}>
                                                         <DeleteIcon fontSize="large"
                                                             onClick={
                                                                 () => {
@@ -637,6 +662,7 @@ export default function GoodsReceipt() {
                                                                         placeholder="Số lượng"
                                                                         type="number"
                                                                         min={0}
+                                                                        onWheel={(e) => e.target.blur()}
                                                                         onChange={(e) => {
                                                                             setProductImportList(prev =>
                                                                                 prev.map(
@@ -706,7 +732,7 @@ export default function GoodsReceipt() {
                                                                             onClick={() => handleAddShipment(item, a)}
                                                                             className={cn("shipment")}>
                                                                             <span>{a.name}</span>
-                                                                            <span>{formatDate(a.expiry)}</span>
+                                                                            <span>{a.expiry && formatDate(a.expiry)}</span>
                                                                         </Dropdown.Item>
                                                                     )
                                                                 )
@@ -753,20 +779,22 @@ export default function GoodsReceipt() {
                                                             setStaff(item)
                                                             setShowStaff(false)
 
-                                                            setStaffQuery("")
+                                                            setStaffQuery(null)
                                                         }}
                                                         className={cn("product-item", "card")}>
                                                         <div className={cn("row")}>
                                                             <div className={cn("col")}>
                                                                 <div className={cn("content")}>
-                                                                    <div className={cn("name", "title")}>
+                                                                    <span className="me-1">Họ tên: </span>
+                                                                    <span>
+
                                                                         {item.fullName}
-                                                                    </div>
-                                                                    <div className={cn("quantity-in-stock")}>
+                                                                    </span>
+                                                                    <div className={cn("quantity-in-stock", "me-1")}>
                                                                         <span>Số điện thoại: </span>
                                                                         <span>{item.phoneNumber}</span>
                                                                     </div>
-                                                                    <div className={cn("price")}>
+                                                                    <div className={cn("me-1")}>
                                                                         <span>Email: </span>
                                                                         <span>{item.email}</span>
                                                                     </div>
@@ -830,15 +858,15 @@ export default function GoodsReceipt() {
                                                             <div className={cn("row")}>
                                                                 <div className={cn("col")}>
                                                                     <div className={cn("content")}>
-                                                                        <div className={cn("name", "title")}>
+                                                                        <span>
                                                                             {item.name}
-                                                                        </div>
-                                                                        <div className={cn("quantity-in-stock")}>
-                                                                            <span>Số điện thoại: </span>
+                                                                        </span>
+                                                                        <div className={cn("quantity-in-stock", "")}>
+                                                                            <span className="me-1">Số điện thoại: </span>
                                                                             <span>{item.phoneNumber}</span>
                                                                         </div>
-                                                                        <div className={cn("price")}>
-                                                                            <span>Email: </span>
+                                                                        <div className={cn("")}>
+                                                                            <span className="me-1">Email: </span>
                                                                             <span>{item.email}</span>
                                                                         </div>
 

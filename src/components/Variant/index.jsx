@@ -105,16 +105,18 @@ export default function Variant({ variantName,
 
     //Handling Attribute Selection
     const handleAttributeSelection = (attributeName, value) => {
+        console.log(attributeName, value)
         setSelectedVariants((prevSelected) => {
+            console.log("prev", prevSelected);
             const newSelected = { ...prevSelected, [attributeName]: value };
 
             if (!isCombinationUnavailable(newSelected, unavailableComb)) {
                 return newSelected;
             }
-
             return prevSelected; // If unavailable, keep the previous selection
         });
     };
+    console.log("slectted", selectedVariants)
     return (
         <>
             {

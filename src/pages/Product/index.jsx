@@ -2,27 +2,57 @@ import { useEffect, useState } from "react";
 import style from "./Product.module.css";
 import classNames from "classnames/bind";
 import { getAllCategory } from "../../services/categoryService";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { searchProduct } from "../../services/productService";
 import Card from "../../components/Card";
-import { Pagination } from "@mui/material";
+import { CircularProgress, Pagination } from "@mui/material";
+import Form from 'react-bootstrap/Form';
+import Col from "react-bootstrap/esm/Col";
+import Row from "react-bootstrap/esm/Row";
 
 const cn = classNames.bind(style);
 
 export default function Product() {
     const [categories, setCategories] = useState([]);
     const location = useLocation();
-    const [query, setQuery] = useState({
-        categoryId: new URLSearchParams(location.search).get("categoryId") || "",
-        priceFrom: null,
-        priceTo: null
-    });
-    const [categoryQuery, setCategoryQuery] = useState([]);
+    const searchParams = new URLSearchParams(location.search);
+    const categoryId = searchParams.get('categoryId');
+    const categoryIds = categoryId ? categoryId.split(',') : [];
+
+    const priceFrom = searchParams.get('priceFrom') ?? "";
+    const priceTo = searchParams.get('priceTo') ?? "";
+    const [selectedCategories, setSelectedCategories] = useState();
+
+    const [categoryQuery, setCategoryQuery] = useState(categoryIds);
     var [results, setResults] = useState([]);
     var [totalPage, setTotalPage] = useState(1);
     var [currentPage, setCurrentPage] = useState(1);
-    var [pageSize, setPageSize] = useState(10);
+    var [pageSize, setPageSize] = useState(14);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    console.log(categoryId)
+    useEffect(() => {
+        (async () => {
+            try {
 
+                const data = await searchProduct({
+                    name: "",
+                    categoryId, priceFrom, priceTo, currentPage, pageSize, status: "ACTIVE"
+                });
+                if (data.result?.data) {
+                    setResults(data.result?.data)
+                    setTotalPage(data.result.totalPage)
+                    setCurrentPage(data.result.currentPage)
+                    setPageSize(data.result.pageSize)
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+            finally {
+                setLoading(false);
+            }
+        })()
+    }, [priceFrom, priceTo, categoryId, currentPage])
     //Get all category
     useEffect(() => {
         getAllCategory().then(
@@ -32,14 +62,7 @@ export default function Product() {
         )
     }, [])
 
-    // Input
-    const onInputChange = (e) => {
-        const { name, value } = e.target;
-        setQuery((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
+
     //category check box change
     const onChangeCheckCategory = (e) => {
         const { value } = e.target;
@@ -47,6 +70,7 @@ export default function Product() {
             setCategoryQuery(
                 [...categoryQuery, value]
             )
+
         }
         else {
             setCategoryQuery(
@@ -54,37 +78,17 @@ export default function Product() {
             )
         }
     };
-
-    //Submit search
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setQuery((prev) => ({
-            ...prev,
-            categoryId: categoryQuery.join(", ")
-        }))
-    }
-
-    //Search product
     useEffect(
         () => {
-            const name = "";
-            const categoryId = query.categoryId;
-            const priceFrom = query.priceFrom;
-            const priceTo = query.priceTo;
-            searchProduct({ name, categoryId, priceFrom, priceTo, currentPage, pageSize }).then(
-                data => {
-                    if (data.result?.data) {
-                        setResults(data.result?.data)
-                        setTotalPage(data.result.totalPage)
-                        setCurrentPage(data.result.currentPage)
-                        setPageSize(data.result.pageSize)
-                    }
-                }
-            );
-        },
-        [query, currentPage]
+            navigate(
+                `?${new URLSearchParams({
+                    categoryId: categoryQuery,
+                    priceFrom: priceFrom,
+                    priceTo: priceTo
+                })}`
+            )
+        }, [categoryQuery]
     )
-
     //Pagination
     const handleChangePagination = (e, p) => {
         setCurrentPage(p);
@@ -110,7 +114,7 @@ export default function Product() {
                                 </div>
 
                                 {/* Các lựa chọn lọc */}
-                                <form onSubmit={handleSubmit} className={cn("block-content")}>
+                                <form className={cn("block-content")}>
                                     {/* Danh mục chính */}
                                     <div className={cn("main-category")}>
                                         <h4 className={cn("title")}>Danh mục chính</h4>
@@ -120,6 +124,7 @@ export default function Product() {
                                                     (item) => (
                                                         <li className={cn("category-item")}>
                                                             <input
+                                                                checked={categoryQuery.find(a => a == item.id) ? true : false}
                                                                 onChange={onChangeCheckCategory}
                                                                 type="checkbox" name="categoryId"
                                                                 value={item.id}
@@ -141,23 +146,46 @@ export default function Product() {
                                     <div className={cn("price")}>
                                         <h4 className={cn("title")}>Giá</h4>
                                         <ul className={cn("categories-list")}>
-                                            <li className={cn("category-item")}>
-                                                <label className={cn("name-category")} htmlFor="inputPriceFrom">
+                                            <Form.Group className={cn("category-item-price", "mb-2")} as={Row} controlId="formHorizontalEmail">
+                                                <Form.Label className={cn("name-category")} column sm={3}>
                                                     Giá từ:
-                                                </label>
-                                                <input
-                                                    onChange={onInputChange}
-                                                    className={cn("ms-3")} type="number"
-                                                    name="priceFrom" id="inputPriceFrom" />
-                                            </li>
-                                            <li className={cn("category-item")}>
-                                                <label className={cn("name-category")} htmlFor="input-price">
+
+                                                </Form.Label>
+                                                <Col sm={9}>
+                                                    <Form.Control
+                                                        onChange={(e) => {
+                                                            navigate(
+                                                                `?${new URLSearchParams({
+                                                                    categoryId: categoryId,
+                                                                    priceFrom: e.target.value,
+                                                                    priceTo: priceTo
+                                                                })}`
+                                                            )
+                                                        }}
+                                                        className={cn("col-2")} type="number"
+                                                        name="priceFrom" id="inputPriceFrom" />
+                                                </Col>
+                                            </Form.Group>
+                                            <Form.Group as={Row} className={cn("category-item-price", "mb-3")} controlId="formHorizontalEmail">
+                                                <Form.Label className={cn("name-category")} column sm={3}>
                                                     Giá đến:
-                                                </label>
-                                                <input
-                                                    onChange={onInputChange}
-                                                    type="number" name="priceTo" id="input-price" />
-                                            </li>
+                                                </Form.Label>
+                                                <Col sm={9}>
+                                                    <Form.Control
+                                                        className="col-4"
+                                                        onChange={(e) => {
+                                                            navigate(
+                                                                `?${new URLSearchParams({
+                                                                    categoryId: categoryId,
+                                                                    priceFrom: priceFrom,
+                                                                    priceTo: e.target.value
+                                                                })}`
+                                                            )
+                                                        }}
+                                                        type="number" name="priceTo" id="input-price" />
+                                                </Col>
+                                            </Form.Group>
+
                                         </ul>
                                     </div>
 
@@ -186,7 +214,7 @@ export default function Product() {
                                         </ul>
                                     </div> */}
                                     {/* Nút xóa & xem kết quả */}
-                                    <div className={cn("filter-btn row")}>
+                                    {/* <div className={cn("filter-btn row")}>
                                         <div className={cn("col-6 col-lg-12 col-xl-6 text-center")}>
                                             <button type="reset" className={cn("btn-3 btn-reset")}>
                                                 Xóa kết quả
@@ -197,7 +225,7 @@ export default function Product() {
                                                 Xem kết quả
                                             </button>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </form>
                             </div>
                         </div>
@@ -210,36 +238,49 @@ export default function Product() {
                                 <div className={cn("head-title")}>
                                     <h2 className={cn("title")}>Sản phẩm</h2>
                                 </div>
-                                {/* <!-- end title --> */}
-                                {/* <!-- Hiển thị products --> */}
-                                <div className={cn("products-list")}>
-                                    <div className={cn("row", "products")}>
-                                        {
-                                            results.map(
-                                                (item) => (
+                                {
+                                    loading ?
+                                        (
+                                            <div className='d-flex justify-content-center align-items-center w-100 h-100'>
+                                                <CircularProgress color="success" size="3rem" />
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {/* <!-- Hiển thị products --> */}
+                                                <div className={cn("products-list")}>
+                                                    <div className={cn("row", "products")}>
+                                                        {
+                                                            results.map(
+                                                                (item) => (
 
-                                                    <div key={item.id}
-                                                        className={cn("col-xl-3", "col-md-3", "col-6", "product")}>
-                                                        <Card product={item} />
+                                                                    <div key={item.id}
+                                                                        className={cn("col-xl-3", "col-md-3", "col-6", "product")}>
+                                                                        <Card product={item} />
+                                                                    </div>
+                                                                )
+                                                            )
+                                                        }
                                                     </div>
-                                                )
-                                            )
-                                        }
-                                    </div>
-                                </div>
-                                {/* <!-- End hiển thị products --> */}
+                                                </div>
+                                                {/* <!-- End hiển thị products --> */}
 
-                                {/* <!-- pagination --> */}
-                                <Pagination
-                                    count={totalPage}
-                                    size="large"
-                                    page={currentPage}
-                                    shape="rounded"
-                                    color="success"
-                                    onChange={handleChangePagination}
-                                    className={cn("pagination")}
-                                />
-                                {/* <!-- end pagination --> */}
+                                                {/* <!-- pagination --> */}
+                                                <Pagination
+                                                    count={totalPage}
+                                                    size="large"
+                                                    page={currentPage}
+                                                    shape="rounded"
+                                                    color="success"
+                                                    onChange={handleChangePagination}
+                                                    className={cn("pagination")}
+                                                />
+                                                {/* <!-- end pagination --> */}
+
+                                            </>
+                                        )
+
+                                }
+                                {/* <!-- end title --> */}
                             </div>
                         </div>
                         {/* <!-- end product --> */}

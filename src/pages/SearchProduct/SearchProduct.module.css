@@ -21,17 +21,28 @@
 
 /* products-section */
 .products-section {
-    background-color: white;
-    padding: 20px 0 0px 0;
+    /* background-color: white; */
+    padding: 0;
 }
 
 .products-section .head-title {
     display: flex;
     justify-content: space-between;
-    padding-inline: 10px;
+    /* padding-inline: 10px; */
     padding-bottom: 10px;
     border-bottom: 1px solid #e6e6e6;
     align-items: center;
+}
+
+.products-section .head-title .title,
+.products-section .head-title .not-found-title
+{
+    font-size: 22px;
+    color: var(--black-title);
+} 
+
+.products-section .head-title .not-found-title{
+    padding: 48px 0;
 }
 
 .products-section .head-title .sort {

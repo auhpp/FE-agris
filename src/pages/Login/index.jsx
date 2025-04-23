@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useContext, useState } from "react";
 import { showPassword } from "../../utils/input";
 import { AuthContext } from "../../context/AuthContext";
+import { routes } from "../../config/routes";
 
 const cn = classNames.bind(style);
 
@@ -42,7 +43,7 @@ export default function Login() {
             switch (name) {
                 case 'userName':
                     if (!value) {
-                        stateObj[name] = 'Vui lòng nhập tên người dùng';
+                        stateObj[name] = 'Vui lòng nhập tên đăng nhập';
                     }
                     break;
 
@@ -81,7 +82,8 @@ export default function Login() {
                     <h3 className={cn("heading-1")}>Đăng nhập</h3>
                     {/* User name */}
                     <div className={cn("mb-5 row")}>
-                        <label for="username-input-login" className={cn("col-lg-3", "col-form-label", "input-title")}>Tên người dùng</label>
+                        <label for="username-input-login" className={cn("col-lg-3", "col-form-label", "input-title")}>
+                            Tên đăng nhập</label>
                         <div className={cn("col-lg-9")}>
                             <input
                                 type="text"
@@ -114,7 +116,7 @@ export default function Login() {
                         </div>
                     </div>
                     {/* show password */}
-                    <div className={cn("mb-4", "row")}>
+                    <div className={cn("mb-3", "row")}>
                         <label className={cn("col-lg-3", "col-form-label ")}></label>
                         <div className={cn("col-lg-9")}>
                             <input
@@ -127,19 +129,24 @@ export default function Login() {
                             <label for="display-password-login">Hiển thị mật khẩu</label>
                         </div>
                     </div>
-                    {/* redirect register page */}
-                    <div className={cn("mb-4", "row")}>
-                        <label className={cn("col-lg-3", "col-form-label ")}></label>
-                        <div className={cn("col-lg-9")}>
-                            <p className={cn("remind-register")}>Bạn mới biết đến Agris?
-                                <Link to={"/register"} className={cn("register-link")}>Đăng ký</Link></p>
-                        </div>
-                    </div>
+
                     {/* login button submit */}
-                    <div className={cn("mb-5", "row")}>
+                    <div className={cn("mb-4", "row")}>
                         <label className={cn("col-lg-3", "col-form-label")}></label>
                         <div className={cn("col-lg-9")}>
                             <button type="submit" className={cn("btn-3")}>Đăng nhập</button>
+
+                        </div>
+                    </div>
+                    {/* redirect register page */}
+                    <div className={cn("mb-4", "row")}>
+                        <label className={cn("col-lg-3", "col-form-label ")}></label>
+                        <div className={cn("col-lg-9", "d-flex", "align-items-center", "gap-5")}>
+                            <Link to={routes.resetPassword} className="text-primary">
+                                Quên mật khẩu ?
+                            </Link>
+                            <p className={cn("remind-register")}>Bạn mới biết đến Agris?
+                                <Link to={routes.register} className={cn("register-link")}>Đăng ký</Link></p>
                         </div>
                     </div>
                 </div>

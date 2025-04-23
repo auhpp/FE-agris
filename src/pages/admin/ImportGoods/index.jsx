@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { routes } from "../../../config/routes";
 import { useEffect, useState } from "react";
 import { getAllWarehouseReceipt, importWarehouse, searchWarehouseReceipt } from "../../../services/warehouseService";
-import { Button, Chip, Pagination } from "@mui/material";
+import { Button, Chip, CircularProgress, Pagination } from "@mui/material";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
 import { VND } from "../../../utils/formatNumber";
 import * as React from 'react';
@@ -47,9 +47,12 @@ export default function ImportGoods() {
     const searchParams = new URLSearchParams(location.search)
     var supplierId = searchParams.get("supplierId") ?? ""
     const [suppliers, setSuppliers] = useState([])
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
-        searchWarehouseReceipt(supplierId, currentPage, pageSize).then(
-            data => {
+        (async () => {
+            try {
+                const data = await searchWarehouseReceipt(supplierId, currentPage, pageSize);
                 if (data.result?.data) {
                     setResults(data.result.data)
                     setTotalPage(data.result.totalPage)
@@ -57,9 +60,29 @@ export default function ImportGoods() {
                     setPageSize(data.result.pageSize)
                     console.log(data)
                 }
+            } catch (error) {
+                console.error("Error fetching data:", error);
             }
-        )
+            finally {
+                setLoading(false);
+            }
+        })()
     }, [currentPage, isEdit, supplierId])
+
+
+    // useEffect(() => {
+    //     searchWarehouseReceipt(supplierId, currentPage, pageSize).then(
+    //         data => {
+    //             if (data.result?.data) {
+    //                 setResults(data.result.data)
+    //                 setTotalPage(data.result.totalPage)
+    //                 setCurrentPage(data.result.currentPage)
+    //                 setPageSize(data.result.pageSize)
+    //                 console.log(data)
+    //             }
+    //         }
+    //     )
+    // }, [currentPage, isEdit, supplierId])
 
     useEffect(
         () => {
@@ -94,6 +117,13 @@ export default function ImportGoods() {
                     setIsEdit(!isEdit)
                 }
             }
+        )
+    }
+    if (loading) {
+        return (
+            <div className='d-flex justify-content-center align-items-center w-100 h-100'>
+                <CircularProgress color="success" size="3rem" />
+            </div>
         )
     }
     return (
@@ -186,6 +216,7 @@ export default function ImportGoods() {
                     aria-labelledby="modal-modal-title"
                     aria-describedby="modal-modal-description"
                     className={cn("receipt-modal")}
+                    style={{ overflow: "scroll" }}
                 >
                     <Box sx={styleModal}>
                         <div className={cn("head")}>

@@ -27,7 +27,11 @@ const AdminRoute = () => {
     }, [token])
 
     if (loading) {
-        return <CircularProgress color="success" size="3rem" />;
+        return (
+            <div className='d-flex justify-content-center align-items-center w-100 h-100'>
+                <CircularProgress color="success" size="3rem" />;
+            </div>
+        )
     }
     return (
         auth && role == "ADMIN" ?

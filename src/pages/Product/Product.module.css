@@ -45,7 +45,8 @@
     gap: 4px;
 }
 
-.filter .category-item .name-category {
+.filter .category-item .name-category,
+.filter .category-item-price .name-category {
     color: var(--grey-text-2);
     word-break: break-all;
     transition: all 0.3s;

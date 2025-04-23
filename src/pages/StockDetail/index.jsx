@@ -14,6 +14,7 @@ import { getAllWarehouse } from "../../services/warehouseService";
 import { searchShipment } from "../../services/shipmentService";
 import { routes } from "../../config/routes";
 import { ShipmentStatus } from "../../utils/status";
+import { formatDate } from "../../utils/formatDate";
 
 const cn = classNames.bind(style);
 
@@ -184,7 +185,7 @@ export default function StockDetail() {
                                         sm => (
                                             <tr>
                                                 <td>{sm?.name}</td>
-                                                <td>{sm?.expiry}</td>
+                                                <td>{sm?.expiry && formatDate(sm?.expiry)}</td>
                                                 <td>
                                                     {
                                                         sm?.status &&

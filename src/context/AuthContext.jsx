@@ -11,34 +11,47 @@ export const AuthProvider = ({ children }) => {
     const navigate = useNavigate();
 
     const loginAction = async (request, setError) => {
-        login(request).then(
-            data => {
-                if (data.code == 200) {
-                    localStorage.setItem("token", data.result?.token)
-                    setToken(data.result?.token)
-                    var role = jwtDecode(data.result?.token).scope;
-                    if (role == "ADMIN") {
-                        navigate(routes.searchProduct)
-                    }
-                    else {
-                        navigate(routes.home)
-                    }
-                    window.location.reload()
+        try {
+            const data = await login(request);
+            if (data.code == 200) {
+                localStorage.setItem("token", data.result?.token)
+                setToken(data.result?.token)
+                var role = jwtDecode(data.result?.token).scope;
+                if (role == "ADMIN") {
+                    navigate(routes.searchProduct)
                 }
                 else {
+                    navigate(routes.home)
+                }
+                window.location.reload()
+            }
+            else {
+                if (data.code == 1035) {
                     setError((prev) => ({
                         ...prev,
-                        ['userName']: "Mật khẩu hoặc tên người dùng không đúng"
+                        ['userName']: "Tài khoản không khả dụng"
                     }))
                 }
+                else
+                    setError((prev) => ({
+                        ...prev,
+                        ['userName']: "Mật khẩu hoặc tên đăng nhập không đúng"
+                    }))
             }
-        )
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+        finally {
+            // setLoading(false);
+        }
     }
 
     const logoutAction = () => {
         logout({ token })
         setToken("")
         localStorage.removeItem("token")
+        var role = jwtDecode(token).scope;
+        role === "ADMIN" && navigate(routes.home)
         window.location.reload()
     }
 

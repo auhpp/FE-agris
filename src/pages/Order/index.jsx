@@ -12,7 +12,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { VND } from "../../utils/formatNumber";
 import { createOrder } from "../../services/orderService";
 import { routes } from "../../config/routes";
-
+import { createPayment } from "../../services/paymentService";
+import AlertError from "../../components/AlertError";
 const cn = classNames.bind(style);
 
 export default function Order() {
@@ -32,6 +33,9 @@ export default function Order() {
     )
     console.log(productPurchaseList)
     const [note, setNote] = useState("")
+    const [paymentMethod, setPaymentMethod] = useState("");
+    const [errorOrder, setErrorOrder] = useState(false);
+
     useEffect(
         () => {
             getUserInfo().then(
@@ -51,7 +55,7 @@ export default function Order() {
         var orderRequest = {
             note: note,
             amount: amount,
-            paymentMethod: "CASH",
+            paymentMethod: paymentMethod,
             addressRequest: address,
             customerId: customer?.id
         }
@@ -66,17 +70,59 @@ export default function Order() {
         });
         orderRequest.orderDetails = orderDetail;
         console.log("od req", orderRequest)
-        createOrder(orderRequest).then(
-            data => {
-                if (data.code == 200) {
-                    navigate(routes.purchase, { replace: true })
+        if (orderRequest.paymentMethod == "VNPAY") {
+
+            //Call api create payment url
+            createPayment(orderRequest).then(
+                data => {
+                    if (data.code == 200) {
+                        const paymentUrl = data.result
+                        //detached vnp_TxnRef from payment Url
+                        const vnp_TxnRef = new URL(paymentUrl).searchParams.get('vnp_TxnRef') || ''
+
+                        orderRequest.vnpTxnRef = vnp_TxnRef
+                        //call api create order with vnp_TxnRef
+                        createOrder(orderRequest).then(
+                            data => {
+                                if (data.code == 200) {
+                                    // navigate(routes.purchase, { replace: true })
+                                    //If order success, navigate to the VNPay payment page
+                                    window.location.href = paymentUrl
+                                }
+                                else {
+                                    setErrorOrder(true)
+                                }
+                            }
+                        )
+                    }
+                    else {
+                        alert("Lỗi kết nối đến cổng thanh toán")
+                    }
                 }
-            }
-        )
+            )
+
+        }
+        else {
+            createOrder(orderRequest).then(
+                data => {
+                    if (data.code == 200) {
+                        navigate(routes.purchase, { replace: true })
+                    }
+                    else {
+                        setErrorOrder(true)
+                    }
+                }
+            )
+        }
     }
     return (
         <>
             <div className={cn("container")}>
+                <AlertError
+                    message={"Lỗi! Đặt hàng không thành công!"}
+                    showAlert={errorOrder}
+                    onClose={() => setErrorOrder(false)}
+                />
                 {/* <!-- Dia chi giao hang --> */}
                 <section className={cn("ship-address")}>
                     <h3 className={cn("title")}>
@@ -112,11 +158,25 @@ export default function Order() {
                     <div className={cn("form-check all-pay")}>
                         <input
                             defaultChecked={true}
-                            className={cn("form-check-input", "input-method-pay")} type="radio" name="thanh-toan-khi-nhan-hang"
-                            id="thanh-toan-khi-nhan-hang" required />
+                            className={cn("form-check-input", "input-method-pay")} type="radio" name="paymentMethod"
+                            id="thanh-toan-khi-nhan-hang"
+                            onChange={(e) => setPaymentMethod("CASH")}
+                            required />
                         <label className={cn("form-check-label", "pay-method-item")} for="thanh-toan-khi-nhan-hang">
                             <i className={cn("fa-solid fa-money-bill-wave icon-pay-method")}></i>
                             <span>Thanh toán bằng tiền mặt khi nhận hàng</span>
+                        </label>
+                    </div>
+                    <div className={cn("form-check all-pay")}>
+                        <input
+                            className={cn("form-check-input", "input-method-pay")} type="radio" name="paymentMethod"
+                            id="thanh-toan-khi-nhan-hang" required
+                            onChange={(e) => setPaymentMethod("VNPAY")}
+
+                        />
+                        <label className={cn("form-check-label", "pay-method-item")} for="thanh-toan-khi-nhan-hang">
+                            <i className={cn("fa-solid fa-money-bill-wave icon-pay-method")}></i>
+                            <span>Ví VNPay</span>
                         </label>
                     </div>
                 </section>

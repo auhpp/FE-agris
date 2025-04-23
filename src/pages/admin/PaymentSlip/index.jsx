@@ -21,8 +21,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import CreateCategoryModal from "../../../components/CreateCategoryModal";
 import ModalWarningDelete from "../../../components/ModalWarningDelete";
 import AlertError from "../../../components/AlertError";
-import { searchPaymentSlip } from "../../../services/paymentSlipService";
+import { getAllPayeeType, searchPaymentSlip } from "../../../services/paymentSlipService";
 import CreatePaymentSlipModal from "../../../components/CreatePaymentSlipModal";
+import { getAllPaymentReason } from "../../../services/paymentReasonService";
+import { PayeeType } from "../../../utils/enum";
 
 const cn = classNames.bind(style);
 export default function PaymentSlip() {
@@ -37,10 +39,12 @@ export default function PaymentSlip() {
     const [isUpdate, setIsUpdate] = useState(false)
     const searchParams = new URLSearchParams(location.search)
     var id = searchParams.get("id") ?? ""
+    var payeeTypeId = searchParams.get("payeeTypeId") ?? ""
+    var paymentReasonId = searchParams.get("paymentReasonId") ?? ""
 
     useEffect(
         () => {
-            searchPaymentSlip(id, currentPage, pageSize).then(
+            searchPaymentSlip(id, payeeTypeId, paymentReasonId, currentPage, pageSize,  "").then(
                 data => {
                     console.log("data", data)
                     setPaymentSlips(data?.result?.data)
@@ -49,11 +53,35 @@ export default function PaymentSlip() {
                     setPageSize(data.result?.pageSize)
                 }
             )
-        }, [currentPage, id, isUpdate]
+        }, [currentPage, id, isUpdate, payeeTypeId, paymentReasonId]
     )
     const handleChangePagination = (e, p) => {
         setCurrentPage(p)
     }
+    const [paymentReasons, setPaymentReasons] = useState([])
+    const [payeeTypes, setPayeeTypes] = useState([])
+    useEffect(
+        () => {
+            getAllPaymentReason().then(
+                data => {
+                    console.log("payment reasons", data)
+                    setPaymentReasons(data?.result)
+                }
+            )
+        }, []
+    )
+
+
+    useEffect(
+        () => {
+            getAllPayeeType().then(
+                data => {
+                    console.log("payee type", data)
+                    setPayeeTypes(data?.result)
+                }
+            )
+        }, []
+    )
     console.log(showCreateModal)
     return (
         <>
@@ -67,12 +95,65 @@ export default function PaymentSlip() {
                                 onChange={(e) => {
                                     navigate(
                                         `?${new URLSearchParams({
-                                            id: e.target.value
+                                            id: e.target.value,
+                                            paymentReasonId: paymentReasonId,
+                                            payeeTypeId: payeeTypeId
                                         })}`
                                     )
                                 }}
                                 value={id}
                             />
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridState">
+                            <Form.Select
+                                onChange={(e) => {
+                                    navigate(
+                                        `?${new URLSearchParams({
+                                            id: id,
+                                            paymentReasonId: e.target.value,
+                                            payeeTypeId: payeeTypeId
+                                        })}`
+                                    )
+                                }}
+                            >
+                                <option value={""}>--Lý do--</option>
+                                {
+                                    paymentReasons.map(
+                                        pr => (
+                                            <option selected={paymentReasonId == pr.id} value={pr.id}>
+                                                {pr.name}</option>
+                                        )
+                                    )
+                                }
+
+
+                            </Form.Select>
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridState">
+                            <Form.Select
+                                onChange={(e) => {
+                                    navigate(
+                                        `?${new URLSearchParams({
+                                            id: id,
+                                            paymentReasonId: paymentReasonId,
+                                            payeeTypeId: e.target.value
+                                        })}`
+                                    )
+
+                                }}
+                            >
+                                <option value={""}>--Loại người nhận--</option>
+                                {
+                                    payeeTypes.map(
+                                        pr => (
+                                            <option selected={payeeTypeId == pr.id} value={pr.id}>
+                                                {PayeeType[pr.name]}</option>
+                                        )
+                                    )
+                                }
+
+
+                            </Form.Select>
                         </Form.Group>
                         <div className="col-2"
                         >
@@ -109,12 +190,12 @@ export default function PaymentSlip() {
                                                 <div>
                                                     {ps?.payeeName}
                                                 </div>
-                                                <div 
-                                                style={{ 
-                                                    // color: "var(--grey-text)"
-                                                    fontSize: "14px"
-                                                 }}
-                                                 className="text-primary"
+                                                <div
+                                                    style={{
+                                                        // color: "var(--grey-text)"
+                                                        fontSize: "14px"
+                                                    }}
+                                                    className="text-primary"
                                                 >
                                                     {ps?.payeeType}
                                                 </div>

@@ -90,6 +90,8 @@ export default function WarehouseReceipt({ receiptInfo }) {
                             <thead>
                                 <tr>
                                     <th scope="col">Tên</th>
+                                    <th scope="col">ĐVT</th>
+                                    <th scope="col">Loại</th>
                                     <th scope="col">Số lô</th>
                                     <th scope="col">Hạn sử dụng</th>
                                     <th scope="col">Số lượng</th>
@@ -114,6 +116,13 @@ export default function WarehouseReceipt({ receiptInfo }) {
                                                         <td  >
                                                             {item.productVariant?.name}
                                                         </td>
+                                                        <td  >
+                                                            {item.productVariant?.calculationUnit.name}
+                                                        </td>
+                                                        <td> {item.productVariant?.variantValues[0].name != "DEFAULT" &&
+                                                            item.productVariant?.variantValues.map(
+                                                                it => it.value
+                                                            ).join("-")}</td>
                                                         <td>{shipment.name}</td>
                                                         <td>{shipment.expiry ? formatDate(shipment.expiry) : ""}</td>
                                                         <td>{shipment.quantity}</td>
@@ -164,7 +173,7 @@ export default function WarehouseReceipt({ receiptInfo }) {
                                 </div>
                                 <div className={cn("col")}>
                                     {
-                                        VND.format(receiptInfo?.amount - receiptInfo?.outstandingDebt)
+                                        VND.format(receiptInfo?.paid)
                                     }
                                 </div>
                             </div>
@@ -174,7 +183,7 @@ export default function WarehouseReceipt({ receiptInfo }) {
                                 </div>
                                 <div className={cn("col")}>
                                     {
-                                        VND.format(receiptInfo?.outstandingDebt)
+                                        VND.format(receiptInfo?.amount - receiptInfo?.paid)
                                     }
                                 </div>
                             </div>

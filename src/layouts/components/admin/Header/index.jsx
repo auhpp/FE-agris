@@ -5,14 +5,18 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Avatar, Chip, Grid } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import { getStaffInfo } from "../../../../services/staffService";
+import { routes } from "../../../../config/routes";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../../context/AuthContext";
 const cn = classNames.bind(style);
 
 export default function Header() {
     const [user, setUser] = useState()
+    const navigate = useNavigate()
     useEffect(
         () => {
             getStaffInfo().then(
@@ -23,6 +27,7 @@ export default function Header() {
             )
         }, []
     )
+    const { logoutAction } = useContext(AuthContext);
     return (
         <>
             <header className={cn("sticky-top", "p-2", "mb-3", "border-bottom", "bg-white ", "header")}>
@@ -37,12 +42,14 @@ export default function Header() {
                                 src={user?.avatar} />}
                             label={user?.userName}
                             variant="outlined"
-                            style={{ fontSize: "13px" }}
+                            style={{ fontSize: "13px", cursor: "pointer" }}
                         />
                     </div>
                     <ul className="dropdown-menu text-small">
                         <li>
-                            <div className="dropdown-item">
+                            <div
+                                style={{ cursor: "pointer" }}
+                                className="dropdown-item" onClick={() => navigate(routes.profile)}>
                                 <PersonIcon className="me-1" />
                                 <span>
                                     Tài khoản
@@ -54,8 +61,9 @@ export default function Header() {
                         </li>
                         <li>
                             <div
-                            // onClick={() => logout}
-                            className="dropdown-item">
+                                style={{ cursor: "pointer" }}
+                                onClick={() => logoutAction()}
+                                className="dropdown-item">
                                 <LogoutIcon className="me-1" />
                                 <span>
                                     Đăng xuất

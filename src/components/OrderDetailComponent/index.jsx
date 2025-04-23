@@ -12,6 +12,7 @@ import Modal from 'react-bootstrap/Modal';
 import { cancelOrder } from "./../../services/orderService.js";
 import { routes } from "../../config/routes.jsx";
 import AlertError from "../AlertError/index.jsx";
+import { createPayment, vnpayRefund } from "../../services/paymentService.js";
 
 const cn = classNames.bind(style);
 
@@ -20,16 +21,7 @@ export default function OrderDetailComponent({ order, setOrder, isAdmin }) {
     var [warehouseRequest, setWarehouseRequest] = useState([]);
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [isUpdate, setIsUpdate] = useState(false)
-    useEffect(
-        () => {
-            searchOrder(order?.id, "", "", 1, 10).then(
-                data => {
-                    console.log(data)
-                    setOrder(data.result.data[0])
-                }
-            )
-        }, [isUpdate]
-    )
+
     const handleConfirmOrder = () => {
         warehouseRequest = warehouseRequest.filter(a => a.warehouseDetailId.length != 0)
         console.log("wr", warehouseRequest)
@@ -43,6 +35,7 @@ export default function OrderDetailComponent({ order, setOrder, isAdmin }) {
                 data => {
                     console.log(data);
                     setIsUpdate(!isUpdate)
+                    navigate(routes.orderManagement, { replace: true })
                 }
             )
         }
@@ -55,6 +48,7 @@ export default function OrderDetailComponent({ order, setOrder, isAdmin }) {
     const [reasonForCancelError, setReasonForCancelError] = useState("");
     const [orderError, setOrderError] = useState("")
     const [showAlterError, setShowAlterError] = useState(false)
+
     const handleCancelOrder = () => {
         if (reasonForCancel == "") {
             setReasonForCancelError("Phải nhập lý do!")
@@ -66,35 +60,52 @@ export default function OrderDetailComponent({ order, setOrder, isAdmin }) {
             }
             cancelOrder(request).then(
                 data => {
-                    console.log(data)
-                    navigate(routes.purchase)
+                    if (data.code == 200) {
+                        if (order.paymentStatus == "PAID") {
+                            vnpayRefund(order).then(
+                                data => {
+                                    console.log(data)
+                                }
+                            )
+                        }
+                        navigate(routes.purchase)
+                    }
                 }
             )
             setShowCancelModal(false)
         }
     }
+    const handlePayment = () => {
+        createPayment(order).then(
+            data => {
+                if (data.code == 200) {
+                    const paymentUrl = data.result
+                    window.location.href = paymentUrl
+                }
+                else {
+                    alert("Lỗi kết nối đến cổng thanh toán")
+                }
+            })
+    }
     return (
         <>
-            <div  className={cn("back-previous-page", "col")}>
+            <div>
+                <AlertError
+                    message={orderError}
+                    onClose={() => setShowAlterError(false)}
+                    showAlert={showAlterError}
+                />
+            </div>
+            <div className={cn("back-previous-page", "col")}>
                 <div onClick={() => navigate(-1)}>
                     <ArrowBackIosIcon />
                     <span>QUAY LẠI</span>
-                </div>
-                <div>
-                    <AlertError
-                        message={orderError}
-                        onClose={() => setShowAlterError(false)}
-                        showAlert={showAlterError}
-                    />
                 </div>
             </div>
             <OrderItem
                 warehouseRequest={warehouseRequest}
                 setWarehouseRequest={setWarehouseRequest}
                 isAdmin={isAdmin}
-                // onCLickOrderItem={(od) => {
-                //     navigate(routes.product + "/" + od.productVariantValue.productId)
-                // }}
                 order={order} />
             <div className={cn("created-at")}>
                 <div>
@@ -158,6 +169,18 @@ export default function OrderDetailComponent({ order, setOrder, isAdmin }) {
                             </Button>
                         )
                     }
+                    {
+                        order?.paymentMethod == "VNPAY"
+                        && order?.paymentStatus == "NO_PAYMENT"
+                        && order?.orderStatus == "WAIT_FOR_CONFIRMATION" && (
+                            <Button
+                                variant="contained"
+                                color="error"
+                                className="me-2"
+                                onClick={handlePayment}>Thanh toán</Button>
+                        )
+                    }
+
                     <Button variant="outlined" color=""
                         onClick={() => setShowCancelModal(true)}
                     >
