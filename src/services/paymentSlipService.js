@@ -12,11 +12,14 @@ export async function createPaymentSlip(request) {
 }
 
 export async function searchPaymentSlip(id = "",
+    payeeTypeId = "",
+    paymentReasonId = "",
     page = 1,
-    size = 10) {
-    var promise = fetch("http://localhost:8080/payment_slip/search?id=" + id +
+    size = 10, payeeId) {
+    var promise = fetch("http://localhost:8080/payment_slip/search?id=" + id + "&payeeTypeId=" + payeeTypeId +
+            "&paymentReasonId=" + paymentReasonId +
             "&page=" + page +
-            "&size=" + size, {
+            "&size=" + size + "&payeeId=" + payeeId, {
                 method: 'GET',
                 headers: {
                     "Content-Type": "application/json",
@@ -40,4 +43,3 @@ export async function getAllPayeeType() {
 
     return promise;
 }
-

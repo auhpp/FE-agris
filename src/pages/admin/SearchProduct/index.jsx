@@ -9,7 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { getAllCategory } from "../../../services/categoryService";
 import { useEffect, useState } from "react";
 import { deleteProduct, searchProduct } from "../../../services/productService";
-import { Button, Chip, Pagination } from "@mui/material";
+import { Button, Chip, CircularProgress, Pagination } from "@mui/material";
 import Badge from 'react-bootstrap/Badge';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
@@ -42,23 +42,45 @@ export default function SearchProduct() {
     var [currentPage, setCurrentPage] = useState(1);
     var [pageSize, setPageSize] = useState(10);
 
-
-    useEffect(
-        () => {
-            searchProduct({ name, categoryId, currentPage, pageSize, searchAllStock: true }).then(
-                data => {
-                    if (data.result?.data) {
-                        setResults(data.result.data)
-                        setTotalPage(data.result.totalPage)
-                        setCurrentPage(data.result.currentPage)
-                        setPageSize(data.result.pageSize)
-                        console.log(data)
-                    }
+    const [loading, setLoading] = useState(true);
+    //call api 
+    useEffect(() => {
+        (async () => {
+            try {
+                const data = await searchProduct({ name, categoryId, currentPage, pageSize, searchAllStock: true });
+                if (data.result?.data) {
+                    setResults(data.result.data)
+                    setTotalPage(data.result.totalPage)
+                    setCurrentPage(data.result.currentPage)
+                    setPageSize(data.result.pageSize)
+                    console.log(data)
                 }
-            );
-        },
-        [name, categoryId, currentPage]
-    )
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+            finally {
+                setLoading(false);
+            }
+        })()
+    }, [name, categoryId, currentPage])
+
+
+    // useEffect(
+    //     () => {
+    //         searchProduct({ name, categoryId, currentPage, pageSize, searchAllStock: true }).then(
+    //             data => {
+    //                 if (data.result?.data) {
+    //                     setResults(data.result.data)
+    //                     setTotalPage(data.result.totalPage)
+    //                     setCurrentPage(data.result.currentPage)
+    //                     setPageSize(data.result.pageSize)
+    //                     console.log(data)
+    //                 }
+    //             }
+    //         );
+    //     },
+    //     [name, categoryId, currentPage]
+    // )
     const handleDeleteProduct = (item) => {
         deleteProduct(item.id).then(
             setResults(
@@ -71,7 +93,13 @@ export default function SearchProduct() {
     const handleChangePagination = (e, p) => {
         setCurrentPage(p);
     }
-
+    if (loading) {
+        return (
+            <div className='d-flex justify-content-center align-items-center w-100 h-100'>
+                <CircularProgress color="success" size="3rem" />
+            </div>
+        )
+    }
     return (
         <>
 
@@ -198,7 +226,7 @@ export default function SearchProduct() {
                                                 <Button variant="contained"
                                                     color="info"
                                                     size="small"
-                                                    className="me-1"
+                                                    className="me-1 mb-1"
                                                     onClick={() => {
                                                         navigate(routes.createProduct, { state: { item, isEdit: true } })
                                                     }}
@@ -208,7 +236,7 @@ export default function SearchProduct() {
                                                 </Button>
                                                 <Button
                                                     size="small"
-                                                    className="me-1"
+                                                    className="me-1 mb-1"
                                                     variant="contained"
                                                     color="success"
                                                     onClick={() => {
@@ -221,6 +249,7 @@ export default function SearchProduct() {
                                                 <Button variant="contained"
                                                     size="small"
                                                     color="error"
+                                                    className="mb-1"
                                                     onClick={() => handleDeleteProduct(item)}
                                                 >
                                                     <DeleteIcon

@@ -10,7 +10,7 @@ export default function AlertError({ message, showAlert, onClose }) {
             {
                 showAlert && (
                     <Alert
-                        className="col-5 mb-2 mt-2"
+                        className="col-6 mb-2 mt-2"
                         variant="filled" onClose={onClose} severity="error">{message}</Alert>
                 )
             }

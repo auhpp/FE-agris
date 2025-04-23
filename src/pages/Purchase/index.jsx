@@ -51,7 +51,7 @@ export default function Purchase() {
 
     useEffect(
         () => {
-            searchOrder("", "WAIT_FOR_CONFIRMATION", "", currentPage, pageSize).then(
+            searchOrder("", "", "WAIT_FOR_CONFIRMATION", "", currentPage, pageSize).then(
                 data => {
                     console.log("data 0", data)
                     setOrdersConfirm(data?.result.data)
@@ -64,7 +64,7 @@ export default function Purchase() {
     )
     useEffect(
         () => {
-            searchOrder("", "WAITING_FOR_SHIPPING", "", currentPage, pageSize).then(
+            searchOrder("", "", "WAITING_FOR_SHIPPING", "", currentPage, pageSize).then(
                 data => {
                     console.log("data 1", data)
                     setOrdersShipping(data?.result.data)
@@ -77,9 +77,9 @@ export default function Purchase() {
     )
     useEffect(
         () => {
-            searchOrder("", "CANCELED", "", currentPage, pageSize).then(
+            searchOrder("", "", "CANCELED", "", currentPage, pageSize).then(
                 data => {
-                    console.log("data 1", data)
+                    console.log("data 2", data)
                     setOrdersCancel(data?.result.data)
                     setTotalPage(data.result.totalPage)
                     setCurrentPage(data.result.currentPage)

@@ -1,10 +1,15 @@
-import { Avatar } from "@mui/material";
+import { Avatar, Button } from "@mui/material";
 import style from "./Profile.module.css";
 import classNames from "classnames/bind";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getUserInfo, updateUser, uploadAvatar } from "../../services/customerService";
 import { isEmail, isFullNameValid, isPhoneNumber, isValidImage } from "../../utils/validate";
 import AlertSuccess from "./../../components/AlertSuccess"
+import { jwtDecode } from "jwt-decode";
+import { AuthContext } from "../../context/AuthContext";
+import { getStaffInfo, updateStaff, uploadStaffAvatar } from "../../services/staffService";
+import { Link, useNavigate } from "react-router-dom";
+import { routes } from "../../config/routes";
 const cn = classNames.bind(style);
 
 
@@ -30,14 +35,24 @@ export default function Profile() {
         email: "",
     });
     const [showAlertSuccess, setShowAlertSuccess] = useState(false)
+    const { token } = useContext(AuthContext);
+    var role = jwtDecode(token).scope;
+
     //Get user
     useEffect(
         () => {
-            getUserInfo().then(
-                data => {
-                    setUser(data.result);
-                }
-            )
+            role == "ADMIN" ?
+                getStaffInfo().then(
+                    data => {
+                        setUser(data.result)
+                    }
+                )
+                :
+                getUserInfo().then(
+                    data => {
+                        setUser(data.result);
+                    }
+                )
         }, []
     )
 
@@ -149,26 +164,43 @@ export default function Profile() {
         if (ok) {
             console.log("us rq", userRequest)
             //call api
-            updateUser(userRequest).then(
-                data => {
-
-                    console.log("avatar rq", avatarRequest)
-                    if (avatarRequest != "") {
-                        uploadAvatar(avatarRequest, user.id).then(
-                            d => {
-                                setPreviewAvatar(d.result?.filePath)
-                            }
+            role == "ADMIN" ?
+                updateStaff(userRequest).then(
+                    data => {
+                        console.log("avatar rq", avatarRequest)
+                        if (avatarRequest != "") {
+                            uploadStaffAvatar(avatarRequest, user.id).then(
+                                d => {
+                                    setPreviewAvatar(d.result?.filePath)
+                                }
+                            )
+                        }
+                        setShowAlertSuccess(true)
+                        setUser(
+                            data.result
                         )
                     }
-                    setShowAlertSuccess(true)
-                    setUser(
-                        data.result
-                    )
-                }
-            )
+                ) :
+                updateUser(userRequest).then(
+                    data => {
+
+                        console.log("avatar rq", avatarRequest)
+                        if (avatarRequest != "") {
+                            uploadAvatar(avatarRequest, user.id).then(
+                                d => {
+                                    setPreviewAvatar(d.result?.filePath)
+                                }
+                            )
+                        }
+                        setShowAlertSuccess(true)
+                        setUser(
+                            data.result
+                        )
+                    }
+                )
         }
     }
-
+    const navigate = useNavigate()
     return (
         <>
             <div className={cn("profile")}>
@@ -185,6 +217,12 @@ export default function Profile() {
                             showAlert={showAlertSuccess}
                         />
                     </div>
+                    {
+                        role == "ADMIN" &&
+                        <Button className="col-2" variant="contained" color="warning" onClick={() => navigate(routes.password)}>
+                            Đổi mật khẩu
+                        </Button>
+                    }
                 </div>
                 {/* content */}
                 <div className={cn("main-content")}>

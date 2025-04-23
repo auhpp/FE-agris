@@ -1,7 +1,7 @@
 import style from "./CategoryManagement.module.css";
 import classNames from "classnames/bind";
 
-import { Breadcrumbs, Button, Chip, Pagination, Typography } from "@mui/material";
+import { Breadcrumbs, Button, Chip, CircularProgress, Pagination, Typography } from "@mui/material";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Form from 'react-bootstrap/Form';
@@ -44,19 +44,39 @@ export default function CategoryManagement() {
     const [categoryEdit, setCategoryEdit] = useState({
         id: null, name: ""
     });
-    useEffect(
-        () => {
-            searchCategory(name, currentPage, pageSize).then(
-                data => {
-                    console.log("data", data)
-                    setCategories(data?.result?.data)
-                    setTotalPage(data.result?.totalPage)
-                    setCurrentPage(data.result?.currentPage)
-                    setPageSize(data.result?.pageSize)
-                }
-            )
-        }, [currentPage, name, isUpdate]
-    )
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const data = await searchCategory(name, currentPage, pageSize);
+                console.log("data", data)
+                setCategories(data?.result?.data)
+                setTotalPage(data.result?.totalPage)
+                setCurrentPage(data.result?.currentPage)
+                setPageSize(data.result?.pageSize)
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+            finally {
+                setLoading(false);
+            }
+        })()
+    }, [currentPage, name, isUpdate])
+
+    // useEffect(
+    //     () => {
+    //         searchCategory(name, currentPage, pageSize).then(
+    //             data => {
+    //                 console.log("data", data)
+    //                 setCategories(data?.result?.data)
+    //                 setTotalPage(data.result?.totalPage)
+    //                 setCurrentPage(data.result?.currentPage)
+    //                 setPageSize(data.result?.pageSize)
+    //             }
+    //         )
+    //     }, [currentPage, name, isUpdate]
+    // )
     const handleChangePagination = (e, p) => {
         setCurrentPage(p)
     }
@@ -75,6 +95,13 @@ export default function CategoryManagement() {
         )
     }
     console.log(showCreateModal)
+    if (loading) {
+        return (
+            <div className='d-flex justify-content-center align-items-center w-100 h-100'>
+                <CircularProgress color="success" size="3rem" />
+            </div>
+        )
+    }
     return (
         <>
             <div className={cn("main-content")}>
@@ -103,7 +130,7 @@ export default function CategoryManagement() {
                             </Button>
                         </div>
                         <AlertError
-                          
+
                             showAlert={showDeleteError}
                             onClose={() => setShowDeleteError(false)}
                             message={"Danh mục đã có sản phẩm!"}

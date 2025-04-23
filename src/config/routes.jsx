@@ -1,3 +1,4 @@
+
 export const routes = {
     login: "/login",
     register: "/register",
@@ -22,13 +23,17 @@ export const routes = {
     warehouse: "/admin/warehouse",
     staff: "/admin/staff",
     staffAccountConfirmPassword: "/staff_account_confirm_email",
-    stockDetail: "/admin/stock_detail",
+    stockDetail: "/admin/product/stock_detail",
     purchase: "/user/purchase",
     orderDetail: "/user/purchase/order",
     orderManagement: "/admin/order",
     orderDetailManagement: "/admin/order_detail",
     calculationUnit: "/admin/calculation_unit",
     supplierDetail: "/admin/supplier/:id",
-    paymentSlip: "/admin/payment_slip"
-
+    paymentSlip: "/admin/payment_slip",
+    paymentCallback: "/payments/payment_callback",
+    resetPassword: "/password/reset",
+    customer: "/admin/customer",
+    customerDetail: "/admin/customer/:id",
+    staffDetail: "/admin/staff/:id"
 };

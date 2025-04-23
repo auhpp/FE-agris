@@ -19,6 +19,7 @@ import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { StaffStatus } from "../../../utils/status";
+import { routes } from "../../../config/routes";
 
 const cn = classNames.bind(style);
 export default function Staff() {
@@ -26,6 +27,8 @@ export default function Staff() {
     const location = useLocation();
     var searchParams = new URLSearchParams(location.search);
     var query = searchParams.get("query") ?? ""
+    var status = searchParams.get("status") ?? ""
+
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [staffRequest, setStaffRequest] = useState(
         {
@@ -95,7 +98,7 @@ export default function Staff() {
                     if (data.code != 200) {
                         setStaffError({
                             ...staffError,
-                            email: "Email đã được sử dụng"
+                            email: "Nhân viên này đã có tài khoản"
                         })
                     }
                     else {
@@ -115,9 +118,11 @@ export default function Staff() {
     useEffect(
         () => {
             var request = {
+                id: "",
                 fullName: "",
                 phoneNumber: "",
-                email: ""
+                email: "",
+                status: status
             };
             if (isEmail(query)) {
                 request.email = query;
@@ -141,7 +146,7 @@ export default function Staff() {
                 }
             );
         },
-        [query, currentPage, isEdit]
+        [query, status, currentPage, isEdit]
     )
 
     const handleChangePagination = (e, p) => {
@@ -157,12 +162,33 @@ export default function Staff() {
                                 onChange={(e) => {
                                     navigate(
                                         `?${new URLSearchParams({
-                                            query: e.target.value
+                                            query: e.target.value,
+                                            status: status
+
                                         })}`
                                     )
                                 }}
                                 value={query}
                             />
+                        </Form.Group>
+                        <Form.Group as={Col} controlId="formGridState">
+                            <Form.Select
+                                onChange={(e) => {
+                                    navigate(
+                                        `?${new URLSearchParams({
+                                            query: query,
+                                            status: e.target.value
+                                        })}`
+                                    )
+                                }}
+                            >
+                                <option value={""}>--Trạng thái--</option>
+                                <option selected={status == "ACTIVE"} value={"ACTIVE"}>
+                                    Đang hoạt động</option>
+                                <option selected={status == "INACTIVE"} value={"INACTIVE"}>
+                                    Ngừng hoạt động</option>
+
+                            </Form.Select>
                         </Form.Group>
                         <div className="col-2"
                         >
@@ -206,7 +232,9 @@ export default function Staff() {
                             {
                                 results?.map(
                                     (item, index) => (
-                                        <tr>
+                                        <tr
+                                            onClick={() => navigate(routes.staffDetail.replace(":id", item.id))}
+                                        >
                                             <td>{item.fullName}</td>
                                             <td>{item.userName}</td>
                                             <td>{item.phoneNumber}</td>
@@ -216,8 +244,8 @@ export default function Staff() {
                                                     variant="outlined"
                                                     size="small"
                                                     style={{ fontSize: "14px" }}
-                                                    color={item.status == "ACTIVE" ? "success" : "error"}
-                                                    label={StaffStatus[item.status]}
+                                                    color={item.status && StaffStatus[item.status].color}
+                                                    label={item.status && StaffStatus[item.status].name}
                                                 />
                                             </td>
                                             {/* <td>

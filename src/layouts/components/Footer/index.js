@@ -4,6 +4,7 @@ import { BsFacebook, BsInstagram, BsYoutube, BsTwitterX,
 
 } from "react-icons/bs";
 import logo from "./../../../assets/images/logo.png";
+import vnpay from "./../../../assets/images/vnpay.png";
 
 export default function Footer() {
     return (
@@ -73,14 +74,14 @@ export default function Footer() {
                         </div>
                         <div className="col-lg-3 col-xl-3 col-sm-6">
                             <div className="info-footer">
-                                <div className="send-email">
+                                {/* <div className="send-email">
                                     <h3 className="title">Đăng ký nhận bản tin</h3>
                                     <form action="#" className="form-send-email" method="post" target="_blank">
                                         <input type="email" name="email-user" id="" className="input-email"
                                             placeholder="Nhập địa chỉ email của bạn" />
                                         <button className="btn-1 btn-subscribe">Đăng ký</button>
                                     </form>
-                                </div>
+                                </div> */}
                                 <div className="social-links">
                                     <h3>Theo dõi chúng tôi trên</h3>
                                     <div className="socials">
@@ -103,8 +104,8 @@ export default function Footer() {
                     </div>
                     <div className="row inner-wrap-bottom">
                         <div className="col-12">
-                            <div className="pay-list">
-                                <div className="pay-item momo">
+                            <div className="pay-list d-flex justify-content-center">
+                                {/* <div className="pay-item momo">
                                     <img src="assets/img/momo.png" alt="" />
                                 </div>
                                 <div className="pay-item zalo-pay">
@@ -112,9 +113,9 @@ export default function Footer() {
                                 </div>
                                 <div className="pay-item ninjavan">
                                     <img src="assets/img/paypal.png" alt="" />
-                                </div>
-                                <div className="pay-item vnpay">
-                                    <img src="assets/img/vnpay.png" alt="" />
+                                </div> */}
+                                <div className="pay-item vnpay text-center">
+                                    <img src={vnpay} alt="" />
                                 </div>
                             </div>
                         </div>

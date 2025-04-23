@@ -31,7 +31,7 @@ export default function OrderManagement() {
     var orderStatus = searchParams.get("orderStatus") ?? ""
     useEffect(
         () => {
-            searchOrder(id, orderStatus, paymentStatus, currentPage, pageSize).then(
+            searchOrder("", id, orderStatus, paymentStatus, currentPage, pageSize).then(
                 data => {
                     console.log("data", data)
                     setOrders(data?.result.data)
@@ -147,8 +147,9 @@ export default function OrderManagement() {
                                             <td>
                                                 <Chip
                                                     style={{ "fontSize": "13px" }}
-                                                    label={PaymentStatus[od.paymentStatus]}
-                                                    color="error" variant="outlined" />
+                                                    label={PaymentStatus[od.paymentStatus].name}
+                                                    color={PaymentStatus[od.paymentStatus].color}
+                                                    variant="outlined" />
                                             </td>
                                             <td>{VND.format(od.amount)}</td>
 

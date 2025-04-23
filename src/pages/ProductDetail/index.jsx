@@ -13,7 +13,6 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import InboxIcon from '@mui/icons-material/Inbox';
-import Button from '@mui/material/Button';
 
 import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
 import { LinearProgress, Pagination, Rating } from "@mui/material";
@@ -51,7 +50,8 @@ export default function ProductDetail() {
         }
     }
     const handlePlus = () => {
-        setQuantity(quantity + 1)
+        if (quantity + 1 <= currentProduct.stock)
+            setQuantity(quantity + 1)
     }
     // end minus and plus button
 
@@ -94,16 +94,7 @@ export default function ProductDetail() {
     )
 
 
-    //variant
-    const handleClickVariant = (variant) => {
-        if (product) {
-            product?.variants.forEach(element => {
-                if (element.id == variant.id) {
-                    setCurrentProduct(element);
-                }
-            });
-        }
-    }
+
 
     //Get attribute list
     useEffect(() => {
@@ -148,16 +139,19 @@ export default function ProductDetail() {
 
 
     //Cart
-    const handleAddToCart = () => {
+    const handleAddToCart = (navigateToCart) => {
+        console.log("curr", currentProduct)
         if (token) {
             var cartRequest = {
                 id: null,
                 productVariantId: currentProduct?.id,
                 quantity: quantity
             }
+            console.log("req", cartRequest)
             addToCart(cartRequest).then(
                 data => {
                     cart.setUpdateCart(!cart.updateCart)
+                    navigateToCart && navigate(routes.cart)
                 }
             )
         }
@@ -320,7 +314,7 @@ export default function ProductDetail() {
                                                 className={cn("btn-add-cart", "btn-2")}
                                                 name="action"
                                                 value="add-shopping-cart"
-                                                onClick={handleAddToCart}
+                                                onClick={() => handleAddToCart(false)}
                                             >
                                                 <AddShoppingCartIcon />
                                                 <span>
@@ -331,6 +325,7 @@ export default function ProductDetail() {
                                         {/* button buy now */}
                                         <div className={cn("col-6")}>
                                             <button type="button"
+                                                onClick={() => handleAddToCart(true)}
                                                 className={cn("btn-buy", "btn-4")}
                                                 name="action" value="buy-now">Mua ngay</button>
                                         </div>

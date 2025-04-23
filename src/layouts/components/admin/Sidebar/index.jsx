@@ -15,6 +15,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import PaymentsIcon from '@mui/icons-material/Payments';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 const cn = classNames.bind(style);
 
 export default function Sidebar() {
@@ -66,19 +67,28 @@ export default function Sidebar() {
 
     },
     {
-      name: "Nhân viên",
-      link: routes.staff,
-      getIcon: (isActive) => (
-        <PeopleAltIcon style={isActive ? { color: "white" } : {}} />
-      )
-    },
-    {
       name: "Đơn hàng",
       link: routes.orderManagement,
       getIcon: (isActive) => (
         <AssignmentIcon style={isActive ? { color: "white" } : {}} />
       )
     },
+    {
+      name: "Khách hàng",
+      link: routes.customer,
+      getIcon: (isActive) => (
+        <AccountBoxIcon style={isActive ? { color: "white" } : {}} />
+      ),
+      border: <div className="border-bottom mt-1 mb-1" style={{ width: "220px" }}></div>
+    },
+    {
+      name: "Nhân viên",
+      link: routes.staff,
+      getIcon: (isActive) => (
+        <PeopleAltIcon style={isActive ? { color: "white" } : {}} />
+      )
+    },
+
     {
       name: "Phiếu chi",
       link: routes.paymentSlip,

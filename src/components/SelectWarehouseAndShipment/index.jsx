@@ -117,34 +117,38 @@ export default function SelectWarehouseAndShipment({
                     </div>
                 }
                 {
-                    shipment.length != 0 && order.orderStatus == "WAIT_FOR_CONFIRMATION" &&
-                    <div className="col">
+                    shipment?.length != 0 && order.orderStatus == "WAIT_FOR_CONFIRMATION" && (
+                        <div className="col">
 
-                        {
-                            shipment.map(
-                                sm => (
-                                    sm.warehouseDetail.map(
-                                        wd => (
-                                            <MenuItem
-                                                style={{ "width": "fit-content" }}
-                                                onClick={() => handleClose(wd.warehouseDetailId)}>
-                                                <div className="me-3">{wd.warehouseName + " - " + sm.name}</div>
-                                                <div className="me-3"> {sm.expiry && "HSD:" + formatDate(sm.expiry)}</div>
-                                                {
-                                                    sm.quantity &&
-                                                    <div>Tồn: {sm.quantity}</div>
-                                                }
-                                                <CloseIcon onClick={() => {
-                                                    handleDeleteShipment(sm, wd.warehouseDetailId)
-                                                }} className="ms-2" />
-                                            </MenuItem>
-                                        )
-                                    )
-
+                            {
+                                shipment?.length !== 0 &&
+                                order?.orderStatus === "WAIT_FOR_CONFIRMATION" && (
+                                    <div className="col">
+                                        {
+                                            shipment.map(sm =>
+                                                sm?.warehouseDetail?.length > 0 && sm.warehouseDetail.map(wd => (
+                                                    <MenuItem
+                                                        key={wd.warehouseDetailId}
+                                                        style={{ width: "fit-content" }}
+                                                        onClick={() => handleClose(wd.warehouseDetailId)}
+                                                    >
+                                                        <div className="me-3">{wd.warehouseName + " - " + sm.name}</div>
+                                                        <div className="me-3">{sm.expiry && "HSD:" + formatDate(sm.expiry)}</div>
+                                                        {sm.quantity && <div>Tồn: {sm.quantity}</div>}
+                                                        <CloseIcon
+                                                            onClick={() => handleDeleteShipment(sm, wd.warehouseDetailId)}
+                                                            className="ms-2"
+                                                        />
+                                                    </MenuItem>
+                                                ))
+                                            )
+                                        }
+                                    </div>
                                 )
-                            )
-                        }
-                    </div>
+                            }
+
+                        </div>
+                    )
                 }
 
             </div >

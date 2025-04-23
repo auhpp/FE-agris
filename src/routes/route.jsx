@@ -7,7 +7,6 @@ import SearchAccount from "../pages/admin/SearchAccount";
 import SearchSupplier from "../pages/admin/Supplier";
 import CreateProduct from "../pages/admin/CreateProduct";
 import Home from "../pages/Home";
-import Account from "../pages/Account";
 import Profile from "../pages/Profile";
 import Address from "../pages/Address";
 import Password from "../pages/Password";
@@ -32,6 +31,12 @@ import CalculationUnit from "../pages/admin/CalculationUnit";
 import Supplier from "../pages/admin/Supplier";
 import SupplierDetail from "../pages/admin/SupplierDetail";
 import PaymentSlip from "../pages/admin/PaymentSlip";
+import PaymentCallbackComponent from "../components/PaymentCallbackComponent";
+import ResetPassword from "../pages/ResetPassword";
+import Customer from "../pages/admin/Customer";
+import CustomerDetail from "../pages/admin/CustomerDetail";
+import Account from "../components/Account";
+import StaffDetail from "../pages/admin/StaffDetail";
 
 export const publicRoutes = [
     { path: routes.login, page: Login },
@@ -40,7 +45,9 @@ export const publicRoutes = [
     { path: routes.productDetail, page: ProductDetail },
     { path: routes.products, page: Product },
     { path: routes.search, page: SearchProduct },
-    { path: routes.staffAccountConfirmPassword, page: StaffConfirmPassword, layout: null }
+    { path: routes.staffAccountConfirmPassword, page: StaffConfirmPassword, layout: null },
+    { path: routes.resetPassword, page: ResetPassword }
+
 ]
 
 export const privateRoutes = [
@@ -51,8 +58,8 @@ export const privateRoutes = [
     { path: routes.cart, page: Cart },
     { path: routes.order, page: Order, layout: HeaderLayout },
     { path: routes.purchase, page: Purchase, layout: Account },
-    { path: routes.orderDetail, page: OrderDetail, layout: Account }
-
+    { path: routes.orderDetail, page: OrderDetail, layout: Account },
+    { path: routes.paymentCallback, page: PaymentCallbackComponent, layout: null }
 
 ]
 
@@ -72,5 +79,11 @@ export const adminRoutes = [
     { path: routes.calculationUnit, page: CalculationUnit, layout: DefaultAdminLayout },
     { path: routes.supplier, page: Supplier, layout: DefaultAdminLayout },
     { path: routes.supplierDetail, page: SupplierDetail, layout: DefaultAdminLayout },
-    { path: routes.paymentSlip, page: PaymentSlip, layout: DefaultAdminLayout }
+    { path: routes.paymentSlip, page: PaymentSlip, layout: DefaultAdminLayout },
+    { path: routes.customer, page: Customer, layout: DefaultAdminLayout },
+    { path: routes.customerDetail, page: CustomerDetail, layout: DefaultAdminLayout },
+    { path: routes.staffDetail, page: StaffDetail, layout: DefaultAdminLayout }
+
+
+
 ]

@@ -14,12 +14,30 @@ export const OrderStatus = {
 }
 
 export const PaymentStatus = {
-    NO_PAYMENT: "Chưa thanh toán"
+    NO_PAYMENT: {
+        name: "Chưa thanh toán",
+        color: "error"
+    },
+    PAID: {
+        name: "Đã thanh toán",
+        color: "success"
+    }
 }
 
 export const SupplierStatus = {
     ACTIVE: "Đang hoạt động",
     INACTIVE: "Ngừng hoạt động"
+}
+
+export const CustomerStatus = {
+    ACTIVE: {
+        name: "Đang hoạt động",
+        color: "info"
+    },
+    INACTIVE: {
+        name: "Ngừng hoạt động",
+        color: "error"
+    }
 }
 
 export const ProductStatus = {
@@ -28,8 +46,18 @@ export const ProductStatus = {
 }
 
 export const StaffStatus = {
-    ACTIVE: "Đang hoạt động",
-    INACTIVE: "Ngừng hoạt động"
+    ACTIVE: {
+        name: "Đang hoạt động",
+        color: "info"
+    },
+    INACTIVE: {
+        name: "Ngừng hoạt động",
+        color: "error"
+    },
+    WAITING: {
+        name: "Chờ xác nhận",
+        color: "secondary"
+    }
 }
 
 export const ShipmentStatus = {

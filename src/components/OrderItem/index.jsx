@@ -4,9 +4,9 @@ import { VND } from "../../utils/formatNumber";
 import { formatDate, formatDateTime } from "../../utils/formatDate";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../config/routes";
-import { FormControl, InputLabel, MenuItem, OutlinedInput, Select } from "@mui/material";
+import { Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from "@mui/material";
 import SelectWarehouseAndShipment from "../SelectWarehouseAndShipment";
-import { OrderStatus } from "./../../utils/status.js";
+import { OrderStatus, PaymentStatus } from "./../../utils/status.js";
 import CloseIcon from '@mui/icons-material/Close';
 
 const cn = classNames.bind(style);
@@ -47,7 +47,7 @@ export default function OrderItem({ order,
                                     onClick={
                                         () => {
                                             onCLickOrderItem &&
-                                                onCLickOrderItem()
+                                                onCLickOrderItem(od)
                                         }
                                     }
 
@@ -117,15 +117,25 @@ export default function OrderItem({ order,
                     }
                 </div>
                 <div className={cn("amount")}>
-                    <span>
-                        Thành tiền:
-                    </span>
-                    <span className={cn("price")}>
+                    <div className={cn("payment-status")}>
+                        <Chip
+                            style={{ fontSize: "14px" }}
+                            label={PaymentStatus[order?.paymentStatus]?.name} color={PaymentStatus[order?.paymentStatus]?.color}
+                            variant="outlined" />
+
+                    </div>
+                    <div className={cn("money")}>
                         <span>
-                            {VND.format(order?.amount)}
+                            Thành tiền:
                         </span>
-                        <sup>đ</sup>
-                    </span>
+                        <span className={cn("price")}>
+                            <span>
+                                {VND.format(order?.amount)}
+                            </span>
+                            <sup>đ</sup>
+                        </span>
+
+                    </div>
                 </div>
             </div>
         </>

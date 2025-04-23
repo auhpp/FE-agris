@@ -51,19 +51,21 @@ export async function uploadAvatar(avatarRequest, userId) {
     return promise;
 }
 
-
-export async function changePassword(request) {
-    var promise = fetch("http://localhost:8080/account/password", {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify(request)
-        })
+export async function searchCustomer(id, fullName, email, phoneNumber, status, page, size) {
+    var promise = fetch("http://localhost:8080/customer/search?id=" + id + "&fullName=" + fullName +
+            "&phoneNUmber=" + phoneNumber + "&status=" + status + "&email=" + email +
+            "&page=" + page + "&size=" + size, {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                }
+            })
         .then(res => res.json())
     return promise;
 }
+
+
 
 
 // Address

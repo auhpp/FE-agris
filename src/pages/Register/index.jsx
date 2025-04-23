@@ -5,7 +5,7 @@ import style from "./Register.module.css";
 import { routes } from "./../../config/routes";
 import { inputFocus, showPassword } from "./../../utils/input";
 import { createUser } from "../../services/customerService";
-import { checkPasswordStrength } from "./../../utils/validate";
+import { checkPasswordStrength, isEmail } from "./../../utils/validate";
 const cn = classNames.bind(style);
 
 export default function Register() {
@@ -18,12 +18,14 @@ export default function Register() {
         userName: '',
         password: '',
         confirmPassword: '',
+        email: ''
     });
 
     const [error, setError] = useState({
         userName: '',
         password: '',
         confirmPassword: '',
+        email: ''
     });
 
 
@@ -52,7 +54,13 @@ export default function Register() {
                         stateObj[name] = 'Vui lòng nhập tên người dùng';
                     }
                     break;
-
+                case 'email':
+                    if (!value)
+                        stateObj[name] = 'Vui lòng nhập email';
+                    else if (!isEmail(value)) {
+                        stateObj[name] = 'Email không hợp lệ';
+                    }
+                    break;
                 case 'password':
                     if (!value) {
                         stateObj[name] = 'Vui lòng nhập mật khẩu.';
@@ -90,20 +98,41 @@ export default function Register() {
         if (strength < 4) {
             inputFocus("input-password-register")
         }
+        var keys = Object.keys(input);
+        keys.forEach(
+            it => {
+                if (input[it] == "") {
+                    setError((prev) => ({
+                        ...prev,
+                        [it]: "Nhập thông tin"
+                    }))
+                }
+            }
+        )
         const userRequest = {
             userName: input.userName,
-            password: input.password
+            password: input.password,
+            email: input.email
         }
-        if (error.confirmPassword == "" && error.password == "" && error.userName == "") {
+        if (error.confirmPassword == "" && error.password == "" && error.userName == "" && error.email == "") {
             createUser(userRequest)
                 .then(data => {
                     console.log("data", data)
                     if (data.code != 200) {
-                        inputFocus("username-register-input")
-                        setError((prev) => ({
-                            ...prev,
-                            ['userName']: "Tên người dùng này đã tồn tại"
-                        }))
+                        if (data.code == 1015) {
+                            setError((prev) => ({
+                                ...prev,
+                                ['email']: "Email đã tồn tại"
+                            }))
+                        }
+                        if (data.code == 1008) {
+                            inputFocus("username-register-input")
+                            setError((prev) => ({
+                                ...prev,
+                                ['userName']: "Tên đăng nhập đã tồn tại"
+                            }))
+                        }
+                        refreshPassword()
 
                     }
                     else {
@@ -111,6 +140,14 @@ export default function Register() {
                     }
                 })
         }
+    }
+
+    const refreshPassword = () => {
+        setInput(prev => ({
+            ...prev,
+            confirmPassword: '',
+            password: ''
+        }))
     }
 
     return (
@@ -141,6 +178,26 @@ export default function Register() {
 
                         </div>
                     </div>
+                    {/* email */}
+                    <div className={cn("mb-5", "row")}>
+                        <label for="email"
+                            className={cn("col-lg-3", "col-form-label", "input-title")}>
+                            Email
+                        </label>
+                        <div className={cn("col-lg-9")}>
+                            <input
+                                type="email"
+                                className={cn("form-control", "input-item")}
+                                name="email"
+                                id="email"
+                                required
+                                onChange={onInputChange}
+                                onBlur={validateInput}
+                            />
+                            {error.email && (<span className={cn("text-danger")}>{error.email}</span>)}
+
+                        </div>
+                    </div>
                     {/* password */}
                     <div className={cn("mb-5", "row")}>
                         <label for="input-password-register"
@@ -154,6 +211,7 @@ export default function Register() {
                                 name="password"
                                 id="input-password-register"
                                 required
+                                value={input.password}
                                 onChange={onInputChange}
                                 onBlur={validateInput}
                             />
@@ -174,6 +232,7 @@ export default function Register() {
                                 name="confirmPassword"
                                 id="input-confirm-password-register"
                                 required
+                                value={input.confirmPassword}
                                 onChange={onInputChange}
                                 onBlur={validateInput}
                             />
