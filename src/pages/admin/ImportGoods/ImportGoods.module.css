@@ -1,0 +1,64 @@
+.edit-icon:hover {
+    color: var(--primary-color);
+}
+
+
+.edit-icon:hover,
+.menu-icon:hover,
+.delete-icon:hover {
+    color: var(--primary-color);
+}
+
+.pagination p {
+    font-size: 12px;
+}
+
+.pagination button svg {
+    font-size: 20px;
+}
+
+.receipt-modal .head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    border-bottom: 1px solid var(--grey-border) ;
+    padding: 10px 0;
+    font-weight: bold;
+}
+
+.receipt-modal .head svg{
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.total{
+    float: right;
+}
+
+.receipt-modal .main-content{
+    padding-top: 10px;
+}
+
+.pagination{
+    display: flex;
+    justify-content: center;
+}
+
+.btn-bottom{
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    float: right;
+    gap: 10px;
+}
+
+.main-content {
+    background-color: white;
+    padding: 24px 0;
+    margin-top: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.filter-form {
+    padding-inline: 10px;
+}

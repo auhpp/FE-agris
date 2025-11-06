@@ -1,0 +1,18 @@
+.main-content {
+    background-color: white;
+    padding: 16px 14px;
+    margin-top: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    height: 100%;
+}
+
+.filter-form{
+    padding-inline: 10px;
+}
+.main-content .order {
+    cursor: pointer;
+}
+
+.contact-info .main-contact div{
+    padding: 6px 0;
+}

@@ -1,0 +1,9 @@
+.default-layout .main-content{
+    padding-inline:0 ;
+    background-color: var(--white-bg);
+
+}
+
+.default-layout{
+    height: 100vh;
+}

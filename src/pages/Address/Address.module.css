@@ -1,0 +1,120 @@
+.main-content {
+    padding-top: 20px;
+}
+
+.address {
+    padding: 10px 30px;
+    background-color: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .13);
+    /* height: 100vh; */
+}
+
+.address .head {
+    padding: 18px 0;
+    border-bottom: 1px solid #efefef
+}
+
+.address .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.address .btn-add-address {
+    border-radius: 2px;
+    padding: 8px 10px;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.address .btn-add-address svg {
+    font-size: 24px;
+    margin-right: 4px;
+}
+
+
+.content .input-item {
+    padding: 6px 10px;
+    font-size: 16px;
+    width: 90%;
+}
+
+.main-content .title {
+    padding-bottom: 20px;
+}
+
+.address-item {
+    padding: 10px 0;
+    border-top: 1px solid var(--grey-border);
+    display: flex;
+    justify-content: space-between;
+}
+
+.address-item:first-child {
+    border-top: none;
+}
+
+
+.address-item .content .name-and-phone-number {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.address-item .content .name-and-phone-number .name {
+    padding-right: 10px;
+    border-right: 1px solid var(--grey-border);
+}
+
+.address-item .content .name-and-phone-number .phone-number {
+    color: var(--grey-text);
+}
+
+.address-item .address-content {
+    color: var(--grey-text);
+}
+
+.btn-default {
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    background-color: white;
+    padding: 0 4px;
+    font-size: 14px;
+}
+
+/* action */
+.action .delete-and-edit{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin-bottom: 8px;
+}
+
+.action .delete-and-edit div{
+    color: var(--light-blue);
+    cursor: pointer;
+}
+
+.action .btn-set-default-address{
+    background-color: white;
+    padding: 0 6px;
+    border: 1px solid var(--grey-border);
+}
+
+.action .btn-set-default-address:hover{
+    background-color: var(--white-bg);
+}
+
+/* modal address */
+.address-form .input-item{
+    padding: 6px 8px;
+    font-size: 16px;
+}
+
+.modal-inner-content{
+    padding: 16px;
+}
+
+.address-content-info{
+    font-size: 14px;
+}

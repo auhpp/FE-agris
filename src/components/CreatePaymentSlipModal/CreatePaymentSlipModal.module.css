@@ -1,0 +1,45 @@
+.input-search-product {
+    position: relative;
+    width: 100%;
+}
+
+.supplier-result-list {
+    left: 0;
+    background-color: var(--white-bg);
+}
+
+.supplier-result-list .card {
+    padding: 4px;
+}
+
+
+.supplier-result-list {
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    position: absolute;
+    right: 0;
+    z-index: 200;
+}
+
+.debt {
+    position: absolute;
+    z-index: 200;
+}
+
+.supplier-result-list .card:hover {
+    background-color: var(--primary-color);
+    cursor: pointer;
+    color: white;
+}
+
+.content-left .input-search {
+    position: relative;
+    padding: 0;
+}
+
+.supplier-result-list .card {
+    border-top: 1px solid var(--grey-border);
+}
+
+.supplier-result-list .card:first-child {
+    border-top: none;
+}

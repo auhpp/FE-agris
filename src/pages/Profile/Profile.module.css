@@ -1,0 +1,62 @@
+.main-content {
+    padding-top: 20px;
+}
+
+.profile {
+    padding: 10px 30px;
+    background-color: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .13);
+}
+
+.profile .head {
+    padding: 18px 0;
+    border-bottom: 1px solid #efefef
+}
+
+.profile .head .des {
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.content .input-item {
+    padding: 6px 10px;
+    font-size: 16px;
+    width: 90%;
+}
+
+.content {
+    border-right: 1px solid var(--white-bg);
+
+}
+
+.gender-list {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* avatar */
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.avatar .choose-img-btn {
+    background-color: white;
+    border: 1px solid var(--grey-border);
+    padding: 8px 10px;
+    color: var(--grey-text);
+    font-weight: normal;
+}
+
+.avatar .choose-img-btn:hover {
+    border: 1px solid var(--grey-border);
+    background-color: var(--white-bg);
+}
+
+.avatar .note {
+    color: var(--grey-text);
+}

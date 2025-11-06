@@ -1,0 +1,855 @@
+.hide {
+    display: none;
+}
+
+/* breadcrumb-divider */
+.breadcrumb-divider-cus {
+    padding-block: 14px;
+}
+
+.breadcrumb-cus {
+    margin-bottom: 0;
+}
+
+.breadcrumb-item-cus a {
+    color: var(--grey-text);
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.breadcrumb-item-cus.active a {
+    color: var(--primary-color);
+}
+
+/* end breadcrumb-divider */
+
+
+/* quantity button */
+.quantity-product {
+    display: flex;
+    max-width: 140px;
+    height: 32px;
+    justify-content: space-evenly;
+    align-items: center;
+    border: 1px solid var(--grey-light);
+    background-color: var(--grey-bg);
+}
+
+.quantity-product i {
+    cursor: pointer;
+    padding: 6px;
+}
+
+.stock{
+    color: var(--grey-text);
+}
+
+.quantity-product input {
+    margin: 0;
+    width: 50%;
+    font-size: 16px;
+    text-align: center;
+    background-color: #fff;
+    border: none;
+    outline: none;
+    height: 100%;
+}
+
+
+/* End quantity button */
+
+/* swiper for image of product */
+/* .swiper {
+    width: 100%;
+    height: 100%;
+} */
+
+/* .swiper .swiper-button-next,
+.swiper .swiper-button-prev {
+    color: var(--grey-light);
+} */
+
+.swiper-slide-cus {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.swiper-slide-cus {
+    background-size: cover;
+    background-position: center;
+}
+
+/* .mySwiper2 {
+    height: 80%;
+    width: 100%;
+} */
+
+/* .mySwiper {
+    height: 20%;
+    box-sizing: border-box;
+    padding: 10px 0;
+} */
+
+/* .mySwiper .swiper-slide {
+    width: 25%;
+    height: 100%;
+    opacity: 0.4;
+} */
+/* 
+.mySwiper .swiper-slide-thumb-active {
+    opacity: 1;
+} */
+
+.swiper-slide-cus img {
+    display: block;
+    max-width: 400px;
+    max-height: 436px;
+}
+
+/* .swiper-bottom .swiper-slide-cus img {
+    display: block;
+    max-width: 400px;
+    max-height: 100px;
+} */
+.product-detail .product-imgs .swiper-bottom {
+    border-radius: 0 0 14px 14px;
+}
+
+.product-imgs {
+    background-color: white;
+    border-radius: 14px;
+}
+
+/* end swiper for image of product */
+
+/* detail content */
+.detail-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 14px;
+}
+
+.detail-content .info .name-product {
+    font-weight: 400;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    font-size: 24px;
+    padding-bottom: 16px;
+}
+
+.detail-content .product-view span {
+    font-size: 14px;
+    color: var(--black-title);
+    margin-right: 4px;
+}
+
+.detail-content .product-view span:last-child {
+    font-weight: bold;
+}
+
+.detail-content .product-view-rate {
+    display: flex;
+    font-size: 14px;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.detail-content .product-view-rate .view-sold {
+    padding-left: 10px;
+    color: var(--black-title);
+}
+
+.detail-content .product-view-rate .view-sold span:first-child {
+    color: var(--grey-text);
+}
+
+.detail-content .product-view-rate .rating {
+    display: flex;
+    padding-right: 10px;
+
+    gap: 10px;
+    align-items: center;
+}
+
+.detail-content .product-view-rate .rating .rating-number {
+    font-weight: bold;
+    padding-right: 6px;
+    border-right: 2px solid var(--grey-light);
+}
+
+
+.detail-content .product-view-rate .rating .count span {
+    color: var(--yellow-dark);
+}
+
+.detail-content .price-product {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    padding-bottom: 10px;
+    padding-top: 20px;
+}
+
+.detail-content .price-product .current-price {
+    font-size: 32px;
+    color: var(--red-price);
+    font-weight: bold;
+}
+
+
+.detail-content .btn-product {
+    margin-top: 40px;
+}
+
+.detail-content .btn-buy {
+    background-color: var(--red-price);
+    border-color: var(--red-price);
+    width: 100%;
+    text-align: center;
+    padding-block: 8px ;
+}
+
+.detail-content .btn-buy:hover {
+    color: white;
+}
+
+.detail-content .btn-add-cart {
+    border-color: var(--red-price);
+    color: var(--red-price);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+}
+
+.detail-content .btn-add-cart svg {
+    font-size: 24px;
+}
+
+.detail-content .btn-add-cart:hover {
+    background-color: var(--red-price);
+    color: white;
+}
+
+/* end detail info product */
+
+/* thong tin van chuyen*/
+.info-address {
+    background-color: white;
+    margin-top: 30px;
+    border-radius: 14px;
+    padding: 30px;
+}
+
+.info-address .title {
+    font-size: 18px;
+    color: var(--black-title);
+    margin-bottom: 10px;
+}
+
+.info-address .address span {
+    font-size: 14px;
+}
+
+.info-address .address span:last-child {
+    font-weight: bold;
+}
+
+/* end thong tin van chuyen*/
+
+/* mo ta, thong tin chi tiet */
+.content-detail .inner-wrap {
+    background-color: white;
+    border-radius: 14px;
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.content-detail .inner-wrap .tab-list ul {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid var(--white-bg);
+    margin-bottom: 22px;
+}
+
+.content-detail .inner-wrap .tab-list .tab-item.active span {
+    color: var(--black-title);
+}
+
+.content-detail .inner-wrap .tab-list .tab-item span {
+    color: var(--black-title);
+    font-weight: bold;
+    font-size: 20px;
+    padding: 0 30px 10px 30px;
+    transition: all 0.3s ease;
+    color: var(--grey-text);
+    position: relative;
+    cursor: pointer;
+
+}
+
+.content-detail .inner-wrap .tab-list .tab-item.active span::before {
+    content: "";
+    display: inline-block;
+    background-color: var(--primary-color);
+    width: 100%;
+    height: 3px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    transition: all 0.3s ease;
+    opacity: 1;
+    transform: scale(1);
+}
+
+.content-detail .inner-wrap .tab-list .tab-item span::before {
+    opacity: 0;
+    transform: scale(0);
+    content: "";
+    display: inline-block;
+    background-color: var(--primary-color);
+    width: 100%;
+    height: 3px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    transition: all 0.3s ease;
+}
+
+/* thong tin chi tiet */
+.content-detail .inner-wrap .description-content .desc {
+    margin-top: 14px;
+    text-align: justify;
+    line-height: 1.5;
+    color: #242424;
+}
+
+.content-detail .inner-wrap .product-detail-content {
+    display: none;
+}
+
+.content-detail .inner-wrap .product-detail-content .content-list {
+    display: block;
+}
+
+.content-detail .inner-wrap .product-detail-content .content-list tbody {
+    display: block;
+}
+
+.content-detail .inner-wrap .product-detail-content .content-list .content-item {
+    border-bottom: 1px solid var(--white-bg);
+    padding: 8px 0;
+    font-size: 14px;
+    line-height: 1.6;
+    width: 100%;
+    display: flex;
+}
+
+.content-detail .inner-wrap .product-detail-content .content-list .content-item th {
+    font-weight: 400;
+    color: var(--grey-text);
+    width: 40%;
+}
+
+
+/*end thong tin chi tiet */
+/* end mo ta va thong tin chi tiet */
+
+/* review */
+.reviews-content .review-item .avatar {
+    display: flex;
+    justify-content: end;
+}
+
+.reviews-content .review-item .avatar img {
+    object-fit: cover;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+.reviews-content .review-item {
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--white-bg);
+    padding-bottom: 10px;
+}
+
+.reviews-content .review-item .name-user {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.reviews-content .review-item .name-user .name {
+    font-size: 16px;
+    color: var(--black-title);
+}
+
+.reviews-content .review-item .name-user .date-review {
+    font-size: 12px;
+    color: var(--grey-text);
+}
+
+.reviews-content .review-item .text-review {
+    font-size: 16px;
+    color: var(--black-title);
+    margin-top: 6px;
+}
+
+.modal-body {
+    padding: 0;
+}
+
+.your-rating .title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.your-rating .input-review {
+    margin-top: 10px;
+}
+
+.your-rating .input-review,
+.your-rating input {
+    border: 1px solid var(--grey-light);
+    outline: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    width: 100%;
+}
+
+.your-rating .info {
+    margin-bottom: 10px;
+}
+
+.reviews .number {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.reviews .rating-tab .number .star-icon {
+    font-size: 16px;
+}
+
+.reviews .rating-tab .rating-on-5 span {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.reviews .rating-tab .count-review {
+    color: var(--grey-text);
+    margin-top: 4px;
+    text-align: center;
+}
+
+.all-star-item {
+    display: flex;
+    font-size: 14px;
+    align-items: center;
+    gap: 4px;
+}
+
+.all-star-item .process {
+    margin: 0 10px;
+    width: calc(100% - 115px);
+    height: 5px;
+}
+
+.all-star-item .count-number-review-star {
+    font-size: 11px;
+}
+
+.all-star-item .start-icon i {
+    font-size: 10px;
+}
+
+.all-star-item .process {
+    width: 138px;
+    height: 6px;
+    background-color: rgb(245, 245, 250);
+    position: relative;
+    z-index: 1;
+    margin: 0px 8px;
+    border-radius: 99em;
+}
+
+.all-star-item .process .percent-process {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    background-color: rgb(10, 104, 255);
+    border-radius: 99em;
+    width: 10%;
+}
+
+.write-review .btn-write-review {
+    font-size: 16px;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+.write-review .btn-write-review i {
+    color: var(--primary-color);
+    margin-right: 10px;
+}
+
+.write-review .btn-write-review span {
+    color: var(--primary-color);
+}
+
+.write-review .btn-write-review:hover i,
+.write-review .btn-write-review:hover span {
+    color: white;
+}
+
+.btn-close-color {
+    font-size: 14px;
+}
+
+.btn-check:focus+.btn,
+.btn:focus,
+.btn-close:focus {
+    box-shadow: none;
+}
+
+.modal-content {
+    border-radius: 14px;
+}
+
+.reviews .reviews-content {
+    background-color: white;
+    margin-top: 20px;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.reviews .reviews-content .head-review .head-title .title {
+    margin-bottom: 14px;
+}
+
+.reviews .review-list {
+    margin-top: 20px;
+}
+
+.rate {
+    float: left;
+    height: 46px;
+    padding: 0 10px;
+}
+
+.rate:not(:checked)>input {
+    position: absolute;
+    top: -9999px;
+}
+
+.rate:not(:checked)>label {
+    float: right;
+    width: 1em;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 30px;
+    color: #ccc;
+}
+
+.rate:not(:checked)>label:before {
+    content: '★ ';
+}
+
+.rate>input:checked~label {
+    color: #ffc700;
+}
+
+.rate:not(:checked)>label:hover,
+.rate:not(:checked)>label:hover~label {
+    color: #deb217;
+}
+
+.rate>input:checked+label:hover,
+.rate>input:checked+label:hover~label,
+.rate>input:checked~label:hover,
+.rate>input:checked~label:hover~label,
+.rate>label:hover~input:checked~label {
+    color: #c59b08;
+}
+
+.notification-non-review {
+    display: flex;
+    align-items: center;
+    padding: 20px 0;
+    flex-direction: column;
+}
+
+.notification-non-review svg {
+    margin-bottom: 10px;
+    font-size: 80px;
+    color: var(--grey-light);
+}
+
+.notification-non-review span {
+    color: var(--grey-light);
+    font-size: 18px;
+}
+
+.button-edit-review {
+    display: flex;
+    align-items: center;
+}
+
+/* end review */
+
+/* related product */
+.related-product {
+    padding-bottom: 20px;
+}
+
+.related-product .inner-wrap {
+    background-color: white;
+    margin-top: 20px;
+    padding: 20px 0;
+    border-radius: 14px;
+}
+
+.related-product .inner-wrap .title {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.related-product .inner-wrap .head-title {
+    display: flex;
+    justify-content: center;
+}
+
+/* end related product */
+
+
+@media screen and (max-width: 998.98px) {
+
+    /* swiper */
+    /* .swipper-bottom {
+        display: none;
+    }
+
+    .swiper {
+        border-radius: 0;
+    }
+
+    .swiper-slide img {
+        max-height: 370px;
+        max-width: 300px;
+    }
+
+    .swiper-button-next:after,
+    .swiper-button-prev:after {
+        font-size: 28px;
+    } */
+
+    /* detail content */
+    .detail-content {
+        border-radius: 0;
+        padding: 14px;
+    }
+
+    .detail-content .info .name-product {
+        font-size: 18px;
+        padding-bottom: 0;
+    }
+
+    .product-view {
+        display: none;
+    }
+
+    .detail-content .price-product .current-price {
+        font-size: 26px;
+    }
+
+    .detail-content .btn-buy,
+    .detail-content .btn-add-cart {
+        font-size: 14px;
+    }
+
+    /* address */
+    .info-address {
+        border-radius: 0;
+        padding: 10px;
+        margin-top: 10px;
+    }
+
+
+    /* Mo ta va thong tin chi tiet */
+    .content-detail-and-reviews .inner-wrap {
+        margin-top: 10px;
+        border-radius: 0;
+    }
+
+    .content-detail-and-reviews .inner-wrap .tab-list .tab-item span,
+    .content-detail-and-reviews .inner-wrap .description-content .name-product {
+        font-size: 16px;
+    }
+
+    .content-detail-and-reviews .inner-wrap .description-content .desc {
+        font-size: 14px;
+    }
+
+}
+
+@media screen and (max-width: 767.98px) {
+    .product-imgs {
+        border-radius: 0;
+    }
+
+    /* review */
+    .all-star-item .process {
+        width: 50%;
+    }
+
+    .write-review .btn-write-review {
+        font-size: 14px;
+    }
+
+    .reviews-content .review-item .text-review {
+        font-size: 14px;
+    }
+
+    /* pagination */
+    .pagination {
+        font-size: 12px;
+    }
+
+}
+
+@media screen and (max-width: 575.98px) {
+
+    /* detail content */
+    .detail-content .btn-add-cart i {
+        display: none;
+    }
+
+    .detail-content .btn-add-cart {
+        padding-inline: 0;
+    }
+
+    .detail-content .product-view-rate,
+    .detail-content .price-product {
+
+        padding-block: 2px;
+    }
+
+    .detail-content .info .name-product {
+        font-size: 16px;
+    }
+
+    /* breadcrumb */
+    .breadcrumb-cus {
+        display: none;
+    }
+
+    .breadcrumb-divider-cus {
+        padding-top: 0;
+    }
+
+    /* review */
+    .all-star-item {
+        justify-content: center;
+    }
+
+    .reviews .reviews-content {
+        padding: 4px;
+        border-radius: 0;
+        margin-top: 10px;
+    }
+
+    .reviews .reviews-content .head-review .head-title .title {
+        text-align: center;
+        margin-top: 6px;
+    }
+
+    .reviews .rating-tab .rating-on-5 {
+        font-size: 14px;
+    }
+
+    .reviews .rating-tab .count-review {
+        font-size: 12px;
+    }
+
+    /* mo ta va thong tin chi tiet */
+    .content-detail-and-reviews .inner-wrap {
+        padding: 4px;
+    }
+
+    /* related product */
+    .related-product .inner-wrap {
+        border-radius: 0;
+        margin-top: 10px;
+    }
+
+    .quantity-selector {
+        margin-bottom: 10px;
+    }
+}
+
+
+/* info */
+/* variant */
+.variant-values button {
+    font-size: 12px;
+    margin-right: 10px;
+}
+
+/* discount price */
+
+.price-product .discount-price {
+    display: flex;
+    gap: 10px;
+    margin-top: 2px;
+}
+
+.price-product .discount-price .percent {
+    color: white;
+    display: flex;
+    align-items: center;
+    background-color: var(--red-sale);
+    padding: 5px;
+    z-index: 3;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.price-product .discount-price .original-price {
+    font-size: 14px;
+    color: var(--grey-text);
+    text-decoration: line-through;
+}
+
+/* Mo ta */
+.content-detail .head-title {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.content-item {
+    padding: 10px 0;
+}
+
+.content-item .name {
+    color: var(--primary-color);
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

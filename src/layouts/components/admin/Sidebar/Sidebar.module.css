@@ -1,0 +1,34 @@
+.logo img {
+  width: 100px;
+}
+
+
+
+.logo {
+  cursor: pointer;
+}
+
+
+.list-item {
+  padding-left: 10px;
+}
+
+.side-bar-item li,
+.side-bar-item .nav-link-btn span {
+  font-size: 16px;
+  color: var(--black-title);
+}
+
+.side-bar-item .nav-link-btn svg {
+  font-size: 24px;
+  color: var(--black-title);
+  margin-right: 10px;
+}
+
+.side-bar-item .nav-link-btn {
+  width: 90%;
+}
+
+.nav-link-item-content {
+  width: 100%;
+}

@@ -1,0 +1,14 @@
+.header {
+    background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+}
+
+.header .content-header button {
+    padding: 16px 10px;
+}
+
+.pagination{
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
